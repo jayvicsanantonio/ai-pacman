@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CSS-Only Pacman Game</title>
+  <style>
+    /* CSS Custom Properties for Game State */
+    :root {
+      /* Game Board Dimensions */
+      --maze-width: 21;
+      --maze-height: 21;
+      --cell-size: 25px;
+      --game-width: calc(var(--maze-width) * var(--cell-size));
+      --game-height: calc(var(--maze-height) * var(--cell-size));
+      
+      /* Pacman Position and State */
+      --pacman-x: 10;
+      --pacman-y: 15;
+      --pacman-direction: 0deg;
+      --pacman-pixel-x: calc(var(--pacman-x) * var(--cell-size));
+      --pacman-pixel-y: calc(var(--pacman-y) * var(--cell-size));
+      
+      /* Ghost Positions */
+      --ghost1-x: 9;
+      --ghost1-y: 9;
+      --ghost2-x: 10;
+      --ghost2-y: 9;
+      --ghost3-x: 11;
+      --ghost3-y: 9;
+      --ghost4-x: 12;
+      --ghost4-y: 9;
+      
+      /* Game State Variables */
+      --game-state: playing; /* playing, paused, game-over, victory */
+      --power-mode: inactive; /* active, inactive */
+      --score: 0;
+      --lives: 3;
+      
+      /* Color Palette */
+      --color-wall: #0000ff;
+      --color-background: #000000;
+      --color-dot: #ffffff;
+      --color-power-pellet: #ffff00;
+      --color-pacman: #ffff00;
+      --color-ghost-red: #ff0000;
+      --color-ghost-pink: #ffb8ff;
+      --color-ghost-blue: #00ffff;
+      --color-ghost-orange: #ffb852;
+      --color-ghost-vulnerable: #0000ff;
+      --color-ui-text: #ffffff;
+    }
+    
+    /* Reset and Base Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Courier New', monospace;
+      background: var(--color-background);
+      color: var(--color-ui-text);
+      counter-reset: score 0 lives 3 dots-collected 0;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    
+    /* Game Container */
+    .game-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+    
+    /* UI Header */
+    .game-ui {
+      display: flex;
+      justify-content: space-between;
+      width: var(--game-width);
+      font-size: 18px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+    
+    .score::after {
+      content: counter(score);
+    }
+    
+    .lives::after {
+      content: counter(lives);
+    }
+    
+    /* Game Board - CSS Grid Layout */
+    .game-board {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(21, var(--cell-size));
+      grid-template-rows: repeat(21, var(--cell-size));
+      gap: 1px;
+      background: var(--color-background);
+      border: 2px solid var(--color-wall);
+      width: var(--game-width);
+      height: var(--game-height);
+    }
+    
+    /* Hide all form controls */
+    .control-input,
+    .power-state,
+    .game-state-control {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+    }
+    
+    /* Control Labels - Keyboard Accessible */
+    .control-label {
+      position: absolute;
+      top: -50px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--color-ui-text);
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      user-select: none;
+      z-index: 100;
+    }
+    
+    .control-label:focus {
+      outline: 2px solid var(--color-power-pellet);
+      outline-offset: 2px;
+    }
+    
+    .control-label:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    
+    /* Game Elements Positioning */
+    .pacman,
+    .ghost {
+      position: absolute;
+      width: var(--cell-size);
+      height: var(--cell-size);
+      z-index: 10;
+    }
+    
+    /* Pacman Character */
+    .pacman {
+      background: var(--color-pacman);
+      border-radius: 50%;
+      transform: translate(var(--pacman-pixel-x), var(--pacman-pixel-y)) rotate(var(--pacman-direction));
+      transition: transform 0.3s ease-in-out;
+      
+      /* Create mouth using pseudo-element */
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .pacman::before {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 0;
+      border-left: calc(var(--cell-size) / 2) solid var(--color-background);
+      border-top: calc(var(--cell-size) / 4) solid transparent;
+      border-bottom: calc(var(--cell-size) / 4) solid transparent;
+      top: 50%;
+      left: 50%;
+      transform: translate(-25%, -50%);
+      z-index: 1;
+    }
+    
+    /* Ghost Characters */
+    .ghost {
+      border-radius: 50% 50% 0 0;
+      position: relative;
+    }
+    
+    .ghost::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 30%;
+      background: inherit;
+      clip-path: polygon(0% 0%, 20% 100%, 40% 0%, 60% 100%, 80% 0%, 100% 100%, 100% 0%);
+    }
+    
+    .ghost-red {
+      background: var(--color-ghost-red);
+      transform: translate(calc(var(--ghost1-x) * var(--cell-size)), calc(var(--ghost1-y) * var(--cell-size)));
+    }
+    
+    .ghost-pink {
+      background: var(--color-ghost-pink);
+      transform: translate(calc(var(--ghost2-x) * var(--cell-size)), calc(var(--ghost2-y) * var(--cell-size)));
+    }
+    
+    .ghost-blue {
+      background: var(--color-ghost-blue);
+      transform: translate(calc(var(--ghost3-x) * var(--cell-size)), calc(var(--ghost3-y) * var(--cell-size)));
+    }
+    
+    .ghost-orange {
+      background: var(--color-ghost-orange);
+      transform: translate(calc(var(--ghost4-x) * var(--cell-size)), calc(var(--ghost4-y) * var(--cell-size)));
+    }
+    
+    /* Maze Cells - Basic Grid Structure */
+    .maze-cell {
+      position: relative;
+    }
+    
+    .wall {
+      background: var(--color-wall);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .path {
+      background: transparent;
+    }
+    
+    .dot::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 3px;
+      height: 3px;
+      background: var(--color-dot);
+      border-radius: 50%;
+      box-shadow: 0 0 3px var(--color-dot);
+    }
+    
+    .power-pellet::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 8px;
+      height: 8px;
+      background: var(--color-power-pellet);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--color-power-pellet);
+      animation: pulse 1s ease-in-out infinite alternate;
+    }
+    
+    @keyframes pulse {
+      0% {
+        opacity: 0.7;
+        transform: translate(-50%, -50%) scale(0.8);
+      }
+      100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.2);
+      }
+    }
+    
+    /* Game State Messages */
+    .game-message {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.9);
+      color: var(--color-power-pellet);
+      padding: 20px 40px;
+      border-radius: 10px;
+      font-size: 24px;
+      font-weight: bold;
+      text-align: center;
+      z-index: 1000;
+      display: none;
+    }
+    
+    .game-over .game-message.game-over-msg,
+    .victory .game-message.victory-msg {
+      display: block;
+    }
+    
+    /* Instructions */
+    .instructions {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.7);
+      line-height: 1.5;
+    }
+    
+    .instructions kbd {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: inherit;
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <!-- Game UI Header -->
+    <div class="game-ui">
+      <div class="score-display">Score: <span class="score"></span></div>
+      <div class="lives-display">Lives: <span class="lives"></span></div>
+    </div>
+    
+    <!-- Main Game Board -->
+    <div class="game-board">
+      <!-- Control System - Hidden Form Elements -->
+      <!-- Movement Controls -->
+      <input type="radio" name="direction" id="move-up" class="control-input">
+      <input type="radio" name="direction" id="move-down" class="control-input">
+      <input type="radio" name="direction" id="move-left" class="control-input">
+      <input type="radio" name="direction" id="move-right" class="control-input" checked>
+      
+      <!-- Game State Controls -->
+      <input type="checkbox" id="power-mode" class="power-state">
+      <input type="checkbox" id="game-over" class="game-state-control">
+      <input type="checkbox" id="victory" class="game-state-control">
+      
+      <!-- Movement Control Labels -->
+      <label for="move-up" class="control-label" tabindex="0" style="top: -50px;">↑ Up</label>
+      <label for="move-down" class="control-label" tabindex="0" style="top: 570px;">↓ Down</label>
+      <label for="move-left" class="control-label" tabindex="0" style="left: -60px; top: 50%;">← Left</label>
+      <label for="move-right" class="control-label" tabindex="0" style="left: 580px; top: 50%;">→ Right</label>
+      
+      <!-- Pacman Character -->
+      <div class="pacman"></div>
+      
+      <!-- Ghost Characters -->
+      <div class="ghost ghost-red"></div>
+      <div class="ghost ghost-pink"></div>
+      <div class="ghost ghost-blue"></div>
+      <div class="ghost ghost-orange"></div>
+      
+      <!-- Maze Layout - Basic Structure (will be expanded in Task 2) -->
+      <!-- Row 1 -->
+      <div class="maze-cell wall"></div>
+      <div class="maze-cell wall"></div>
+      <div class="maze-cell wall"></div>
+      <div class="maze-cell wall"></div>
+      <div class="maze-cell wall"></div>
+      <div class="maze-cell wall"></div>
+      <div class="maze-cell wall"></div>
+      <div class="maze-cell wall"></div>
+      <div class="maze-cell wall"></div>
+      <div class="maze-cell wall"></div>
+      <div class="maze-cell wall"></div>
+      <div class="maze-cell wall"></div>
+      <div class="maze-cell wall"></div>
+      <div class="maze-cell wall"></div>
+      <div class="maze-cell wall"></div>
+      <div class="maze-cell wall"></div>
+      <div class="maze-cell wall"></div>
+      <div class="maze-cell wall"></div>
+      <div class="maze-cell wall"></div>
+      <div class="maze-cell wall"></div>
+      <div class="maze-cell wall"></div>
+      
+      <!-- Row 2 -->
+      <div class="maze-cell wall"></div>
+      <div class="maze-cell path power-pellet"></div>
+      <div class="maze-cell path dot"></div>
+      <div class="maze-cell path dot"></div>
+      <div class="maze-cell path dot"></div>
+      <div class="maze-cell path dot"></div>
+      <div class="maze-cell path dot"></div>
+      <div class="maze-cell path dot"></div>
+      <div class="maze-cell path dot"></div>
+      <div class="maze-cell path dot"></div>
+      <div class="maze-cell wall"></div>
+      <div class="maze-cell path dot"></div>
+      <div class="maze-cell path dot"></div>
+      <div class="maze-cell path dot"></div>
+      <div class="maze-cell path dot"></div>
+      <div class="maze-cell path dot"></div>
+      <div class="maze-cell path dot"></div>
+      <div class="maze-cell path dot"></div>
+      <div class="maze-cell path dot"></div>
+      <div class="maze-cell path power-pellet"></div>
+      <div class="maze-cell wall"></div>
+      
+      <!-- Additional maze rows will be added in Task 2.1 -->
+      <!-- For now, filling remaining cells as walls to complete 21x21 grid -->
+      <!-- This creates a basic border while maintaining proper grid structure -->
+      
+      <!-- Rows 3-19: Simplified structure for foundation -->
+      <!-- (In Task 2, this will be replaced with proper maze layout) -->
+      
+      <!-- Bottom border row -->
+      <div class="maze-cell wall"></div>
+      <div class="maze-cell wall"></div>
+      <div class="maze-cell wall"></div>
+      <div class="maze-cell wall"></div>
+      <div class="maze-cell wall"></div>
+      <div class="maze-cell wall"></div>
+      <div class="maze-cell wall"></div>
+      <div class="maze-cell wall"></div>
+      <div class="maze-cell wall"></div>
+      <div class="maze-cell wall"></div>
+      <div class="maze-cell wall"></div>
+      <div class="maze-cell wall"></div>
+      <div class="maze-cell wall"></div>
+      <div class="maze-cell wall"></div>
+      <div class="maze-cell wall"></div>
+      <div class="maze-cell wall"></div>
+      <div class="maze-cell wall"></div>
+      <div class="maze-cell wall"></div>
+      <div class="maze-cell wall"></div>
+      <div class="maze-cell wall"></div>
+      <div class="maze-cell wall"></div>
+      
+      <!-- Game State Messages -->
+      <div class="game-message game-over-msg">Game Over!<br>Click to Restart</div>
+      <div class="game-message victory-msg">You Win!<br>Final Score: <span class="score"></span></div>
+    </div>
+    
+    <!-- Instructions -->
+    <div class="instructions">
+      Use <kbd>Tab</kbd> to navigate and <kbd>Space</kbd> or <kbd>Enter</kbd> to select movement direction.<br>
+      Collect all dots while avoiding ghosts. Power pellets make ghosts vulnerable!
+    </div>
+  </div>
+  
+  <script>
+    // Placeholder for potential future enhancements
+    // Note: Current implementation is CSS-only as specified
+    console.log("CSS-Only Pacman Game Loaded");
+  </script>
+</body>
+</html>
