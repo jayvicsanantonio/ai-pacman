@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <title>CSS-Only Pacman Game</title>
+    <style>
+      :root {
+        /* Game state variables */
+        --pacman-x: 10;
+        --pacman-y: 15;
+        --pacman-direction: 0deg;
+        --game-state: playing;
+        --power-mode: inactive;
+        --current-score: 0;
+        --high-score: 0;
+        --lives: 3;
+        --current-round: 1;
+        --max-rounds: 20;
+        --ghost-base-speed: 2s;
+        --ghost-speed-multiplier: calc(
+          1 - (var(--current-round) * 0.025)
+        );
+
+        /* Maze dimensions */
+        --maze-width: 21;
+        --maze-height: 21;
+        --cell-size: 20px;
+        --maze-gap: 1px;
+
+        /* Colors */
+        --wall-color: #0000ff;
+        --path-color: #000000;
+        --dot-color: #ffff00;
+        --pacman-color: #ffff00;
+        --ghost-red: #ff0000;
+        --ghost-pink: #ffb8ff;
+        --ghost-blue: #00ffff;
+        --ghost-orange: #ffb852;
+        --ghost-vulnerable: #0000ff;
+        --ui-text-color: #ffff00;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background-color: #000;
+        color: var(--ui-text-color);
+        font-family: 'Courier New', monospace;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+        padding: 20px;
+        counter-reset: score 0 lives 3 round 1 dots-collected 0;
+      }
+
+      .game-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+      }
+
+      .ui-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        max-width: calc(
+          var(--maze-width) * (var(--cell-size) + var(--maze-gap))
+        );
+        font-size: 18px;
+        font-weight: bold;
+      }
+
+      .score-display::after {
+        content: 'Score: ' counter(score);
+      }
+
+      .high-score-display::after {
+        content: 'High Score: ' attr(data-high-score);
+      }
+
+      .lives-display::after {
+        content: 'Lives: ' counter(lives);
+      }
+
+      .round-display::after {
+        content: 'Round ' counter(round) ' / 20';
+      }
+
+      .game-board {
+        position: relative;
+        display: grid;
+        grid-template-columns: repeat(21, var(--cell-size));
+        grid-template-rows: repeat(21, var(--cell-size));
+        gap: var(--maze-gap);
+        background-color: var(--wall-color);
+        padding: 10px;
+        border: 3px solid var(--wall-color);
+      }
+
+      .maze-cell {
+        width: var(--cell-size);
+        height: var(--cell-size);
+        position: relative;
+      }
+
+      .wall {
+        background-color: var(--wall-color);
+      }
+
+      .path {
+        background-color: var(--path-color);
+      }
+
+      .dot::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 3px;
+        height: 3px;
+        background-color: var(--dot-color);
+        border-radius: 50%;
+      }
+
+      .power-pellet::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 8px;
+        height: 8px;
+        background-color: var(--dot-color);
+        border-radius: 50%;
+        box-shadow: 0 0 10px var(--dot-color);
+      }
+
+      .pacman {
+        position: absolute;
+        width: var(--cell-size);
+        height: var(--cell-size);
+        background-color: var(--pacman-color);
+        border-radius: 50%;
+        transform: translate(
+            calc(
+              var(--pacman-x) * (var(--cell-size) + var(--maze-gap))
+            ),
+            calc(
+              var(--pacman-y) * (var(--cell-size) + var(--maze-gap))
+            )
+          )
+          rotate(var(--pacman-direction));
+        transition: transform 0.3s ease-in-out;
+        z-index: 10;
+      }
+
+      .ghost {
+        position: absolute;
+        width: var(--cell-size);
+        height: var(--cell-size);
+        border-radius: 50% 50% 0 0;
+        z-index: 5;
+        transition: transform 0.3s ease-in-out;
+      }
+
+      .ghost-red {
+        background-color: var(--ghost-red);
+        transform: translate(
+          calc(9 * (var(--cell-size) + var(--maze-gap))),
+          calc(9 * (var(--cell-size) + var(--maze-gap)))
+        );
+      }
+
+      .ghost-pink {
+        background-color: var(--ghost-pink);
+        transform: translate(
+          calc(10 * (var(--cell-size) + var(--maze-gap))),
+          calc(9 * (var(--cell-size) + var(--maze-gap)))
+        );
+      }
+
+      .ghost-blue {
+        background-color: var(--ghost-blue);
+        transform: translate(
+          calc(11 * (var(--cell-size) + var(--maze-gap))),
+          calc(9 * (var(--cell-size) + var(--maze-gap)))
+        );
+      }
+
+      .ghost-orange {
+        background-color: var(--ghost-orange);
+        transform: translate(
+          calc(12 * (var(--cell-size) + var(--maze-gap))),
+          calc(9 * (var(--cell-size) + var(--maze-gap)))
+        );
+      }
+
+      /* Hidden control inputs for CSS-only interaction */
+      .control-input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .power-state {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      /* Control labels for keyboard accessibility */
+      .control-label {
+        position: absolute;
+        bottom: -50px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 10px;
+        font-size: 12px;
+      }
+
+      .direction-label {
+        padding: 5px 10px;
+        background-color: rgba(255, 255, 255, 0.1);
+        border: 1px solid var(--ui-text-color);
+        cursor: pointer;
+        user-select: none;
+      }
+
+      .direction-label:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+      }
+
+      /* Game state messages */
+      .game-message {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: rgba(0, 0, 0, 0.8);
+        color: var(--ui-text-color);
+        padding: 20px;
+        border: 2px solid var(--ui-text-color);
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+        z-index: 100;
+        display: none;
+      }
+
+      .game-over .game-message {
+        display: block;
+      }
+
+      .victory .game-message {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="game-container">
+      <!-- UI Header -->
+      <div class="ui-header">
+        <div class="score-display"></div>
+        <div class="high-score-display" data-high-score="0"></div>
+        <div class="lives-display"></div>
+        <div class="round-display"></div>
+      </div>
+
+      <!-- Game Board -->
+      <div class="game-board">
+        <!-- Maze cells will be generated here -->
+        <!-- Row 1 -->
+        <div class="maze-cell wall"></div>
+        <div class="maze-cell wall"></div>
+        <div class="maze-cell wall"></div>
+        <div class="maze-cell wall"></div>
+        <div class="maze-cell wall"></div>
+        <div class="maze-cell wall"></div>
+        <div class="maze-cell wall"></div>
+        <div class="maze-cell wall"></div>
+        <div class="maze-cell wall"></div>
+        <div class="maze-cell wall"></div>
+        <div class="maze-cell wall"></div>
+        <div class="maze-cell wall"></div>
+        <div class="maze-cell wall"></div>
+        <div class="maze-cell wall"></div>
+        <div class="maze-cell wall"></div>
+        <div class="maze-cell wall"></div>
+        <div class="maze-cell wall"></div>
+        <div class="maze-cell wall"></div>
+        <div class="maze-cell wall"></div>
+        <div class="maze-cell wall"></div>
+        <div class="maze-cell wall"></div>
+      </div>
+    </div>
+  </body>
+</html>
+            <!-- Row 2 -->
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+
+            <!-- Row 3 -->
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path power-pellet"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path power-pellet"></div>
+            <div class="maze-cell wall"></div>
+
+            <!-- Row 4 -->
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+
+            <!-- Row 5 -->
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+
+            <!-- Row 6 -->
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+
+            <!-- Row 7 -->
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+
+            <!-- Row 8 -->
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+
+            <!-- Row 9 -->
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+
+            <!-- Row 10 (Ghost house area) -->
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path"></div>
+            <div class="maze-cell path"></div>
+            <div class="maze-cell path"></div>
+            <div class="maze-cell path"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+
+            <!-- Row 11 (Center row) -->
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path"></div>
+            <div class="maze-cell path"></div>
+            <div class="maze-cell path"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path"></div>
+            <div class="maze-cell path"></div>
+            <div class="maze-cell path"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+
+            <!-- Row 12 (Ghost house area) -->
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path"></div>
+            <div class="maze-cell path"></div>
+            <div class="maze-cell path"></div>
+            <div class="maze-cell path"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+
+            <!-- Row 13 -->
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+
+            <!-- Row 14 -->
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+
+            <!-- Row 15 -->
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+
+            <!-- Row 16 -->
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+
+            <!-- Row 17 -->
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+
+            <!-- Row 18 -->
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+
+            <!-- Row 19 -->
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path power-pellet"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path power-pellet"></div>
+            <div class="maze-cell wall"></div>
+
+            <!-- Row 20 -->
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell path dot"></div>
+            <div class="maze-cell wall"></div>
+
+            <!-- Row 21 -->
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+            <div class="maze-cell wall"></div>
+
+            <!-- Game Characters -->
+            <div class="pacman"></div>
+            <div class="ghost ghost-red"></div>
+            <div class="ghost ghost-pink"></div>
+            <div class="ghost ghost-blue"></div>
+            <div class="ghost ghost-orange"></div>
+
+            <!-- Game State Message -->
+            <div class="game-message">
+                <div class="message-text">Game Over</div>
+                <div class="final-score">Final Score: <span class="final-score-value"></span></div>
+            </div>
+        </div>
+
+        <!-- Hidden Control Inputs -->
+        <input type="radio" name="direction" id="up" class="control-input" />
+        <input type="radio" name="direction" id="down" class="control-input" />
+        <input type="radio" name="direction" id="left" class="control-input" />
+        <input type="radio" name="direction" id="right" class="control-input" />
+        <input type="checkbox" id="power-mode" class="power-state" />
+
+        <!-- Control Labels for Accessibility -->
+        <div class="control-label">
+            <label for="up" class="direction-label">↑</label>
+            <label for="left" class="direction-label">←</label>
+            <label for="down" class="direction-label">↓</label>
+            <label for="right" class="direction-label">→</label>
+        </div>
+    </div>
+</body>
+</html>
