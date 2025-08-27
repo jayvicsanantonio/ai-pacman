@@ -34,14 +34,14 @@
     - Add directional rotation transforms
     - _Requirements: 2.3, 2.5, 5.2_
 
-- [ ] 4. Create movement control system
+- [x] 4. Create movement control system
 
-  - [ ] 4.1 Build CSS-only input controls
+  - [x] 4.1 Build CSS-only input controls
     - Add hidden radio buttons for directional movement (up, down, left, right)
     - Create keyboard-accessible labels for movement controls
     - Implement checkbox for power mode state management
     - _Requirements: 2.2, 6.1, 6.3_
-  - [ ] 4.2 Connect controls to Pacman movement
+  - [x] 4.2 Connect controls to Pacman movement
     - Use CSS selectors to detect input state changes
     - Translate input states to CSS custom property updates
     - Implement smooth transform transitions for movement

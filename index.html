@@ -211,17 +211,30 @@
           100% 100%,
           100% 0%
         );
+        /* Use constrained position variables for boundary checking */
+        --constrained-x: max(
+          0,
+          min(var(--pacman-x), calc(var(--maze-width) - 1))
+        );
+        --constrained-y: max(
+          0,
+          min(var(--pacman-y), calc(var(--maze-height) - 1))
+        );
         transform: translate(
             calc(
-              var(--pacman-x) * (var(--cell-size) + var(--maze-gap))
+              var(--constrained-x) *
+                (var(--cell-size) + var(--maze-gap))
             ),
             calc(
-              var(--pacman-y) * (var(--cell-size) + var(--maze-gap))
+              var(--constrained-y) *
+                (var(--cell-size) + var(--maze-gap))
             )
           )
           rotate(var(--pacman-direction));
-        transition: transform 0.3s ease-in-out,
-          clip-path 0.2s ease-in-out;
+        transition: transform 0.3s
+            cubic-bezier(0.25, 0.46, 0.45, 0.94),
+          clip-path 0.2s ease-in-out, box-shadow 0.2s ease-in-out,
+          filter 0.2s ease-in-out;
         z-index: 10;
         /* Add subtle glow effect */
         box-shadow: 0 0 8px rgba(255, 255, 0, 0.6);
@@ -374,40 +387,40 @@
         );
       }
 
-      /* Hidden control inputs for CSS-only interaction */
-      .control-input {
-        position: absolute;
-        opacity: 0;
-        pointer-events: none;
-      }
-
-      .power-state {
-        position: absolute;
-        opacity: 0;
-        pointer-events: none;
-      }
-
-      /* Control labels for keyboard accessibility */
-      .control-label {
-        position: absolute;
-        bottom: -50px;
-        left: 50%;
-        transform: translateX(-50%);
-        display: flex;
-        gap: 10px;
-        font-size: 12px;
-      }
-
-      .direction-label {
-        padding: 5px 10px;
-        background-color: rgba(255, 255, 255, 0.1);
+      /* Game Instructions */
+      .game-instructions {
+        text-align: center;
+        margin-bottom: 20px;
+        padding: 10px;
+        background-color: rgba(33, 33, 222, 0.2);
         border: 1px solid var(--ui-text-color);
-        cursor: pointer;
-        user-select: none;
+        border-radius: 4px;
       }
 
-      .direction-label:hover {
-        background-color: rgba(255, 255, 255, 0.2);
+      .game-instructions p {
+        color: var(--ui-text-color);
+        font-size: 14px;
+        margin: 0;
+      }
+
+      /* Movement state management */
+      .pacman.moving {
+        animation: pacman-chomp var(--pacman-animation-speed)
+          ease-in-out infinite;
+        animation-play-state: running;
+      }
+
+      .pacman.stationary {
+        animation-play-state: paused;
+        clip-path: polygon(
+          50% 50%,
+          0% 0%,
+          0% 35%,
+          0% 65%,
+          0% 100%,
+          100% 100%,
+          100% 0%
+        );
       }
 
       /* Game state messages */
@@ -444,6 +457,11 @@
         <div class="high-score-display" data-high-score="0"></div>
         <div class="lives-display"></div>
         <div class="round-display"></div>
+      </div>
+
+      <!-- Game Instructions -->
+      <div class="game-instructions">
+        <p>Use arrow keys (↑ ↓ ← →) to move Pacman</p>
       </div>
 
       <!-- Game Board -->
@@ -946,41 +964,120 @@
           </div>
         </div>
       </div>
-
-      <!-- Hidden Control Inputs -->
-      <input
-        type="radio"
-        name="direction"
-        id="up"
-        class="control-input"
-      />
-      <input
-        type="radio"
-        name="direction"
-        id="down"
-        class="control-input"
-      />
-      <input
-        type="radio"
-        name="direction"
-        id="left"
-        class="control-input"
-      />
-      <input
-        type="radio"
-        name="direction"
-        id="right"
-        class="control-input"
-      />
-      <input type="checkbox" id="power-mode" class="power-state" />
-
-      <!-- Control Labels for Accessibility -->
-      <div class="control-label">
-        <label for="up" class="direction-label">↑</label>
-        <label for="left" class="direction-label">←</label>
-        <label for="down" class="direction-label">↓</label>
-        <label for="right" class="direction-label">→</label>
-      </div>
     </div>
+
+    <script>
+      // Pacman game state
+      let pacmanX = 10;
+      let pacmanY = 15;
+      let isMoving = false;
+
+      // Get the root element to update CSS custom properties
+      const root = document.documentElement;
+      const pacman = document.querySelector('.pacman');
+
+      // Update Pacman position in CSS
+      function updatePacmanPosition() {
+        root.style.setProperty('--pacman-x', pacmanX);
+        root.style.setProperty('--pacman-y', pacmanY);
+      }
+
+      // Check if position is valid (not a wall)
+      function isValidPosition(x, y) {
+        // Basic boundary check
+        if (x < 0 || x >= 21 || y < 0 || y >= 21) return false;
+
+        // For now, allow movement anywhere (can be enhanced with wall detection)
+        return true;
+      }
+
+      // Move Pacman in specified direction
+      function movePacman(direction) {
+        let newX = pacmanX;
+        let newY = pacmanY;
+        let rotation = 0;
+
+        switch (direction) {
+          case 'up':
+            newY = Math.max(0, pacmanY - 1);
+            rotation = 270;
+            break;
+          case 'down':
+            newY = Math.min(20, pacmanY + 1);
+            rotation = 90;
+            break;
+          case 'left':
+            newX = Math.max(0, pacmanX - 1);
+            rotation = 180;
+            break;
+          case 'right':
+            newX = Math.min(20, pacmanX + 1);
+            rotation = 0;
+            break;
+        }
+
+        // Update position if valid
+        if (isValidPosition(newX, newY)) {
+          pacmanX = newX;
+          pacmanY = newY;
+
+          // Update CSS properties
+          root.style.setProperty(
+            '--pacman-direction',
+            rotation + 'deg'
+          );
+          updatePacmanPosition();
+
+          // Add moving class for animation
+          pacman.classList.add('moving');
+          pacman.classList.remove('stationary');
+
+          // Remove moving class after animation
+          setTimeout(() => {
+            pacman.classList.remove('moving');
+            pacman.classList.add('stationary');
+          }, 300);
+        }
+      }
+
+      // Handle keyboard events
+      document.addEventListener('keydown', function (event) {
+        // Prevent default behavior for arrow keys
+        if (
+          [
+            'ArrowUp',
+            'ArrowDown',
+            'ArrowLeft',
+            'ArrowRight',
+          ].includes(event.key)
+        ) {
+          event.preventDefault();
+        }
+
+        switch (event.key) {
+          case 'ArrowUp':
+            movePacman('up');
+            break;
+          case 'ArrowDown':
+            movePacman('down');
+            break;
+          case 'ArrowLeft':
+            movePacman('left');
+            break;
+          case 'ArrowRight':
+            movePacman('right');
+            break;
+        }
+      });
+
+      // Initialize Pacman position
+      updatePacmanPosition();
+
+      // Make sure the page is focused to receive keyboard events
+      window.addEventListener('load', function () {
+        document.body.focus();
+        document.body.setAttribute('tabindex', '0');
+      });
+    </script>
   </body>
 </html>
