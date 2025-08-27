@@ -8,14 +8,14 @@
   - Initialize CSS custom properties for game state
   - _Requirements: 1.1, 1.2, 6.1_
 
-- [ ] 2. Implement maze layout and visual styling
+- [x] 2. Implement maze layout and visual styling
 
-  - [ ] 2.1 Create CSS Grid maze with walls and pathways
+  - [x] 2.1 Create CSS Grid maze with walls and pathways
     - Define grid template areas for classic Pacman maze layout
     - Style wall cells with appropriate colors and borders
     - Create pathway cells as navigable empty spaces
     - _Requirements: 1.1, 1.2, 5.5_
-  - [ ] 2.2 Add dots and power pellets to maze
+  - [x] 2.2 Add dots and power pellets to maze
     - Place regular dots in all pathway cells using ::before pseudo-elements
     - Position four power pellets in maze corners with larger size
     - Style dots with classic white/yellow colors and glow effects
