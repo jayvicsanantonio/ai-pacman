@@ -30,14 +30,14 @@
         );
         --board-padding: 8px;
 
-        /* Ghost positions */
-        --ghost-red-x: 8;
+        /* Ghost positions - In ghost house center */
+        --ghost-red-x: 9;
         --ghost-red-y: 11;
-        --ghost-pink-x: 9;
+        --ghost-pink-x: 10;
         --ghost-pink-y: 11;
-        --ghost-blue-x: 10;
+        --ghost-blue-x: 11;
         --ghost-blue-y: 11;
-        --ghost-orange-x: 11;
+        --ghost-orange-x: 12;
         --ghost-orange-y: 11;
 
         /* Maze dimensions */
@@ -87,7 +87,21 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 20px;
+        gap: 16px;
+        max-width: 100vw;
+        padding: 0 10px;
+      }
+
+      /* Ensure UI elements stay outside game board */
+      .ui-header,
+      .game-stats {
+        position: relative;
+        z-index: 100;
+        width: 100%;
+        max-width: calc(
+          var(--maze-width) * (var(--cell-size) + var(--maze-gap)) + 2 *
+            var(--board-padding)
+        );
       }
 
       .ui-header {
@@ -100,18 +114,86 @@
         );
         font-size: 18px;
         font-weight: bold;
+        background: linear-gradient(135deg, #000080 0%, #000040 100%);
+        border: 2px solid var(--ui-text-color);
+        border-radius: 8px;
+        padding: 12px 16px;
+        box-shadow: 0 0 15px rgba(255, 255, 0, 0.3),
+          inset 0 0 10px rgba(0, 0, 0, 0.5);
+        margin-bottom: 8px;
+      }
+
+      .ui-left,
+      .ui-center,
+      .ui-right {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        min-width: 120px;
+      }
+
+      .ui-center {
+        text-align: center;
+        position: relative;
+      }
+
+      .game-stats {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        max-width: calc(
+          var(--maze-width) * (var(--cell-size) + var(--maze-gap))
+        );
+        font-size: 14px;
+        font-weight: bold;
+        background: rgba(33, 33, 222, 0.2);
+        border: 1px solid rgba(255, 255, 0, 0.3);
+        border-radius: 4px;
+        padding: 8px 12px;
+        margin-bottom: 12px;
+        box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
+      }
+
+      .score-display {
+        font-size: 16px;
+        color: var(--ui-text-color);
+        text-shadow: 0 0 8px rgba(255, 255, 0, 0.6);
+        font-weight: bold;
       }
 
       .score-display::after {
-        content: 'Score: ' counter(score);
+        content: 'SCORE: ' counter(score);
+      }
+
+      .high-score-display {
+        font-size: 14px;
+        color: #ff8800;
+        text-shadow: 0 0 6px rgba(255, 136, 0, 0.6);
+        font-weight: bold;
       }
 
       .high-score-display::after {
-        content: 'High Score: ' attr(data-high-score);
+        content: 'HIGH: ' attr(data-high-score);
+      }
+
+      .lives-display {
+        font-size: 16px;
+        color: #ff0000;
+        text-shadow: 0 0 8px rgba(255, 0, 0, 0.6);
+        font-weight: bold;
       }
 
       .lives-display::after {
-        content: 'Lives: ' counter(lives);
+        content: 'LIVES: ' counter(lives);
+      }
+
+      .round-display {
+        font-size: 14px;
+        color: #00ff00;
+        text-shadow: 0 0 6px rgba(0, 255, 0, 0.6);
+        font-weight: bold;
       }
 
       .round-display::after {
@@ -120,6 +202,97 @@
 
       .dots-display::after {
         content: 'Dots: ' counter(dots-collected);
+      }
+
+      .game-status-display {
+        font-size: 16px;
+        font-weight: bold;
+        color: var(--ui-text-color);
+        text-shadow: 0 0 8px rgba(255, 255, 0, 0.8);
+        animation: status-pulse 2s ease-in-out infinite alternate;
+        min-height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .game-status-display.ready {
+        color: #00ff00;
+        text-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
+      }
+
+      .game-status-display.playing {
+        color: var(--ui-text-color);
+        animation: none;
+      }
+
+      .game-status-display.paused {
+        color: #ff8800;
+        text-shadow: 0 0 10px rgba(255, 136, 0, 0.8);
+        animation: status-blink 1s ease-in-out infinite;
+      }
+
+      .game-status-display.game-over {
+        color: #ff0000;
+        text-shadow: 0 0 15px rgba(255, 0, 0, 1);
+        animation: status-shake 0.5s ease-in-out infinite;
+      }
+
+      .game-status-display.victory {
+        color: #00ff00;
+        text-shadow: 0 0 15px rgba(0, 255, 0, 1);
+        animation: status-celebrate 1s ease-in-out infinite;
+      }
+
+      .level-indicator {
+        font-size: 12px;
+        color: #00ffff;
+        text-shadow: 0 0 5px rgba(0, 255, 255, 0.6);
+      }
+
+      .maze-indicator {
+        font-size: 12px;
+        color: #ff8800;
+        text-shadow: 0 0 5px rgba(255, 136, 0, 0.6);
+      }
+
+      .game-timer {
+        font-size: 12px;
+        color: #ffff00;
+        text-shadow: 0 0 5px rgba(255, 255, 0, 0.6);
+        font-family: 'Courier New', monospace;
+      }
+
+      .bonus-display {
+        font-size: 14px;
+        color: #00ff00;
+        text-shadow: 0 0 8px rgba(0, 255, 0, 0.8);
+        opacity: 0;
+        transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+        transform: scale(0.8);
+        font-weight: bold;
+      }
+
+      .bonus-display.show {
+        opacity: 1;
+        transform: scale(1);
+        animation: bonus-flash 0.5s ease-out;
+      }
+
+      @keyframes bonus-flash {
+        0% {
+          transform: scale(1);
+          text-shadow: 0 0 8px rgba(0, 255, 0, 0.8);
+        }
+        50% {
+          transform: scale(1.2);
+          text-shadow: 0 0 15px rgba(0, 255, 0, 1),
+            0 0 25px rgba(0, 255, 0, 0.6);
+        }
+        100% {
+          transform: scale(1);
+          text-shadow: 0 0 8px rgba(0, 255, 0, 0.8);
+        }
       }
 
       .power-mode-indicator {
@@ -145,6 +318,54 @@
         100% {
           color: #ffff00;
           text-shadow: 0 0 10px rgba(255, 255, 0, 1);
+        }
+      }
+
+      @keyframes status-pulse {
+        0% {
+          transform: scale(1);
+          opacity: 0.8;
+        }
+        100% {
+          transform: scale(1.05);
+          opacity: 1;
+        }
+      }
+
+      @keyframes status-blink {
+        0%,
+        50% {
+          opacity: 1;
+        }
+        51%,
+        100% {
+          opacity: 0.3;
+        }
+      }
+
+      @keyframes status-shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        25% {
+          transform: translateX(-2px);
+        }
+        75% {
+          transform: translateX(2px);
+        }
+      }
+
+      @keyframes status-celebrate {
+        0%,
+        100% {
+          transform: scale(1) rotate(0deg);
+        }
+        25% {
+          transform: scale(1.1) rotate(-2deg);
+        }
+        75% {
+          transform: scale(1.1) rotate(2deg);
         }
       }
 
@@ -344,6 +565,127 @@
           transform: translate(-50%, -50%) scale(1.2);
           box-shadow: 0 0 20px var(--dot-color),
             0 0 35px rgba(255, 255, 0, 0.8);
+        }
+      }
+
+      /* Score popup animation */
+      .score-popup {
+        position: absolute;
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #ffff00;
+        text-shadow: 0 0 5px rgba(255, 255, 0, 0.8);
+        pointer-events: none;
+        z-index: 999;
+        animation: score-popup-float 1.5s ease-out forwards;
+      }
+
+      @keyframes score-popup-float {
+        0% {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+        50% {
+          opacity: 1;
+          transform: translateY(-20px) scale(1.2);
+        }
+        100% {
+          opacity: 0;
+          transform: translateY(-40px) scale(0.8);
+        }
+      }
+
+      /* Enhanced score display with glow effect */
+      .score-display.score-increased {
+        animation: score-glow 0.5s ease-out;
+      }
+
+      @keyframes score-glow {
+        0% {
+          text-shadow: 0 0 8px rgba(255, 255, 0, 0.6);
+        }
+        50% {
+          text-shadow: 0 0 20px rgba(255, 255, 0, 1),
+            0 0 30px rgba(255, 255, 0, 0.8);
+          transform: scale(1.05);
+        }
+        100% {
+          text-shadow: 0 0 8px rgba(255, 255, 0, 0.6);
+          transform: scale(1);
+        }
+      }
+
+      /* Lives display animation when life is lost */
+      .lives-display.life-lost {
+        animation: life-lost-flash 1s ease-out;
+      }
+
+      @keyframes life-lost-flash {
+        0%,
+        100% {
+          color: #ff0000;
+          text-shadow: 0 0 8px rgba(255, 0, 0, 0.6);
+        }
+        25%,
+        75% {
+          color: #ffffff;
+          text-shadow: 0 0 15px rgba(255, 255, 255, 1);
+        }
+        50% {
+          color: #ff0000;
+          text-shadow: 0 0 20px rgba(255, 0, 0, 1);
+          transform: scale(1.1);
+        }
+      }
+
+      /* Round display animation when advancing */
+      .round-display.round-advance {
+        animation: round-advance-glow 1s ease-out;
+      }
+
+      @keyframes round-advance-glow {
+        0% {
+          transform: scale(1);
+          color: #00ff00;
+        }
+        50% {
+          transform: scale(1.2);
+          color: #ffffff;
+          text-shadow: 0 0 20px rgba(255, 255, 255, 1),
+            0 0 30px rgba(0, 255, 0, 0.8);
+        }
+        100% {
+          transform: scale(1);
+          color: #00ff00;
+          text-shadow: 0 0 6px rgba(0, 255, 0, 0.6);
+        }
+      }
+
+      /* High score celebration animation */
+      .high-score-display.new-high-score {
+        animation: new-high-score-celebration 2s ease-out;
+      }
+
+      @keyframes new-high-score-celebration {
+        0%,
+        100% {
+          color: #ff8800;
+          transform: scale(1);
+        }
+        25% {
+          color: #ffff00;
+          transform: scale(1.1) rotate(-2deg);
+          text-shadow: 0 0 15px rgba(255, 255, 0, 1);
+        }
+        50% {
+          color: #00ff00;
+          transform: scale(1.2);
+          text-shadow: 0 0 20px rgba(0, 255, 0, 1);
+        }
+        75% {
+          color: #ff0000;
+          transform: scale(1.1) rotate(2deg);
+          text-shadow: 0 0 15px rgba(255, 0, 0, 1);
         }
       }
 
@@ -1024,17 +1366,162 @@
       /* Game Instructions */
       .game-instructions {
         text-align: center;
-        margin-bottom: 20px;
-        padding: 10px;
-        background-color: rgba(33, 33, 222, 0.2);
-        border: 1px solid var(--ui-text-color);
-        border-radius: 4px;
+        padding: 8px 12px;
+        background: linear-gradient(
+          135deg,
+          rgba(33, 33, 222, 0.3) 0%,
+          rgba(0, 0, 100, 0.2) 100%
+        );
+        border: 1px solid rgba(255, 255, 0, 0.4);
+        border-radius: 6px;
+        box-shadow: 0 0 10px rgba(255, 255, 0, 0.2);
+        width: 100%;
+        max-width: calc(
+          var(--maze-width) * (var(--cell-size) + var(--maze-gap)) + 2 *
+            var(--board-padding)
+        );
       }
 
       .game-instructions p {
         color: var(--ui-text-color);
         font-size: 14px;
         margin: 0;
+        text-shadow: 0 0 5px rgba(255, 255, 0, 0.5);
+      }
+
+      /* Responsive design for smaller screens */
+      @media (max-width: 768px) {
+        .ui-header {
+          font-size: 14px;
+          padding: 8px 12px;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .ui-left,
+        .ui-center,
+        .ui-right {
+          flex-direction: row;
+          gap: 12px;
+          min-width: auto;
+        }
+
+        .game-stats {
+          font-size: 12px;
+          padding: 6px 8px;
+          flex-wrap: wrap;
+          gap: 8px;
+        }
+
+        .score-display,
+        .lives-display {
+          font-size: 14px;
+        }
+
+        .high-score-display,
+        .round-display {
+          font-size: 12px;
+        }
+
+        .game-status-display {
+          font-size: 14px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .ui-header {
+          font-size: 12px;
+          padding: 6px 8px;
+        }
+
+        .game-stats {
+          font-size: 10px;
+          padding: 4px 6px;
+        }
+
+        .score-display,
+        .lives-display {
+          font-size: 12px;
+        }
+
+        .high-score-display,
+        .round-display {
+          font-size: 10px;
+        }
+
+        .game-status-display {
+          font-size: 12px;
+        }
+
+        .game-instructions p {
+          font-size: 12px;
+        }
+
+        .game-footer {
+          font-size: 10px;
+          padding: 4px 6px;
+        }
+
+        .footer-stats {
+          gap: 8px;
+        }
+      }
+
+      /* Game Footer Styling */
+      .game-footer {
+        width: 100%;
+        max-width: calc(
+          var(--maze-width) * (var(--cell-size) + var(--maze-gap)) + 2 *
+            var(--board-padding)
+        );
+        background: linear-gradient(
+          135deg,
+          rgba(0, 0, 50, 0.8) 0%,
+          rgba(0, 0, 20, 0.6) 100%
+        );
+        border: 1px solid rgba(255, 255, 0, 0.3);
+        border-radius: 6px;
+        padding: 8px 12px;
+        font-size: 12px;
+        color: var(--ui-text-color);
+        box-shadow: 0 0 8px rgba(255, 255, 0, 0.2);
+      }
+
+      .footer-stats {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 6px;
+        gap: 12px;
+      }
+
+      .footer-stats > div {
+        text-shadow: 0 0 4px rgba(255, 255, 0, 0.5);
+        font-weight: bold;
+      }
+
+      .total-score {
+        color: #ffff00;
+      }
+
+      .completion-time {
+        color: #00ffff;
+      }
+
+      .difficulty-level {
+        color: #ff8800;
+      }
+
+      .footer-controls {
+        text-align: center;
+        border-top: 1px solid rgba(255, 255, 0, 0.2);
+        padding-top: 6px;
+      }
+
+      .control-hint {
+        font-size: 11px;
+        color: rgba(255, 255, 0, 0.7);
+        text-shadow: 0 0 3px rgba(255, 255, 0, 0.3);
       }
 
       /* Movement state management */
@@ -1063,23 +1550,204 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        background-color: rgba(0, 0, 0, 0.8);
+        background: linear-gradient(
+          135deg,
+          rgba(0, 0, 0, 0.95) 0%,
+          rgba(33, 33, 222, 0.8) 100%
+        );
         color: var(--ui-text-color);
-        padding: 20px;
-        border: 2px solid var(--ui-text-color);
+        padding: 30px;
+        border: 3px solid var(--ui-text-color);
+        border-radius: 12px;
         text-align: center;
-        font-size: 24px;
         font-weight: bold;
         z-index: 100;
         display: none;
+        box-shadow: 0 0 30px rgba(255, 255, 0, 0.6),
+          inset 0 0 20px rgba(0, 0, 0, 0.5);
+        min-width: 300px;
+        max-width: 400px;
       }
 
-      .game-over .game-message {
+      .game-message.show {
         display: block;
+        animation: message-appear 0.5s ease-out;
       }
 
-      .victory .game-message {
-        display: block;
+      @keyframes message-appear {
+        0% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(0.8);
+        }
+        100% {
+          opacity: 1;
+          transform: translate(-50%, -50%) scale(1);
+        }
+      }
+
+      .message-content {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        align-items: center;
+      }
+
+      .message-title {
+        font-size: 28px;
+        margin: 0;
+        text-shadow: 0 0 10px rgba(255, 255, 0, 0.8);
+        animation: title-glow 2s ease-in-out infinite alternate;
+      }
+
+      @keyframes title-glow {
+        0% {
+          text-shadow: 0 0 10px rgba(255, 255, 0, 0.8);
+        }
+        100% {
+          text-shadow: 0 0 20px rgba(255, 255, 0, 1),
+            0 0 30px rgba(255, 255, 0, 0.6);
+        }
+      }
+
+      .final-score,
+      .level-stats,
+      .final-stats {
+        font-size: 18px;
+        color: #ffff00;
+        text-shadow: 0 0 8px rgba(255, 255, 0, 0.6);
+      }
+
+      .level-stats {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .high-score-message {
+        font-size: 20px;
+        color: #00ff00;
+        text-shadow: 0 0 15px rgba(0, 255, 0, 1);
+        animation: high-score-celebration 1s ease-in-out infinite
+          alternate;
+      }
+
+      @keyframes high-score-celebration {
+        0% {
+          transform: scale(1);
+          color: #00ff00;
+        }
+        100% {
+          transform: scale(1.1);
+          color: #ffff00;
+        }
+      }
+
+      .restart-button {
+        background: linear-gradient(135deg, #ff6600 0%, #ff3300 100%);
+        color: white;
+        border: 2px solid #ffff00;
+        border-radius: 8px;
+        padding: 12px 24px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        text-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
+        box-shadow: 0 0 10px rgba(255, 102, 0, 0.5);
+        transition: all 0.3s ease-out;
+      }
+
+      .restart-button:hover {
+        background: linear-gradient(135deg, #ff8800 0%, #ff5500 100%);
+        box-shadow: 0 0 15px rgba(255, 102, 0, 0.8);
+        transform: scale(1.05);
+      }
+
+      .restart-button:active {
+        transform: scale(0.95);
+      }
+
+      .next-level-message {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .next-level-message p {
+        margin: 0;
+        font-size: 16px;
+        color: #00ffff;
+      }
+
+      .countdown {
+        font-size: 48px;
+        font-weight: bold;
+        color: #ff0000;
+        text-shadow: 0 0 20px rgba(255, 0, 0, 1);
+        animation: countdown-pulse 1s ease-in-out infinite;
+      }
+
+      @keyframes countdown-pulse {
+        0%,
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+        50% {
+          transform: scale(1.2);
+          opacity: 0.8;
+        }
+      }
+
+      .completion-message {
+        font-size: 18px;
+        color: #00ff00;
+        text-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
+      }
+
+      .completion-message p {
+        margin: 0;
+      }
+
+      /* Game state specific styling */
+      .game-over-screen .message-title {
+        color: #ff0000;
+        text-shadow: 0 0 15px rgba(255, 0, 0, 1);
+      }
+
+      .victory-screen .message-title {
+        color: #00ff00;
+        text-shadow: 0 0 15px rgba(0, 255, 0, 1);
+      }
+
+      .game-complete-screen .message-title {
+        color: #ffff00;
+        text-shadow: 0 0 20px rgba(255, 255, 0, 1);
+        animation: completion-rainbow 2s ease-in-out infinite;
+      }
+
+      @keyframes completion-rainbow {
+        0% {
+          color: #ff0000;
+        }
+        16.67% {
+          color: #ff8800;
+        }
+        33.33% {
+          color: #ffff00;
+        }
+        50% {
+          color: #00ff00;
+        }
+        66.67% {
+          color: #0088ff;
+        }
+        83.33% {
+          color: #8800ff;
+        }
+        100% {
+          color: #ff0000;
+        }
       }
     </style>
   </head>
@@ -1087,17 +1755,35 @@
     <div class="game-container">
       <!-- UI Header -->
       <div class="ui-header">
-        <div class="score-display"></div>
-        <div class="high-score-display" data-high-score="0"></div>
-        <div class="lives-display"></div>
-        <div class="round-display"></div>
+        <div class="ui-left">
+          <div class="score-display"></div>
+          <div class="high-score-display" data-high-score="0"></div>
+        </div>
+        <div class="ui-center">
+          <div class="game-status-display">READY!</div>
+          <div class="power-mode-indicator">POWER MODE!</div>
+        </div>
+        <div class="ui-right">
+          <div class="lives-display"></div>
+          <div class="round-display"></div>
+        </div>
+      </div>
+
+      <!-- Game Stats Bar -->
+      <div class="game-stats">
         <div class="dots-display"></div>
-        <div class="power-mode-indicator">POWER MODE!</div>
+        <div class="bonus-display"></div>
+        <div class="level-indicator">Level 1</div>
+        <div class="maze-indicator" id="mazeIndicator">Maze 1</div>
+        <div class="game-timer">00:00</div>
       </div>
 
       <!-- Game Instructions -->
       <div class="game-instructions">
-        <p>Use arrow keys (↑ ↓ ← →) to move Pacman</p>
+        <p>
+          Use arrow keys (↑ ↓ ← →) to move Pacman • Collect all dots
+          to advance • Eat power pellets to defeat ghosts
+        </p>
       </div>
 
       <!-- Game Board -->
@@ -1592,11 +2278,89 @@
         <div class="ghost ghost-blue"></div>
         <div class="ghost ghost-orange"></div>
 
-        <!-- Game State Message -->
-        <div class="game-message">
-          <div class="message-text">Game Over</div>
-          <div class="final-score">
-            Final Score: <span class="final-score-value"></span>
+        <!-- Game Over Screen -->
+        <div
+          class="game-message game-over-screen"
+          id="gameOverScreen"
+        >
+          <div class="message-content">
+            <h2 class="message-title">GAME OVER</h2>
+            <div class="final-score">
+              Final Score: <span id="finalScore">0</span>
+            </div>
+            <div
+              class="high-score-message"
+              id="highScoreMessage"
+              style="display: none"
+            >
+              🎉 NEW HIGH SCORE! 🎉
+            </div>
+            <button class="restart-button" onclick="restartGame()">
+              PLAY AGAIN
+            </button>
+          </div>
+        </div>
+
+        <!-- Victory Screen -->
+        <div class="game-message victory-screen" id="victoryScreen">
+          <div class="message-content">
+            <h2 class="message-title">LEVEL COMPLETE!</h2>
+            <div class="level-stats">
+              <div>Score: <span id="levelScore">0</span></div>
+              <div>Round: <span id="currentRound">1</span> / 20</div>
+            </div>
+            <div class="next-level-message">
+              <p>Get ready for the next round!</p>
+              <div class="countdown" id="countdown">3</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Game Complete Screen -->
+        <div
+          class="game-message game-complete-screen"
+          id="gameCompleteScreen"
+        >
+          <div class="message-content">
+            <h2 class="message-title">🎉 CONGRATULATIONS! 🎉</h2>
+            <div class="completion-message">
+              <p>You completed all 20 rounds!</p>
+            </div>
+            <div class="final-stats">
+              <div>
+                Final Score: <span id="completionScore">0</span>
+              </div>
+              <div
+                class="high-score-message"
+                id="completionHighScoreMessage"
+                style="display: none"
+              >
+                🏆 NEW HIGH SCORE! 🏆
+              </div>
+            </div>
+            <button class="restart-button" onclick="restartGame()">
+              PLAY AGAIN
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Game Footer -->
+      <div class="game-footer">
+        <div class="footer-stats">
+          <div class="total-score">
+            Total Score: <span id="total-score">0</span>
+          </div>
+          <div class="completion-time">
+            Time: <span id="completion-time">00:00</span>
+          </div>
+          <div class="difficulty-level">
+            Difficulty: <span id="difficulty">Normal</span>
+          </div>
+        </div>
+        <div class="footer-controls">
+          <div class="control-hint">
+            Press SPACE to pause • ESC to restart
           </div>
         </div>
       </div>
@@ -1649,97 +2413,652 @@
         root.style.setProperty('--pacman-y', pacmanY);
       }
 
-      // Wall positions array (1 = wall, 0 = path) - Fixed 21x21 symmetrical maze
-      const wallMap = [
+      // Multiple maze layouts for different rounds
+      const mazeLayouts = {
+        // Layout 1 - Classic Pacman maze
+        1: [
+        // Row 0 - Top border
         [
           1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
           1,
         ],
+        // Row 1
         [
           1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
           1,
         ],
+        // Row 2
         [
           1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0,
           1,
         ],
+        // Row 3 - Power pellets in corners
         [
           1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
           1,
         ],
+        // Row 4
         [
           1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0,
           1,
         ],
+        // Row 5
         [
           1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0,
           1,
         ],
+        // Row 6
         [
           1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1,
           1,
         ],
+        // Row 7
         [
           1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
           1,
         ],
+        // Row 8
         [
           1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0,
           1,
         ],
+        // Row 9 - Ghost house entrance
         [
           1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0,
           1,
         ],
+        // Row 10 - Ghost house top (open sides for accessibility)
         [
           0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0,
           0,
         ],
+        // Row 11 - Ghost house center (where ghosts start)
         [
-          0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0,
+          0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
           0,
         ],
+        // Row 12 - Ghost house bottom
         [
           1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0,
           1,
         ],
+        // Row 13 - Mirror of row 9
         [
           1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0,
           1,
         ],
+        // Row 14 - Mirror of row 8
         [
           1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0,
           1,
         ],
+        // Row 15 - Mirror of row 7
         [
           1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
           1,
         ],
+        // Row 16 - Mirror of row 6
         [
           1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1,
           1,
         ],
+        // Row 17 - Mirror of row 5
         [
           1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0,
           1,
         ],
+        // Row 18 - Mirror of row 4
         [
           1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0,
           1,
         ],
+        // Row 19 - Mirror of row 3 (Power pellets in corners)
         [
           1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
           1,
         ],
-        [
-          1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0,
-          1,
-        ],
+        // Row 20 - Bottom border
         [
           1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
           1,
         ],
-      ];
+
+        // Layout 2 - More open maze with different patterns
+        2: [
+          // Row 0 - Top border
+          [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+          // Row 1
+          [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+          // Row 2
+          [1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1],
+          // Row 3 - Power pellets
+          [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+          // Row 4
+          [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1],
+          // Row 5
+          [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+          // Row 6
+          [1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1],
+          // Row 7
+          [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+          // Row 8
+          [1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1],
+          // Row 9
+          [1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1],
+          // Row 10 - Ghost house
+          [0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0],
+          // Row 11 - Ghost house center
+          [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+          // Row 12 - Mirror of row 10
+          [1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1],
+          // Row 13 - Mirror of row 9
+          [1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1],
+          // Row 14 - Mirror of row 8
+          [1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1],
+          // Row 15 - Mirror of row 7
+          [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+          // Row 16 - Mirror of row 6
+          [1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1],
+          // Row 17 - Mirror of row 5
+          [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+          // Row 18 - Mirror of row 4
+          [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1],
+          // Row 19 - Mirror of row 3
+          [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+          // Row 20 - Bottom border
+          [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        ],
+
+        // Layout 3 - Compact maze with tight corridors
+        3: [
+          // Row 0 - Top border
+          [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+          // Row 1
+          [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+          // Row 2
+          [1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1],
+          // Row 3 - Power pellets
+          [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1],
+          // Row 4
+          [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+          // Row 5
+          [1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1],
+          // Row 6
+          [1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1],
+          // Row 7
+          [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+          // Row 8
+          [1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1],
+          // Row 9
+          [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1],
+          // Row 10 - Ghost house
+          [0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0],
+          // Row 11 - Ghost house center
+          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          // Row 12 - Mirror of row 10
+          [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1],
+          // Row 13 - Mirror of row 9
+          [1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1],
+          // Row 14 - Mirror of row 8
+          [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+          // Row 15 - Mirror of row 7
+          [1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1],
+          // Row 16 - Mirror of row 6
+          [1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1],
+          // Row 17 - Mirror of row 5
+          [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+          // Row 18 - Mirror of row 4
+          [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1],
+          // Row 19 - Mirror of row 3
+          [1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1],
+          // Row 20 - Bottom border
+          [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        ],
+
+        // Layout 4 - Wide corridors maze
+        4: [
+          // Row 0 - Top border
+          [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+          // Row 1
+          [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+          // Row 2
+          [1, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1],
+          // Row 3 - Power pellets
+          [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+          // Row 4
+          [1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1],
+          // Row 5
+          [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+          // Row 6
+          [1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1],
+          // Row 7
+          [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+          // Row 8
+          [1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 1],
+          // Row 9
+          [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1],
+          // Row 10 - Ghost house
+          [0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0],
+          // Row 11 - Ghost house center
+          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          // Row 12 - Mirror of row 10
+          [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1],
+          // Row 13 - Mirror of row 9
+          [1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 1],
+          // Row 14 - Mirror of row 8
+          [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+          // Row 15 - Mirror of row 7
+          [1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1],
+          // Row 16 - Mirror of row 6
+          [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+          // Row 17 - Mirror of row 5
+          [1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1],
+          // Row 18 - Mirror of row 4
+          [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+          // Row 19 - Mirror of row 3
+          [1, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1],
+          // Row 20 - Bottom border
+          [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        ],
+
+        // Layout 5 - Cross pattern maze
+        5: [
+          // Row 0 - Top border
+          [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+          // Row 1
+          [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+          // Row 2
+          [1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1],
+          // Row 3 - Power pellets
+          [1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1],
+          // Row 4
+          [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+          // Row 5
+          [1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1],
+          // Row 6
+          [1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1],
+          // Row 7
+          [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+          // Row 8
+          [1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1],
+          // Row 9
+          [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1],
+          // Row 10 - Ghost house
+          [0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0],
+          // Row 11 - Ghost house center
+          [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+          // Row 12 - Mirror of row 10
+          [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1],
+          // Row 13 - Mirror of row 9
+          [1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1],
+          // Row 14 - Mirror of row 8
+          [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+          // Row 15 - Mirror of row 7
+          [1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1],
+          // Row 16 - Mirror of row 6
+          [1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1],
+          // Row 17 - Mirror of row 5
+          [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+          // Row 18 - Mirror of row 4
+          [1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1],
+          // Row 19 - Mirror of row 3
+          [1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1],
+          // Row 20 - Bottom border
+          [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        ],
+
+        // Layout 6 - Spiral maze
+        6: [
+          // Row 0 - Top border
+          [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+          // Row 1
+          [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+          // Row 2
+          [1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+          // Row 3 - Power pellets
+          [1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+          // Row 4
+          [1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
+          // Row 5
+          [1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1],
+          // Row 6
+          [1, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1],
+          // Row 7
+          [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+          // Row 8
+          [1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1],
+          // Row 9
+          [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1],
+          // Row 10 - Ghost house
+          [0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0],
+          // Row 11 - Ghost house center
+          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          // Row 12 - Mirror of row 10
+          [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1],
+          // Row 13 - Mirror of row 9
+          [1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1],
+          // Row 14 - Mirror of row 8
+          [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+          // Row 15 - Mirror of row 7
+          [1, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1],
+          // Row 16 - Mirror of row 6
+          [1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1],
+          // Row 17 - Mirror of row 5
+          [1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
+          // Row 18 - Mirror of row 4
+          [1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+          // Row 19 - Mirror of row 3
+          [1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+          // Row 20 - Bottom border
+          [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        ],
+
+        // Layout 7 - Diamond pattern maze
+        7: [
+          // Row 0 - Top border
+          [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+          // Row 1
+          [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+          // Row 2
+          [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+          // Row 3 - Power pellets
+          [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1],
+          // Row 4
+          [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+          // Row 5
+          [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1],
+          // Row 6
+          [1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1],
+          // Row 7
+          [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1],
+          // Row 8
+          [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+          // Row 9
+          [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+          // Row 10 - Ghost house
+          [0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0],
+          // Row 11 - Ghost house center
+          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          // Row 12 - Mirror of row 10
+          [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+          // Row 13 - Mirror of row 9
+          [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+          // Row 14 - Mirror of row 8
+          [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1],
+          // Row 15 - Mirror of row 7
+          [1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1],
+          // Row 16 - Mirror of row 6
+          [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1],
+          // Row 17 - Mirror of row 5
+          [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+          // Row 18 - Mirror of row 4
+          [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1],
+          // Row 19 - Mirror of row 3
+          [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+          // Row 20 - Bottom border
+          [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        ],
+
+        // Layout 8 - Maze with large chambers
+        8: [
+          // Row 0 - Top border
+          [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+          // Row 1
+          [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+          // Row 2
+          [1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1],
+          // Row 3 - Power pellets
+          [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+          // Row 4
+          [1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1],
+          // Row 5
+          [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+          // Row 6
+          [1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1],
+          // Row 7
+          [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+          // Row 8
+          [1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1],
+          // Row 9
+          [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+          // Row 10 - Ghost house
+          [0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+          // Row 11 - Ghost house center
+          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          // Row 12 - Mirror of row 10
+          [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+          // Row 13 - Mirror of row 9
+          [1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1],
+          // Row 14 - Mirror of row 8
+          [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+          // Row 15 - Mirror of row 7
+          [1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1],
+          // Row 16 - Mirror of row 6
+          [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+          // Row 17 - Mirror of row 5
+          [1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1],
+          // Row 18 - Mirror of row 4
+          [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+          // Row 19 - Mirror of row 3
+          [1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1],
+          // Row 20 - Bottom border
+          [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        ]
+      };
+
+      // Get current wallMap based on round
+      function getCurrentWallMap() {
+        const layoutNumber = ((currentRound - 1) % 8) + 1; // Cycle through layouts 1-8
+        return mazeLayouts[layoutNumber] || mazeLayouts[1];
+      }
+
+      // Validate maze symmetry (for development/testing)
+      function validateMazeSymmetry(layout) {
+        const rows = layout.length;
+        const cols = layout[0].length;
+
+        // Check vertical symmetry (top-bottom mirror)
+        for (let y = 0; y < Math.floor(rows / 2); y++) {
+          const topRow = layout[y];
+          const bottomRow = layout[rows - 1 - y];
+
+          for (let x = 0; x < cols; x++) {
+            if (topRow[x] !== bottomRow[x]) {
+              console.warn(`Vertical symmetry broken at (${x}, ${y}) vs (${x}, ${rows - 1 - y})`);
+              return false;
+            }
+          }
+        }
+
+        // Check horizontal symmetry (left-right mirror)
+        for (let y = 0; y < rows; y++) {
+          const row = layout[y];
+          for (let x = 0; x < Math.floor(cols / 2); x++) {
+            if (row[x] !== row[cols - 1 - x]) {
+              console.warn(`Horizontal symmetry broken at (${x}, ${y}) vs (${cols - 1 - x}, ${y})`);
+              return false;
+            }
+          }
+        }
+
+        return true;
+      }
+
+      // Validate maze playability (ghost spawn and Pacman areas)
+      function validateMazePlayability(layout) {
+        const rows = layout.length;
+        const cols = layout[0].length;
+
+        // Check ghost house area (rows 10-12, cols 7-13) is accessible
+        const ghostHouseValid = layout[10][10] === 0 && layout[11][10] === 0; // Center of ghost house
+
+        // Check that there are valid starting positions for Pacman
+        let validStartPositions = 0;
+        for (let y = 1; y < rows - 1; y++) {
+          for (let x = 1; x < cols - 1; x++) {
+            if (layout[y][x] === 0 &&
+                !(y >= 10 && y <= 12 && x >= 7 && x <= 13)) { // Not in ghost house
+              validStartPositions++;
+            }
+          }
+        }
+
+        // Check that power pellet positions are accessible
+        const powerPelletPositions = [
+          {x: 1, y: 3}, {x: 19, y: 3}, {x: 1, y: 17}, {x: 19, y: 17}
+        ];
+
+        let accessiblePowerPellets = 0;
+        powerPelletPositions.forEach(pos => {
+          if (pos.y < rows && pos.x < cols && layout[pos.y][pos.x] === 0) {
+            accessiblePowerPellets++;
+          }
+        });
+
+        return {
+          ghostHouseValid,
+          validStartPositions: validStartPositions > 50, // Reasonable number of start positions
+          powerPelletsAccessible: accessiblePowerPellets === 4
+        };
+      }
+
+      // Validate all maze layouts on initialization
+      function validateAllMazeLayouts() {
+        console.log('Validating maze symmetry and playability...');
+        let allValid = true;
+
+        for (let i = 1; i <= 8; i++) {
+          if (mazeLayouts[i]) {
+            const isSymmetrical = validateMazeSymmetry(mazeLayouts[i]);
+            const playability = validateMazePlayability(mazeLayouts[i]);
+
+            const isPlayable = playability.ghostHouseValid &&
+                              playability.validStartPositions &&
+                              playability.powerPelletsAccessible;
+
+            console.log(`Layout ${i}: ${isSymmetrical ? 'Symmetrical ✓' : 'Not symmetrical ✗'} | ${isPlayable ? 'Playable ✓' : 'Not playable ✗'}`);
+
+            if (!isSymmetrical || !isPlayable) {
+              allValid = false;
+              console.warn(`Layout ${i} issues:`, {
+                symmetrical: isSymmetrical,
+                ghostHouse: playability.ghostHouseValid,
+                startPositions: playability.validStartPositions,
+                powerPellets: playability.powerPelletsAccessible
+              });
+            }
+          }
+        }
+
+        if (allValid) {
+          console.log('✅ All maze layouts are symmetrical and playable!');
+        } else {
+          console.warn('⚠️ Some maze layouts have issues that need to be addressed.');
+        }
+
+        return allValid;
+      }
+
+      // Current wallMap reference (will be updated based on round)
+      let wallMap = getCurrentWallMap();
+
+      // Generate maze HTML from current wallMap
+      function generateMazeHTML() {
+        // Update wallMap to current round
+        wallMap = getCurrentWallMap();
+        let mazeHTML = '';
+
+        for (let y = 0; y < wallMap.length; y++) {
+          for (let x = 0; x < wallMap[y].length; x++) {
+            const isWall = wallMap[y][x] === 1;
+            const isPowerPellet =
+              !isWall &&
+              ((x === 1 && y === 3) ||
+                (x === 19 && y === 3) ||
+                (x === 1 && y === 17) ||
+                (x === 19 && y === 17));
+
+            if (isWall) {
+              mazeHTML += '<div class="maze-cell wall"></div>';
+            } else if (isPowerPellet) {
+              mazeHTML +=
+                '<div class="maze-cell path power-pellet"></div>';
+            } else {
+              mazeHTML += '<div class="maze-cell path dot"></div>';
+            }
+          }
+        }
+
+        return mazeHTML;
+      }
+
+      // Update maze layout for new round
+      function updateMazeForNewRound() {
+        const currentRound = getCurrentRoundNumber();
+        const layoutNumber = ((currentRound - 1) % 8) + 1;
+
+        console.log(`Updating maze for round ${currentRound} (Layout ${layoutNumber})...`);
+
+        const gameBoard = document.querySelector('.game-board');
+        const mazeHTML = generateMazeHTML();
+
+        // Find and preserve game characters
+        const pacman = gameBoard.querySelector('.pacman');
+        const ghosts = gameBoard.querySelectorAll('.ghost');
+        const gameMessage = gameBoard.querySelector('.game-message');
+
+        // Replace maze content
+        gameBoard.innerHTML = mazeHTML;
+
+        // Re-add characters
+        if (pacman) gameBoard.appendChild(pacman);
+        ghosts.forEach(ghost => gameBoard.appendChild(ghost));
+        if (gameMessage) gameBoard.appendChild(gameMessage);
+
+        // Reset character positions for new maze layout
+        resetCharacterPositionsForNewMaze();
+        updatePacmanPosition();
+        updateGhostPositions();
+
+        // Update maze indicator if it exists
+        updateMazeIndicator(layoutNumber);
+
+        console.log(`Maze updated to Layout ${layoutNumber} for round ${currentRound}`);
+      }
+
+      // Update maze indicator display
+      function updateMazeIndicator(layoutNumber) {
+        const mazeIndicator = document.querySelector('.maze-indicator');
+        if (mazeIndicator) {
+          mazeIndicator.textContent = `Maze ${layoutNumber}`;
+        }
+      }
+
+      // Reset character positions for new maze layout
+      function resetCharacterPositionsForNewMaze() {
+        // Reset Pacman to a safe starting position
+        initializePacmanPosition();
+
+        // Reset ghosts to their starting positions in the ghost house
+        // These positions should work for all maze layouts since the ghost house
+        // area is consistent across all layouts
+        root.style.setProperty('--ghost-red-x', 9);
+        root.style.setProperty('--ghost-red-y', 11);
+        root.style.setProperty('--ghost-pink-x', 10);
+        root.style.setProperty('--ghost-pink-y', 11);
+        root.style.setProperty('--ghost-blue-x', 11);
+        root.style.setProperty('--ghost-blue-y', 11);
+        root.style.setProperty('--ghost-orange-x', 10);
+        root.style.setProperty('--ghost-orange-y', 10);
+
+        console.log('Character positions reset for new maze layout');
+      }
+
+      // Get current round number
+      function getCurrentRoundNumber() {
+        const currentRound = parseInt(document.body.style.getPropertyValue('--current-round')) || 1;
+        return currentRound;
+      }
 
       // Check if position is valid (not a wall)
       function isValidPosition(x, y) {
@@ -1769,9 +3088,11 @@
             if (currentCell.classList.contains('power-pellet')) {
               incrementScore(50);
               incrementPowerPelletsCollected();
+              totalPowerPelletsEaten++;
             } else {
               incrementScore(10);
               incrementDotsCollected();
+              totalDotsEaten++;
             }
 
             // Add collection effect
@@ -1788,23 +3109,123 @@
         return false;
       }
 
-      // Game counters
+      // Game counters and state
+      let score = 0;
       let currentScore = 0;
+      let highScore = 0;
       let dotsCollected = 0;
       let powerPelletsCollected = 0;
+      let lives = 3;
       let currentLives = 3;
       let currentRound = 1;
+      let gameState = 'ready';
+      let pacmanDirection = 'right'; // Track Pacman's current direction
+      let ghostsEatenInPowerMode = 0;
+      let consecutiveGhostBonus = 0;
+      let totalDotsEaten = 0;
+      let totalPowerPelletsEaten = 0;
+      let totalGhostsEaten = 0;
+      let totalBonusPoints = 0;
+      let gameStartTime = null;
+      let gameTimer = null;
 
       // Update all counters
       function updateCounters() {
-        document.body.style.counterReset = `score ${currentScore} lives ${currentLives} round ${currentRound} dots-collected ${dotsCollected} power-pellets-collected ${powerPelletsCollected}`;
+        document.body.style.counterReset = `score ${currentScore} lives ${lives} round ${currentRound} dots-collected ${dotsCollected} power-pellets-collected ${powerPelletsCollected}`;
         root.style.setProperty('--current-score', currentScore);
+        root.style.setProperty('--current-round', currentRound);
       }
 
       // Increment score using CSS counters
       function incrementScore(points) {
         currentScore += points;
+        score += points; // Update main score variable for game over/victory screens
         updateCounters();
+        showScorePopup(points);
+        triggerScoreAnimation();
+      }
+
+      // Update score (alias for incrementScore)
+      function updateScore(points) {
+        incrementScore(points);
+      }
+
+      // Set high score
+      function setHighScore(newScore) {
+        highScore = newScore;
+        const highScoreDisplay = document.querySelector('.high-score-display');
+        if (highScoreDisplay) {
+          highScoreDisplay.setAttribute('data-high-score', highScore);
+          triggerHighScoreAnimation();
+        }
+      }
+
+      // Calculate ghost consumption bonus (200, 400, 800, 1600 points)
+      function getGhostBonus() {
+        const basePoints = 200;
+        const multiplier = Math.pow(2, ghostsEatenInPowerMode);
+        return Math.min(basePoints * multiplier, 1600);
+      }
+
+      // Award bonus points for completing a round
+      function awardRoundCompletionBonus() {
+        const baseBonus = 1000;
+        const roundMultiplier = currentRound;
+        const bonus = baseBonus + (roundMultiplier * 100);
+        totalBonusPoints += bonus;
+        incrementScore(bonus);
+        showBonusMessage(`Round ${currentRound} Complete! +${bonus} bonus`);
+        console.log(`Round ${currentRound} completion bonus: ${bonus} points`);
+      }
+
+      // Show bonus message in UI
+      function showBonusMessage(message) {
+        const bonusDisplay = document.querySelector('.bonus-display');
+        if (bonusDisplay) {
+          bonusDisplay.textContent = message;
+          bonusDisplay.classList.add('show');
+
+          setTimeout(() => {
+            bonusDisplay.classList.remove('show');
+          }, 3000);
+        }
+      }
+
+      // Show animated score popup
+      function showScorePopup(points) {
+        const pacman = document.querySelector('.pacman');
+        const gameBoard = document.querySelector('.game-board');
+
+        if (!pacman || !gameBoard) return;
+
+        const popup = document.createElement('div');
+        popup.className = 'score-popup';
+        popup.textContent = `+${points}`;
+
+        // Position popup near Pacman
+        const pacmanRect = pacman.getBoundingClientRect();
+        const boardRect = gameBoard.getBoundingClientRect();
+
+        popup.style.left = `${pacmanRect.left - boardRect.left + 20}px`;
+        popup.style.top = `${pacmanRect.top - boardRect.top - 10}px`;
+
+        gameBoard.appendChild(popup);
+
+        // Add glow effect to score display
+        const scoreDisplay = document.querySelector('.score-display');
+        if (scoreDisplay) {
+          scoreDisplay.classList.add('score-increased');
+          setTimeout(() => {
+            scoreDisplay.classList.remove('score-increased');
+          }, 500);
+        }
+
+        // Remove popup after animation
+        setTimeout(() => {
+          if (popup.parentNode) {
+            popup.parentNode.removeChild(popup);
+          }
+        }, 1500);
       }
 
       // Increment dots collected counter
@@ -1834,10 +3255,51 @@
 
         if (totalCollected >= totalCollectibles) {
           console.log('Victory! All dots collected!');
-          // Victory logic will be implemented in later tasks
+
+          // Award round completion bonus
+          awardRoundCompletionBonus();
+
+          // Advance to next round
+          advanceToNextRound();
+
           return true;
         }
         return false;
+      }
+
+      // Advance to next round with new maze layout
+      function advanceToNextRound() {
+        const currentRound = getCurrentRoundNumber();
+        const nextRound = currentRound + 1;
+
+        console.log(`Advancing from round ${currentRound} to round ${nextRound}`);
+
+        // Check if game is complete (20 rounds)
+        if (nextRound > 20) {
+          console.log('Game Complete! All 20 rounds finished!');
+          // Game completion logic will be implemented in later tasks
+          return;
+        }
+
+        // Update round counter
+        currentRound = nextRound;
+        root.style.setProperty('--current-round', nextRound);
+
+        // Reset collection counters for new round
+        dotsCollected = 0;
+        powerPelletsCollected = 0;
+
+        // Update maze layout for new round
+        updateMazeForNewRound();
+
+        // Update counters display
+        updateCounters();
+
+        // Trigger visual feedback
+        triggerRoundAdvanceAnimation();
+        updateLevelIndicator();
+
+        console.log(`Round ${nextRound} started with new maze layout!`);
       }
 
       // Power mode management
@@ -1893,12 +3355,122 @@
           powerModeTimer = null;
         }
 
+        // Reset ghost consumption counter for next power mode
+        ghostsEatenInPowerMode = 0;
+
         console.log('Power mode deactivated!');
       }
 
       // Check if power mode is currently active
       function isPowerModeActive() {
         return powerModeActive;
+      }
+
+      // Update game status display
+      function updateGameStatus(status, message) {
+        const statusDisplay = document.querySelector('.game-status-display');
+        if (statusDisplay) {
+          // Remove all status classes
+          statusDisplay.classList.remove('ready', 'playing', 'paused', 'game-over', 'victory');
+
+          // Add new status class
+          statusDisplay.classList.add(status);
+
+          // Update message
+          statusDisplay.textContent = message || getStatusMessage(status);
+        }
+      }
+
+      // Get default status message for each state
+      function getStatusMessage(status) {
+        const messages = {
+          'ready': 'READY!',
+          'playing': 'GO!',
+          'paused': 'PAUSED',
+          'game-over': 'GAME OVER',
+          'victory': 'LEVEL COMPLETE!'
+        };
+        return messages[status] || 'READY!';
+      }
+
+      // Update game timer display
+      function updateGameTimer() {
+        const timerDisplay = document.querySelector('.game-timer');
+        if (timerDisplay && gameStartTime) {
+          const elapsed = Math.floor((Date.now() - gameStartTime) / 1000);
+          const minutes = Math.floor(elapsed / 60);
+          const seconds = elapsed % 60;
+          timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+      }
+
+      // Update level indicator
+      function updateLevelIndicator() {
+        const levelDisplay = document.querySelector('.level-indicator');
+        if (levelDisplay) {
+          const layoutNumber = ((currentRound - 1) % 4) + 1;
+          levelDisplay.textContent = `Level ${layoutNumber}`;
+        }
+      }
+
+      // Add visual feedback for score increase
+      function triggerScoreAnimation() {
+        const scoreDisplay = document.querySelector('.score-display');
+        if (scoreDisplay) {
+          scoreDisplay.classList.remove('score-increased');
+          // Force reflow
+          scoreDisplay.offsetHeight;
+          scoreDisplay.classList.add('score-increased');
+
+          setTimeout(() => {
+            scoreDisplay.classList.remove('score-increased');
+          }, 500);
+        }
+      }
+
+      // Add visual feedback for life lost
+      function triggerLifeLostAnimation() {
+        const livesDisplay = document.querySelector('.lives-display');
+        if (livesDisplay) {
+          livesDisplay.classList.remove('life-lost');
+          // Force reflow
+          livesDisplay.offsetHeight;
+          livesDisplay.classList.add('life-lost');
+
+          setTimeout(() => {
+            livesDisplay.classList.remove('life-lost');
+          }, 1000);
+        }
+      }
+
+      // Add visual feedback for round advance
+      function triggerRoundAdvanceAnimation() {
+        const roundDisplay = document.querySelector('.round-display');
+        if (roundDisplay) {
+          roundDisplay.classList.remove('round-advance');
+          // Force reflow
+          roundDisplay.offsetHeight;
+          roundDisplay.classList.add('round-advance');
+
+          setTimeout(() => {
+            roundDisplay.classList.remove('round-advance');
+          }, 1000);
+        }
+      }
+
+      // Add visual feedback for new high score
+      function triggerHighScoreAnimation() {
+        const highScoreDisplay = document.querySelector('.high-score-display');
+        if (highScoreDisplay) {
+          highScoreDisplay.classList.remove('new-high-score');
+          // Force reflow
+          highScoreDisplay.offsetHeight;
+          highScoreDisplay.classList.add('new-high-score');
+
+          setTimeout(() => {
+            highScoreDisplay.classList.remove('new-high-score');
+          }, 2000);
+        }
       }
 
       // Make all ghosts vulnerable
@@ -1934,8 +3506,18 @@
           return false; // Can't consume non-vulnerable ghost
         }
 
-        // Award points for consuming ghost
-        incrementScore(200);
+        // Award points for consuming ghost with progressive bonus
+        const ghostBonus = getGhostBonus();
+        ghostsEatenInPowerMode++;
+        totalGhostsEaten++;
+        incrementScore(ghostBonus);
+
+        // Show bonus message for ghost consumption
+        if (ghostsEatenInPowerMode > 1) {
+          showBonusMessage(`${ghostsEatenInPowerMode}x Ghost Combo! +${ghostBonus}`);
+        }
+
+        console.log(`Ghost consumed! Bonus: ${ghostBonus} points (${ghostsEatenInPowerMode} ghosts eaten in power mode)`);
 
         // Temporarily hide the ghost (it will respawn)
         ghostElement.style.opacity = '0';
@@ -1951,9 +3533,17 @@
 
       // Move Pacman in specified direction
       function movePacman(direction) {
+        // Don't allow movement if game is over or paused
+        if (gameState === 'game-over' || gameState === 'paused' || gameState === 'victory' || gameState === 'game-complete') {
+          return;
+        }
+
         let newX = pacmanX;
         let newY = pacmanY;
         let rotation = 0;
+
+        // Update Pacman's direction for ghost AI
+        pacmanDirection = direction;
 
         switch (direction) {
           case 'up':
@@ -1978,6 +3568,12 @@
         if (isValidPosition(newX, newY)) {
           pacmanX = newX;
           pacmanY = newY;
+
+          // Update game status to playing on first move
+          const statusDisplay = document.querySelector('.game-status-display');
+          if (statusDisplay && statusDisplay.classList.contains('ready')) {
+            updateGameStatus('playing', '');
+          }
 
           // Update CSS properties
           root.style.setProperty(
@@ -2052,13 +3648,13 @@
       let ghostsMoving = true;
 
       // Ghost positions (matching CSS custom properties)
-      let ghostRedX = 8,
+      let ghostRedX = 9,
         ghostRedY = 11;
-      let ghostPinkX = 9,
+      let ghostPinkX = 10,
         ghostPinkY = 11;
-      let ghostBlueX = 10,
+      let ghostBlueX = 11,
         ghostBlueY = 11;
-      let ghostOrangeX = 11,
+      let ghostOrangeX = 12,
         ghostOrangeY = 11;
 
       // Update ghost positions in CSS
@@ -2075,20 +3671,25 @@
 
       // Start ghost movement automatically
       function startGhostMovement() {
+        const ghosts = document.querySelectorAll('.ghost');
         ghosts.forEach((ghost) => {
           ghost.classList.add('moving');
           ghost.classList.remove('paused');
         });
         ghostsMoving = true;
+        startIntelligentGhostMovement();
+        console.log('Ghost movement enabled with AI');
       }
 
       // Pause ghost movement
       function pauseGhostMovement() {
+        const ghosts = document.querySelectorAll('.ghost');
         ghosts.forEach((ghost) => {
           ghost.classList.remove('moving');
           ghost.classList.add('paused');
         });
         ghostsMoving = false;
+        stopIntelligentGhostMovement();
       }
 
       // Toggle ghost movement (for debugging/testing)
@@ -2100,15 +3701,171 @@
         }
       }
 
-      // Ghost collision detection with walls (basic implementation)
-      function checkGhostWallCollisions() {
-        ghosts.forEach((ghost, index) => {
-          // This is a placeholder for wall collision detection
-          // In a full implementation, this would check ghost positions against the wall map
-          // and trigger direction changes when collisions are detected
-          // For now, the ghosts follow predefined paths that avoid walls
-          // Wall collision detection will be enhanced in future iterations
+      // Enhanced ghost AI system
+      let ghostDirections = {
+        red: 'right',
+        pink: 'up',
+        blue: 'left',
+        orange: 'down'
+      };
+
+      let ghostTargets = {
+        red: { x: pacmanX, y: pacmanY }, // Chase Pacman directly
+        pink: { x: pacmanX + 4, y: pacmanY }, // Ambush ahead of Pacman
+        blue: { x: pacmanX - 2, y: pacmanY }, // Patrol pattern
+        orange: { x: 1, y: 1 } // Random/scatter behavior
+      };
+
+      // Update ghost positions with intelligent movement
+      function updateGhostMovement() {
+        if (!ghostsMoving || gameState !== 'playing') return;
+
+        // Update Red Ghost (Blinky) - Aggressive chaser
+        updateGhostPosition('red', ghostRedX, ghostRedY, (newX, newY) => {
+          ghostRedX = newX;
+          ghostRedY = newY;
         });
+
+        // Update Pink Ghost (Pinky) - Ambusher
+        updateGhostPosition('pink', ghostPinkX, ghostPinkY, (newX, newY) => {
+          ghostPinkX = newX;
+          ghostPinkY = newY;
+        });
+
+        // Update Blue Ghost (Inky) - Patrol
+        updateGhostPosition('blue', ghostBlueX, ghostBlueY, (newX, newY) => {
+          ghostBlueX = newX;
+          ghostBlueY = newY;
+        });
+
+        // Update Orange Ghost (Clyde) - Random
+        updateGhostPosition('orange', ghostOrangeX, ghostOrangeY, (newX, newY) => {
+          ghostOrangeX = newX;
+          ghostOrangeY = newY;
+        });
+
+        // Update CSS positions
+        updateGhostPositions();
+      }
+
+      // Update individual ghost position with AI
+      function updateGhostPosition(ghostName, currentX, currentY, updateCallback) {
+        const target = getGhostTarget(ghostName, currentX, currentY);
+        const direction = ghostDirections[ghostName];
+
+        // Calculate next position based on current direction
+        let nextX = currentX;
+        let nextY = currentY;
+
+        switch (direction) {
+          case 'up': nextY = Math.max(0, currentY - 1); break;
+          case 'down': nextY = Math.min(20, currentY + 1); break;
+          case 'left': nextX = Math.max(0, currentX - 1); break;
+          case 'right': nextX = Math.min(20, currentX + 1); break;
+        }
+
+        // Check if next position is valid
+        if (isValidPosition(nextX, nextY)) {
+          updateCallback(nextX, nextY);
+        } else {
+          // Hit a wall, choose new direction
+          ghostDirections[ghostName] = chooseNewDirection(ghostName, currentX, currentY, target);
+        }
+      }
+
+      // Get target position for each ghost based on their personality
+      function getGhostTarget(ghostName, currentX, currentY) {
+        switch (ghostName) {
+          case 'red': // Blinky - Direct chase
+            return { x: pacmanX, y: pacmanY };
+
+          case 'pink': // Pinky - Ambush 4 tiles ahead of Pacman
+            let ambushX = pacmanX;
+            let ambushY = pacmanY;
+            // Predict Pacman's direction and target ahead
+            if (pacmanDirection === 'up') ambushY -= 4;
+            else if (pacmanDirection === 'down') ambushY += 4;
+            else if (pacmanDirection === 'left') ambushX -= 4;
+            else if (pacmanDirection === 'right') ambushX += 4;
+            return { x: Math.max(0, Math.min(20, ambushX)), y: Math.max(0, Math.min(20, ambushY)) };
+
+          case 'blue': // Inky - Patrol corners
+            const corners = [{ x: 1, y: 1 }, { x: 19, y: 1 }, { x: 19, y: 19 }, { x: 1, y: 19 }];
+            return corners[Math.floor(Date.now() / 5000) % corners.length];
+
+          case 'orange': // Clyde - Random/scatter when close to Pacman
+            const distance = Math.abs(currentX - pacmanX) + Math.abs(currentY - pacmanY);
+            if (distance < 8) {
+              // Scatter to corner when too close
+              return { x: 1, y: 19 };
+            } else {
+              // Chase when far away
+              return { x: pacmanX, y: pacmanY };
+            }
+
+          default:
+            return { x: pacmanX, y: pacmanY };
+        }
+      }
+
+      // Choose new direction when hitting a wall
+      function chooseNewDirection(ghostName, currentX, currentY, target) {
+        const possibleDirections = [];
+        const directions = ['up', 'down', 'left', 'right'];
+
+        // Check each direction for validity
+        directions.forEach(dir => {
+          let testX = currentX;
+          let testY = currentY;
+
+          switch (dir) {
+            case 'up': testY = Math.max(0, currentY - 1); break;
+            case 'down': testY = Math.min(20, currentY + 1); break;
+            case 'left': testX = Math.max(0, currentX - 1); break;
+            case 'right': testX = Math.min(20, currentX + 1); break;
+          }
+
+          if (isValidPosition(testX, testY)) {
+            possibleDirections.push({
+              direction: dir,
+              distance: Math.abs(testX - target.x) + Math.abs(testY - target.y)
+            });
+          }
+        });
+
+        if (possibleDirections.length === 0) {
+          return ghostDirections[ghostName]; // Keep current direction if no options
+        }
+
+        // Choose direction that gets closest to target (or furthest for scatter mode)
+        if (powerModeActive) {
+          // Run away from Pacman during power mode
+          possibleDirections.sort((a, b) => b.distance - a.distance);
+        } else {
+          // Move toward target during normal mode
+          possibleDirections.sort((a, b) => a.distance - b.distance);
+        }
+
+        return possibleDirections[0].direction;
+      }
+
+      // Start intelligent ghost movement
+      let ghostMovementInterval = null;
+
+      function startIntelligentGhostMovement() {
+        if (ghostMovementInterval) {
+          clearInterval(ghostMovementInterval);
+        }
+
+        ghostMovementInterval = setInterval(updateGhostMovement, 500); // Update every 500ms
+        console.log('Intelligent ghost movement started');
+      }
+
+      function stopIntelligentGhostMovement() {
+        if (ghostMovementInterval) {
+          clearInterval(ghostMovementInterval);
+          ghostMovementInterval = null;
+        }
       }
 
       // Check collision between Pacman and ghosts
@@ -2141,7 +3898,10 @@
         ];
 
         for (let ghost of ghosts) {
-          if (pacmanX === ghost.x && pacmanY === ghost.y) {
+          // Check if Pacman and ghost positions overlap (with collision tolerance)
+          const distance = Math.abs(pacmanX - ghost.x) + Math.abs(pacmanY - ghost.y);
+
+          if (distance <= 0) { // Direct collision
             console.log(`Collision with ${ghost.name} Ghost!`);
 
             if (
@@ -2151,17 +3911,358 @@
               // Consume the ghost during power mode
               if (consumeGhost(ghost.element)) {
                 console.log(`${ghost.name} ghost consumed!`);
+                // Award points for ghost consumption
+                updateScore(200);
+                showScorePopup(200, ghost.x, ghost.y);
                 return false; // Continue playing
               }
             } else {
-              // Normal collision - game over
+              // Normal collision - trigger game over
               console.log('Game Over - Ghost collision!');
-              // Game over logic will be implemented in future tasks
+              triggerGameOver('collision');
               return true;
             }
           }
         }
         return false;
+      }
+
+      // Trigger game over state
+      function triggerGameOver(reason = 'collision') {
+        gameState = 'game-over';
+
+        // Stop all game timers
+        if (gameTimer) {
+          clearInterval(gameTimer);
+          gameTimer = null;
+        }
+        if (powerModeTimer) {
+          clearTimeout(powerModeTimer);
+          powerModeTimer = null;
+        }
+
+        // Pause ghost movement
+        pauseGhostMovement();
+
+        // Update lives
+        lives--;
+        updateCounters();
+
+        // Add life lost animation
+        const livesDisplay = document.querySelector('.lives-display');
+        livesDisplay.classList.add('life-lost');
+        setTimeout(() => livesDisplay.classList.remove('life-lost'), 1000);
+
+        if (lives <= 0) {
+          // Game completely over
+          updateGameStatus('game-over', 'GAME OVER');
+          showGameOverScreen();
+
+          // Check for high score
+          if (score > highScore) {
+            setHighScore(score);
+            showHighScoreMessage();
+          }
+        } else {
+          // Still have lives - respawn after delay
+          updateGameStatus('game-over', `LIFE LOST! ${lives} REMAINING`);
+          setTimeout(() => {
+            respawnPacman();
+          }, 2000);
+        }
+      }
+
+      // Respawn Pacman after losing a life
+      function respawnPacman() {
+        // Reset Pacman to starting position
+        pacmanX = 10;
+        pacmanY = 15;
+        updatePacmanPosition();
+
+        // Reset power mode
+        powerModeActive = false;
+        document.body.classList.remove('power-mode-active');
+
+        // Reset game state
+        gameState = 'playing';
+        updateGameStatus('playing', '');
+
+        // Restart ghost movement
+        startGhostMovement();
+
+        // Restart game timer
+        gameTimer = setInterval(updateGameTimer, 1000);
+      }
+
+      // Show game over screen
+      function showGameOverScreen() {
+        const gameOverScreen = document.getElementById('gameOverScreen');
+        const finalScoreElement = document.getElementById('finalScore');
+
+        if (gameOverScreen && finalScoreElement) {
+          finalScoreElement.textContent = score;
+          gameOverScreen.classList.add('show');
+        }
+      }
+
+      // Show high score message
+      function showHighScoreMessage() {
+        const highScoreMessage = document.getElementById('highScoreMessage');
+        const completionHighScoreMessage = document.getElementById('completionHighScoreMessage');
+
+        if (highScoreMessage) {
+          highScoreMessage.style.display = 'block';
+        }
+        if (completionHighScoreMessage) {
+          completionHighScoreMessage.style.display = 'block';
+        }
+      }
+
+      // Check victory condition (all dots collected)
+      function checkVictoryCondition() {
+        const remainingDots = document.querySelectorAll('.maze-cell.dot:not(.collected)');
+        const remainingPowerPellets = document.querySelectorAll('.maze-cell.power-pellet:not(.collected)');
+
+        if (remainingDots.length === 0 && remainingPowerPellets.length === 0) {
+          console.log('Victory! All dots collected');
+          triggerVictory();
+          return true;
+        }
+        return false;
+      }
+
+      // Trigger victory state
+      function triggerVictory() {
+        gameState = 'victory';
+
+        // Stop all timers
+        if (gameTimer) {
+          clearInterval(gameTimer);
+          gameTimer = null;
+        }
+        if (powerModeTimer) {
+          clearTimeout(powerModeTimer);
+          powerModeTimer = null;
+        }
+
+        // Pause ghost movement
+        pauseGhostMovement();
+
+        // Check if this is the final round
+        if (currentRound >= 20) {
+          // Game complete!
+          triggerGameComplete();
+        } else {
+          // Show victory screen and advance to next round
+          showVictoryScreen();
+        }
+      }
+
+      // Show victory screen for level completion
+      function showVictoryScreen() {
+        const victoryScreen = document.getElementById('victoryScreen');
+        const levelScoreElement = document.getElementById('levelScore');
+        const currentRoundElement = document.getElementById('currentRound');
+
+        if (victoryScreen && levelScoreElement && currentRoundElement) {
+          levelScoreElement.textContent = score;
+          currentRoundElement.textContent = currentRound;
+          victoryScreen.classList.add('show');
+
+          // Start countdown for next level
+          startNextLevelCountdown();
+        }
+      }
+
+      // Start countdown for next level
+      function startNextLevelCountdown() {
+        const countdownElement = document.getElementById('countdown');
+        let countdown = 3;
+
+        const countdownInterval = setInterval(() => {
+          if (countdownElement) {
+            countdownElement.textContent = countdown;
+          }
+
+          countdown--;
+
+          if (countdown < 0) {
+            clearInterval(countdownInterval);
+            advanceToNextRound();
+          }
+        }, 1000);
+      }
+
+      // Advance to next round
+      function advanceToNextRound() {
+        // Hide victory screen
+        const victoryScreen = document.getElementById('victoryScreen');
+        if (victoryScreen) {
+          victoryScreen.classList.remove('show');
+        }
+
+        // Increment round
+        currentRound++;
+        updateCounters();
+
+        // Add round advance animation
+        const roundDisplay = document.querySelector('.round-display');
+        roundDisplay.classList.add('round-advance');
+        setTimeout(() => roundDisplay.classList.remove('round-advance'), 1000);
+
+        // Update maze layout for new round
+        updateMazeForNewRound();
+
+        // Reset maze dots
+        resetMazeForNewRound();
+
+        // Reset Pacman position
+        pacmanX = 10;
+        pacmanY = 15;
+        updatePacmanPosition();
+
+        // Reset power mode
+        powerModeActive = false;
+        document.body.classList.remove('power-mode-active');
+
+        // Update difficulty (ghost speed)
+        updateDifficulty();
+
+        // Update maze indicator
+        updateMazeIndicator();
+
+        // Reset game state
+        gameState = 'playing';
+        updateGameStatus('playing', '');
+
+        // Restart game timer
+        gameTimer = setInterval(updateGameTimer, 1000);
+
+        // Restart ghost movement
+        startGhostMovement();
+      }
+
+      // Reset maze dots for new round
+      function resetMazeForNewRound() {
+        const allDots = document.querySelectorAll('.maze-cell.dot, .maze-cell.power-pellet');
+        allDots.forEach(dot => {
+          dot.classList.remove('collected');
+        });
+      }
+
+      // Update difficulty based on current round
+      function updateDifficulty() {
+        const speedMultiplier = Math.max(0.3, 1 - (currentRound * 0.025));
+        root.style.setProperty('--ghost-speed-multiplier', speedMultiplier);
+        console.log(`Round ${currentRound}: Ghost speed multiplier = ${speedMultiplier}`);
+      }
+
+      // Update maze indicator
+      function updateMazeIndicator() {
+        const layoutNumber = ((currentRound - 1) % 8) + 1;
+        const mazeIndicator = document.getElementById('mazeIndicator');
+        if (mazeIndicator) {
+          const mazeNames = {
+            1: 'Classic',
+            2: 'Open',
+            3: 'Compact',
+            4: 'Wide',
+            5: 'Cross',
+            6: 'Spiral',
+            7: 'Diamond',
+            8: 'Chambers'
+          };
+          mazeIndicator.textContent = `Maze: ${mazeNames[layoutNumber]}`;
+        }
+      }
+
+      // Trigger game complete (all 20 rounds finished)
+      function triggerGameComplete() {
+        gameState = 'game-complete';
+
+        // Show game complete screen
+        const gameCompleteScreen = document.getElementById('gameCompleteScreen');
+        const completionScoreElement = document.getElementById('completionScore');
+
+        if (gameCompleteScreen && completionScoreElement) {
+          completionScoreElement.textContent = score;
+          gameCompleteScreen.classList.add('show');
+
+          // Check for high score
+          if (score > highScore) {
+            setHighScore(score);
+            showHighScoreMessage();
+          }
+        }
+
+        updateGameStatus('game-complete', 'GAME COMPLETE!');
+      }
+
+      // Restart game function
+      function restartGame() {
+        // Hide all game screens
+        const screens = ['gameOverScreen', 'victoryScreen', 'gameCompleteScreen'];
+        screens.forEach(screenId => {
+          const screen = document.getElementById(screenId);
+          if (screen) {
+            screen.classList.remove('show');
+          }
+        });
+
+        // Reset game variables
+        score = 0;
+        currentScore = 0;
+        lives = 3;
+        currentLives = 3;
+        currentRound = 1;
+        gameState = 'ready';
+        powerModeActive = false;
+        dotsCollected = 0;
+        powerPelletsCollected = 0;
+
+        // Reset Pacman position
+        pacmanX = 10;
+        pacmanY = 15;
+        updatePacmanPosition();
+
+        // Reset all dots
+        resetMazeForNewRound();
+
+        // Reset power mode
+        document.body.classList.remove('power-mode-active');
+
+        // Reset difficulty
+        root.style.setProperty('--ghost-speed-multiplier', 1);
+
+        // Update counters
+        updateCounters();
+
+        // Reset game status
+        updateGameStatus('ready', 'READY!');
+
+        // Clear any existing timers
+        if (gameTimer) {
+          clearInterval(gameTimer);
+          gameTimer = null;
+        }
+        if (powerModeTimer) {
+          clearTimeout(powerModeTimer);
+          powerModeTimer = null;
+        }
+
+        // Restart game timer
+        gameStartTime = Date.now();
+        gameTimer = setInterval(updateGameTimer, 1000);
+
+        // Reset ghost positions
+        ghostRedX = 9; ghostRedY = 11;
+        ghostPinkX = 10; ghostPinkY = 11;
+        ghostBlueX = 11; ghostBlueY = 11;
+        ghostOrangeX = 12; ghostOrangeY = 11;
+        updateGhostPositions();
+
+        // Restart ghost movement
+        startGhostMovement();
       }
 
       // Initialize ghost movement
@@ -2171,8 +4272,64 @@
       // Periodically check for ghost wall collisions
       setInterval(checkGhostWallCollisions, 100);
 
-      // Make sure the page is focused to receive keyboard events
+      // Initialize maze on page load
       window.addEventListener('load', function () {
+        console.log('Initializing maze...');
+
+        // Generate maze HTML from wallMap
+        const gameBoard = document.querySelector('.game-board');
+        const mazeHTML = generateMazeHTML();
+
+        console.log('Generated maze HTML length:', mazeHTML.length);
+
+        // Find the game characters and preserve them
+        const pacman = gameBoard.querySelector('.pacman');
+        const ghosts = gameBoard.querySelectorAll('.ghost');
+        const gameMessage = gameBoard.querySelector('.game-message');
+
+        console.log('Found characters:', {
+          pacman: !!pacman,
+          ghosts: ghosts.length,
+        });
+
+        // Replace maze content but preserve characters
+        gameBoard.innerHTML = mazeHTML;
+
+        // Re-add the game characters
+        if (pacman) gameBoard.appendChild(pacman);
+        ghosts.forEach((ghost) => gameBoard.appendChild(ghost));
+        if (gameMessage) gameBoard.appendChild(gameMessage);
+
+        console.log('Maze initialization complete');
+
+        // Validate maze symmetry
+        validateAllMazeLayouts();
+
+        // Initialize Pacman position
+        initializePacmanPosition();
+        updatePacmanPosition();
+
+        // Update ghost positions
+        updateGhostPositions();
+
+        // Initialize game UI
+        gameStartTime = Date.now();
+        updateGameStatus('ready', 'READY!');
+        updateLevelIndicator();
+
+        // Initialize high score display
+        const highScoreDisplay = document.querySelector('.high-score-display');
+        if (highScoreDisplay) {
+          highScoreDisplay.setAttribute('data-high-score', highScore);
+        }
+
+        // Initialize maze indicator
+        updateMazeIndicator(1);
+
+        // Start game timer
+        gameTimer = setInterval(updateGameTimer, 1000);
+
+        // Make sure the page is focused to receive keyboard events
         document.body.focus();
         document.body.setAttribute('tabindex', '0');
       });

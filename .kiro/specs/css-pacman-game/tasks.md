@@ -88,25 +88,25 @@
 
 - [ ] 8. Build scoring and UI system
 
-  - [ ] 8.1 Implement CSS counter-based scoring
+  - [x] 8.1 Implement CSS counter-based scoring
     - Set up CSS counters for score, lives, and collected items
     - Create score display using counter() and content properties
     - Add score increment logic for different game events
     - _Requirements: 4.1, 4.2, 4.3, 6.5_
-  - [ ] 8.2 Create game state UI elements
+  - [x] 8.2 Create game state UI elements
     - Add score display, lives counter, and game status
     - Style UI elements with retro Pacman aesthetic
     - Position UI elements outside game board area
     - _Requirements: 4.5, 5.5, 5.6_
 
-- [ ] 9. Implement game over and victory conditions
+- [x] 9. Implement game over and victory conditions
 
-  - [ ] 9.1 Add collision detection between Pacman and ghosts
+  - [x] 9.1 Add collision detection between Pacman and ghosts
     - Detect when Pacman and ghost positions overlap
     - Trigger game over state when collision occurs during normal mode
     - Handle ghost consumption during power mode
     - _Requirements: 3.4, 3.6, 6.4_
-  - [ ] 9.2 Create victory condition and end game states
+  - [x] 9.2 Create victory condition and end game states
     - Detect when all dots have been collected
     - Display victory message and final score
     - Add game over screen with restart option
@@ -138,19 +138,19 @@
     - Add vendor prefixes where necessary
     - _Requirements: 6.1, 6.2_
 
-- [ ] 12. Implement multi-round progression system
+- [x] 12. Implement multi-round progression system
 
-  - [ ] 12.1 Create round counter and display
+  - [x] 12.1 Create round counter and display
     - Add CSS counter for tracking current round (1-20)
     - Display round progress in UI with "Round X / 20" format
     - Style round display to match game aesthetic
     - _Requirements: 6.1, 6.4, 7.4_
-  - [ ] 12.2 Build round advancement logic
+  - [x] 12.2 Build round advancement logic
     - Detect when all dots are collected using CSS counters
     - Increment round counter when victory condition is met
     - Reset maze dots for new round using CSS visibility toggles
     - _Requirements: 6.2, 6.5_
-  - [ ] 12.3 Implement difficulty scaling
+  - [x] 12.3 Implement difficulty scaling
     - Create CSS custom properties for ghost speed based on round number
     - Use calc() functions to decrease ghost animation duration each round
     - Test speed progression to ensure playable difficulty curve
@@ -208,14 +208,32 @@
     - Add media queries for optimal viewing experience
     - _Requirements: 5.5, 1.5_
 
-- [ ] 17. Optimize performance and cross-browser compatibility
-  - [ ] 17.1 Performance optimization
+- [ ] 17. Implement symmetrical maze layouts for each round
+
+  - [x] 17.1 Create maze generation system
+    - Design multiple symmetrical maze patterns (at least 5 unique layouts)
+    - Ensure each maze maintains classic Pacman gameplay balance
+    - Create JavaScript functions to generate maze layouts programmatically
+    - _Requirements: 1.1, 1.2, 6.2_
+  - [x] 17.2 Implement round-based maze switching
+    - Connect maze generation to round progression system
+    - Cycle through different maze layouts as rounds advance
+    - Ensure proper dot and power pellet placement in each layout
+    - _Requirements: 6.2, 6.5, 1.3, 1.4_
+  - [x] 17.3 Maintain maze symmetry and playability
+    - Ensure all generated mazes are horizontally or vertically symmetrical
+    - Verify ghost spawn areas and Pacman starting position work in all layouts
+    - Test that all mazes provide fair gameplay and strategic depth
+    - _Requirements: 1.1, 3.1, 2.1_
+
+- [ ] 18. Optimize performance and cross-browser compatibility
+  - [ ] 18.1 Performance optimization
     - Use will-change property for animated elements
     - Minimize layout thrashing with transform-only animations
     - Add hardware acceleration hints for smooth 60fps
     - Test performance with multiple rounds and score tracking
     - _Requirements: 9.2, 5.1_
-  - [ ] 17.2 Cross-browser testing and fixes
+  - [ ] 18.2 Cross-browser testing and fixes
     - Test localStorage functionality across different browsers
     - Ensure consistent animation timing across browsers
     - Add vendor prefixes where necessary
