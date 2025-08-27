@@ -1,0 +1,72 @@
+import React from 'react';
+import { CellType, type MazeCell as MazeCellType } from '../types';
+import { Dot } from './Dot';
+import { PowerPellet } from './PowerPellet';
+
+interface MazeCellProps extends MazeCellType {
+  onClick?: () => void;
+  onDotCollect?: (x: number, y: number) => void;
+  onPowerPelletCollect?: (x: number, y: number) => void;
+}
+
+export const MazeCell: React.FC<MazeCellProps> = ({
+  type,
+  x,
+  y,
+  isCollected = false,
+  onClick,
+  onDotCollect,
+  onPowerPelletCollect,
+}) => {
+  const getCellClasses = () => {
+    const baseClasses =
+      'w-4 h-4 sm:w-6 sm:h-6 relative transition-all duration-200';
+
+    switch (type) {
+      case CellType.WALL:
+        return `${baseClasses} bg-blue-600 border border-blue-400 rounded-sm shadow-inner`;
+      case CellType.PATH:
+        return `${baseClasses} bg-black`;
+      case CellType.DOT:
+        return `${baseClasses} bg-black flex items-center justify-center`;
+      case CellType.POWER_PELLET:
+        return `${baseClasses} bg-black flex items-center justify-center`;
+      case CellType.GHOST_HOUSE:
+        return `${baseClasses} bg-gray-800 border border-gray-600`;
+      default:
+        return `${baseClasses} bg-black`;
+    }
+  };
+
+  const renderCellContent = () => {
+    switch (type) {
+      case CellType.DOT:
+        return (
+          <Dot x={x} y={y} isCollected={isCollected} onCollect={onDotCollect} />
+        );
+      case CellType.POWER_PELLET:
+        return (
+          <PowerPellet
+            x={x}
+            y={y}
+            isCollected={isCollected}
+            onCollect={onPowerPelletCollect}
+          />
+        );
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div
+      className={getCellClasses()}
+      onClick={onClick}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      aria-label={`Cell at ${x}, ${y}`}
+    >
+      {renderCellContent()}
+    </div>
+  );
+};

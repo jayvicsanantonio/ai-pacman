@@ -7,3 +7,10 @@
     @apply bg-black text-white font-mono;
   }
 }
+@layer components {
+  .glow-effect {
+    box-shadow:
+      0 0 10px rgba(251, 191, 36, 0.8),
+      0 0 20px rgba(251, 191, 36, 0.4);
+  }
+}

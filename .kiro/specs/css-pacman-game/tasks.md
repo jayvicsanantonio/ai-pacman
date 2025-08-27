@@ -9,13 +9,13 @@
   - Create initial App.tsx and main.tsx entry points
   - _Requirements: 9.1, 9.2, 9.8_
 
-- [ ] 2. Create maze layout components and styling
-  - [ ] 2.1 Build GameBoard component with TailwindCSS Grid
+- [x] 2. Create maze layout components and styling
+  - [x] 2.1 Build GameBoard component with TailwindCSS Grid
     - Create GameBoard component using TailwindCSS grid-cols-21 and grid-rows-21
     - Implement MazeCell component with different cell types (wall, path, dot, power pellet)
     - Add responsive design with TailwindCSS responsive utilities
     - _Requirements: 1.1, 1.2, 5.5, 9.6_
-  - [ ] 2.2 Implement dots and power pellets as React components
+  - [x] 2.2 Implement dots and power pellets as React components
     - Create Dot component with TailwindCSS styling and animations
     - Create PowerPellet component with pulsing animation using TailwindCSS animate-pulse
     - Add collection state management with React hooks

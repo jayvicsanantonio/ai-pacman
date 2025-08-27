@@ -3,15 +3,12 @@
 /**
  * Converts grid coordinates to a string key for Set operations
  */
-export const coordsToKey = (x: number, y: number): string =>
-  `${x},${y}`;
+export const coordsToKey = (x: number, y: number): string => `${x},${y}`;
 
 /**
  * Converts a string key back to grid coordinates
  */
-export const keyToCoords = (
-  key: string
-): { x: number; y: number } => {
+export const keyToCoords = (key: string): { x: number; y: number } => {
   const [x, y] = key.split(',').map(Number);
   return { x, y };
 };
@@ -19,11 +16,7 @@ export const keyToCoords = (
 /**
  * Clamps a value between min and max
  */
-export const clamp = (
-  value: number,
-  min: number,
-  max: number
-): number => {
+export const clamp = (value: number, min: number, max: number): number => {
   return Math.min(Math.max(value, min), max);
 };
 
@@ -48,3 +41,8 @@ export const positionsEqual = (
 ): boolean => {
   return pos1.x === pos2.x && pos1.y === pos2.y;
 };
+export {
+  sampleMaze,
+  generateInitialDots,
+  generateInitialPowerPellets,
+} from './mazeData';
