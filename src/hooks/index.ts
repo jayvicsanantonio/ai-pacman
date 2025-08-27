@@ -8,4 +8,5 @@ export * from './useMovement';
 export * from './useCollisionDetection';
 export * from './useScore';
 export * from './useGameCollision';
+export * from './useGhostAI';
 // Additional hooks will be exported as they are created

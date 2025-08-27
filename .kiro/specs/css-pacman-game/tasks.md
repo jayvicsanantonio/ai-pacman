@@ -61,14 +61,14 @@
     - Update maze state to remove collected dots using React state
     - _Requirements: 2.6, 4.1, 9.2, 9.5_
 
-- [ ] 6. Develop ghost components and AI with React
-  - [ ] 6.1 Create Ghost component with TailwindCSS styling
+- [x] 6. Develop ghost components and AI with React
+  - [x] 6.1 Create Ghost component with TailwindCSS styling
     - Build Ghost component accepting color, position, and state props
     - Implement ghost visual design using TailwindCSS utilities (rounded-t-full for ghost shape)
     - Add color variants for different ghost types (red, pink, blue, orange)
     - Include vulnerable state styling with blue coloring and flashing animation
     - _Requirements: 3.1, 3.3, 5.3, 9.6_
-  - [ ] 6.2 Create useGhostAI custom hook for autonomous behavior
+  - [x] 6.2 Create useGhostAI custom hook for autonomous behavior
     - Build useGhostAI hook with different AI modes (chase, scatter, flee, eaten)
     - Implement pathfinding logic for ghost navigation through maze
     - Add individual ghost personality behaviors (aggressive, ambush, random, patrol)
