@@ -5,7 +5,7 @@ export { GameBoard } from './GameBoard';
 export { MazeCell } from './MazeCell';
 export { Dot } from './Dot';
 export { PowerPellet } from './PowerPellet';
-// export { Pacman } from './Pacman';
+export { Pacman } from './Pacman';
 // export { Ghost } from './Ghost';
 // export { ScoreBoard } from './ScoreBoard';
 // export { GameControls } from './GameControls';
