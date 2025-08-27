@@ -4,4 +4,5 @@
 export * from './useLocalStorage';
 export * from './useGameContext';
 export * from './useCollectibles';
+export * from './useMovement';
 // Additional hooks will be exported as they are created

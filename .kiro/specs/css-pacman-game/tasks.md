@@ -33,14 +33,14 @@
     - Implement directional rotation with React state and TailwindCSS transforms
     - _Requirements: 2.3, 2.5, 5.2, 9.2_
 
-- [ ] 4. Create movement control system with React
-  - [ ] 4.1 Build GameControls component with React event handlers
+- [x] 4. Create movement control system with React
+  - [x] 4.1 Build GameControls component with React event handlers
     - Create GameControls component with useEffect for keyboard event listeners
     - Add touch/click directional buttons using TailwindCSS styling
     - Implement proper event cleanup in useEffect return function
     - Add support for WASD and arrow key controls
     - _Requirements: 2.2, 9.3, 9.1_
-  - [ ] 4.2 Create useMovement custom hook for Pacman control
+  - [x] 4.2 Create useMovement custom hook for Pacman control
     - Build useMovement hook with useState for direction and position
     - Implement movement validation and collision detection logic
     - Add smooth movement timing with useEffect and intervals
