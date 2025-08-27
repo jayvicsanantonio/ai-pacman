@@ -2,9 +2,9 @@
 
 ## Introduction
 
-The CSS-only Pacman game is an innovative implementation of the classic arcade game using only HTML and CSS technologies, without any JavaScript. This project demonstrates the power of modern CSS features including animations, transforms, and pseudo-selectors to create interactive gameplay. The game will feature smooth animations, engaging visual feedback, and a faithful recreation of core Pacman mechanics while pushing the boundaries of what's possible with pure CSS.
+The React Pacman game is a modern implementation of the classic arcade game built entirely with React and TailwindCSS. This project demonstrates modern web development practices through component-based architecture, React hooks for state management, and TailwindCSS utility-first styling. The game features smooth animations, engaging visual feedback, and faithful recreation of core Pacman mechanics using React's declarative UI patterns and TailwindCSS's responsive design system.
 
-The game will include essential Pacman elements: a maze layout, player-controlled Pacman character, collectible dots, power pellets, and animated ghost enemies. All interactions and animations will be achieved through CSS hover states, checkbox hacks, radio button selections, and keyframe animations to simulate traditional game mechanics without scripting.
+The game includes all essential Pacman elements: a responsive maze layout, player-controlled Pacman character, collectible dots, power pellets, and AI-driven ghost enemies. All game logic, interactions, and animations are implemented through React components, custom hooks, event handlers, and TailwindCSS animations, creating a fully interactive gaming experience with modern web technologies.
 
 ## Requirements
 
@@ -111,16 +111,17 @@ The game will include essential Pacman elements: a maze layout, player-controlle
 5. WHILE using browser storage THE system SHALL only store essential score data to minimize storage usage
 6. WHEN clearing browser data THEN the system SHALL handle missing localStorage gracefully on next load
 
-### Requirement 9: CSS-Only Implementation Constraints
+### Requirement 9: React + TailwindCSS Architecture Requirements
 
-**User Story:** As a developer, I want the entire game functionality implemented using only HTML and CSS, so that it demonstrates advanced CSS capabilities without JavaScript dependencies.
+**User Story:** As a developer, I want the entire game implemented as a React application with TailwindCSS styling, so that it showcases modern component-based architecture, declarative UI patterns, and utility-first CSS methodology.
 
 #### Acceptance Criteria
 
-1. WHEN implementing controls THEN the system SHALL use CSS checkbox/radio button hacks for state management
-2. WHEN creating animations THEN the system SHALL utilize CSS keyframes, transforms, and transitions exclusively
-3. WHEN handling interactions THEN the system SHALL leverage CSS hover, focus, and pseudo-selector states
-4. IF collision detection is needed THEN the system SHALL use CSS positioning and z-index layering techniques
-5. WHILE maintaining game state THE system SHALL employ CSS counters and content generation where possible
-6. WHEN styling elements THEN the system SHALL avoid any JavaScript event handlers or scripting
-7. WHEN implementing browser storage THEN the system SHALL use minimal JavaScript only for localStorage operations while keeping all game logic in CSS
+1. WHEN building components THEN the system SHALL use React functional components with hooks
+2. WHEN managing state THEN the system SHALL use React hooks (useState, useEffect, useContext, useCallback, useMemo)
+3. WHEN handling user input THEN the system SHALL use React event handlers (onClick, onKeyDown, onTouchStart)
+4. WHEN implementing game logic THEN the system SHALL use custom React hooks for reusable logic
+5. WHEN styling components THEN the system SHALL use TailwindCSS utility classes exclusively
+6. WHEN creating animations THEN the system SHALL combine React state transitions with TailwindCSS animation utilities
+7. WHEN managing data persistence THEN the system SHALL use custom React hooks with localStorage integration
+8. WHEN organizing code THEN the system SHALL follow React best practices with proper component composition and separation of concerns

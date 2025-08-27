@@ -1,241 +1,288 @@
 # Implementation Plan
 
-- [x] 1. Set up project structure and HTML foundation
+- [ ] 1. Set up React project structure and dependencies
 
-  - Create index.html with semantic game board structure
-  - Set up CSS Grid layout for 21x21 maze
-  - Add basic HTML structure for Pacman, ghosts, and UI elements
-  - Initialize CSS custom properties for game state
-  - _Requirements: 1.1, 1.2, 6.1_
+  - Initialize React project with Vite for fast development and build
+  - Install and configure TailwindCSS with PostCSS and Autoprefixer
+  - Set up project folder structure (src/components, src/hooks, src/utils, src/types, src/context)
+  - Configure TypeScript for type safety and better development experience
+  - Add development dependencies (ESLint, Prettier, @types/react)
+  - Create initial App.tsx and main.tsx entry points
+  - _Requirements: 9.1, 9.2, 9.8_
 
-- [x] 2. Implement maze layout and visual styling
+- [ ] 2. Create maze layout components and styling
 
-  - [x] 2.1 Create CSS Grid maze with walls and pathways
-    - Define grid template areas for classic Pacman maze layout
-    - Style wall cells with appropriate colors and borders
-    - Create pathway cells as navigable empty spaces
-    - _Requirements: 1.1, 1.2, 5.5_
-  - [x] 2.2 Add dots and power pellets to maze
-    - Place regular dots in all pathway cells using ::before pseudo-elements
-    - Position four power pellets in maze corners with larger size
-    - Style dots with classic white/yellow colors and glow effects
-    - _Requirements: 1.3, 1.4, 5.5_
+  - [ ] 2.1 Build GameBoard component with TailwindCSS Grid
+    - Create GameBoard component using TailwindCSS grid-cols-21 and grid-rows-21
+    - Implement MazeCell component with different cell types (wall, path, dot, power pellet)
+    - Add responsive design with TailwindCSS responsive utilities
+    - _Requirements: 1.1, 1.2, 5.5, 9.6_
+  - [ ] 2.2 Implement dots and power pellets as React components
+    - Create Dot component with TailwindCSS styling and animations
+    - Create PowerPellet component with pulsing animation using TailwindCSS animate-pulse
+    - Add collection state management with React hooks
+    - _Requirements: 1.3, 1.4, 5.5, 9.2_
 
-- [x] 3. Build Pacman character with basic styling
+- [ ] 3. Build Pacman component with React and TailwindCSS
 
-  - [x] 3.1 Create Pacman visual design
-    - Style Pacman as yellow circle with CSS border-radius
-    - Implement mouth opening using CSS clip-path or border techniques
-    - Add smooth transitions for visual state changes
-    - _Requirements: 2.1, 5.1, 5.5_
-  - [x] 3.2 Implement Pacman mouth animation
-    - Create keyframe animation for mouth opening and closing
-    - Sync animation timing with movement states
-    - Add directional rotation transforms
-    - _Requirements: 2.3, 2.5, 5.2_
+  - [ ] 3.1 Create Pacman component with TailwindCSS styling
+    - Build Pacman component using TailwindCSS rounded-full and bg-yellow-400
+    - Implement directional rotation using TailwindCSS transform utilities
+    - Add smooth transitions with TailwindCSS transition classes
+    - _Requirements: 2.1, 5.1, 5.5, 9.2, 9.6_
+  - [ ] 3.2 Implement Pacman animations with TailwindCSS
+    - Create eating animation using TailwindCSS animate-bounce
+    - Add movement animation with TailwindCSS animate-pulse
+    - Implement directional rotation with React state and TailwindCSS transforms
+    - _Requirements: 2.3, 2.5, 5.2, 9.2_
 
-- [x] 4. Create movement control system
+- [ ] 4. Create movement control system with React
 
-  - [x] 4.1 Build CSS-only input controls
-    - Add hidden radio buttons for directional movement (up, down, left, right)
-    - Create keyboard-accessible labels for movement controls
-    - Implement checkbox for power mode state management
-    - _Requirements: 2.2, 6.1, 6.3_
-  - [x] 4.2 Connect controls to Pacman movement
-    - Use CSS selectors to detect input state changes
-    - Translate input states to CSS custom property updates
-    - Implement smooth transform transitions for movement
-    - _Requirements: 2.2, 2.4, 6.2_
+  - [ ] 4.1 Build GameControls component with React event handlers
+    - Create GameControls component with useEffect for keyboard event listeners
+    - Add touch/click directional buttons using TailwindCSS styling
+    - Implement proper event cleanup in useEffect return function
+    - Add support for WASD and arrow key controls
+    - _Requirements: 2.2, 9.3, 9.1_
+  - [ ] 4.2 Create useMovement custom hook for Pacman control
+    - Build useMovement hook with useState for direction and position
+    - Implement movement validation and collision detection logic
+    - Add smooth movement timing with useEffect and intervals
+    - Connect movement state to Pacman component props
+    - _Requirements: 2.2, 2.4, 9.4, 9.2_
 
-- [x] 5. Implement collision detection and dot collection
+- [ ] 5. Implement collision detection and dot collection with React
 
-  - [x] 5.1 Create position-based collision system
-    - Use CSS calc() functions to determine character grid positions
-    - Implement overlap detection using z-index and positioning
-    - Add collision boundaries to prevent movement through walls
-    - _Requirements: 2.4, 2.6, 6.4_
-  - [x] 5.2 Build dot collection mechanics
-    - Hide dots when Pacman position matches dot position
-    - Use CSS counters to track collected dots
-    - Trigger score increment on dot collection
-    - _Requirements: 2.6, 4.1, 6.5_
+  - [ ] 5.1 Create useCollisionDetection custom hook
+    - Build collision detection functions for character-to-wall and character-to-character
+    - Implement grid-based position checking using maze array data
+    - Add boundary validation to prevent movement outside game area
+    - Create efficient collision checking with position comparison algorithms
+    - _Requirements: 2.4, 2.6, 9.4_
+  - [ ] 5.2 Build useScore hook and dot collection system
+    - Create useScore custom hook with useState for score management
+    - Implement dot collection detection when Pacman position matches dot position
+    - Add score increment logic for different collectible types
+    - Update maze state to remove collected dots using React state
+    - _Requirements: 2.6, 4.1, 9.2, 9.5_
 
-- [x] 6. Develop ghost characters and animations
+- [ ] 6. Develop ghost components and AI with React
 
-  - [x] 6.1 Create ghost visual design
-    - Style four ghosts with distinct colors (red, pink, blue, orange)
-    - Use CSS shapes to create classic ghost appearance
-    - Add subtle floating animations for personality
-    - _Requirements: 3.1, 3.3, 5.3_
-  - [x] 6.2 Implement ghost movement patterns
-    - Create keyframe animations for autonomous ghost movement
-    - Stagger animation timing to create different movement patterns
-    - Add wall collision detection for direction changes
-    - _Requirements: 3.2, 3.3, 6.2_
+  - [ ] 6.1 Create Ghost component with TailwindCSS styling
+    - Build Ghost component accepting color, position, and state props
+    - Implement ghost visual design using TailwindCSS utilities (rounded-t-full for ghost shape)
+    - Add color variants for different ghost types (red, pink, blue, orange)
+    - Include vulnerable state styling with blue coloring and flashing animation
+    - _Requirements: 3.1, 3.3, 5.3, 9.6_
+  - [ ] 6.2 Create useGhostAI custom hook for autonomous behavior
+    - Build useGhostAI hook with different AI modes (chase, scatter, flee, eaten)
+    - Implement pathfinding logic for ghost navigation through maze
+    - Add individual ghost personality behaviors (aggressive, ambush, random, patrol)
+    - Create collision detection and direction changing when hitting walls
+    - _Requirements: 3.2, 3.3, 9.4, 9.2_
 
-- [x] 7. Add power pellet mechanics
+- [ ] 7. Add power pellet mechanics with React state
 
-  - [x] 7.1 Implement power mode activation
-    - Trigger power mode when Pacman collects power pellet
-    - Use CSS checkbox state to control power mode duration
-    - Add visual feedback for power mode activation
-    - _Requirements: 3.5, 4.2, 6.1_
-  - [x] 7.2 Create vulnerable ghost behavior
-    - Change ghost colors to blue during power mode
-    - Add flashing animation to indicate vulnerability timer
-    - Implement ghost consumption and scoring
-    - _Requirements: 3.5, 3.6, 4.3_
+  - [ ] 7.1 Implement power mode activation with React hooks
+    - Create usePowerMode hook for power pellet state management
+    - Add timer functionality using useEffect and setTimeout
+    - Implement visual feedback with TailwindCSS animations and state changes
+    - _Requirements: 3.5, 4.2, 9.1, 9.5_
+  - [ ] 7.2 Create vulnerable ghost behavior with React state
+    - Update Ghost component to handle vulnerable state styling
+    - Add flashing animation using TailwindCSS animate-pulse and conditional classes
+    - Implement ghost consumption logic and scoring in React
+    - _Requirements: 3.5, 3.6, 4.3, 9.2, 9.5_
 
-- [x] 8. Build scoring and UI system
+- [ ] 8. Create game context and global state management
 
-  - [x] 8.1 Implement CSS counter-based scoring
-    - Set up CSS counters for score, lives, and collected items
-    - Create score display using counter() and content properties
-    - Add score increment logic for different game events
-    - _Requirements: 4.1, 4.2, 4.3, 6.5_
-  - [x] 8.2 Create game state UI elements
-    - Add score display, lives counter, and game status
-    - Style UI elements with retro Pacman aesthetic
-    - Position UI elements outside game board area
-    - _Requirements: 4.5, 5.5, 5.6_
+  - [ ] 8.1 Build GameContext and GameProvider components
+    - Create GameContext using React.createContext for global game state
+    - Build GameProvider component to wrap the application with game state
+    - Implement useGameContext hook for accessing game state in components
+    - Define TypeScript interfaces for game state structure
+    - _Requirements: 9.2, 9.5, 9.8_
+  - [ ] 8.2 Create useGameState custom hook for centralized state management
+    - Build useGameState hook combining all game-related state (score, lives, round, game status)
+    - Implement game state transitions (ready, playing, paused, game-over, victory)
+    - Add game reset functionality and state initialization
+    - Connect useGameState to GameProvider for global access
+    - _Requirements: 4.5, 6.1, 9.2, 9.5_
 
-- [x] 9. Implement game over and victory conditions
+- [ ] 9. Build scoring and UI system with React components
 
-  - [x] 9.1 Add collision detection between Pacman and ghosts
-    - Detect when Pacman and ghost positions overlap
-    - Trigger game over state when collision occurs during normal mode
-    - Handle ghost consumption during power mode
-    - _Requirements: 3.4, 3.6, 6.4_
-  - [x] 9.2 Create victory condition and end game states
-    - Detect when all dots have been collected
-    - Display victory message and final score
-    - Add game over screen with restart option
-    - _Requirements: 4.4, 4.6, 5.6_
+  - [ ] 9.1 Implement ScoreBoard component with React context
+    - Create ScoreBoard component consuming game state from GameContext
+    - Use TailwindCSS utilities for responsive scoreboard layout
+    - Display current score, high score, lives, and round information
+    - Add conditional styling based on game state (playing, paused, game-over)
+    - _Requirements: 4.1, 4.2, 4.3, 9.5, 9.6_
+  - [ ] 9.2 Create game status and UI feedback components
+    - Build GameStatus component for displaying current game state messages
+    - Create modal components for game over, victory, and pause screens
+    - Add restart and continue game functionality with React event handlers
+    - Implement visual feedback for state changes using TailwindCSS animations
+    - _Requirements: 4.5, 5.5, 5.6, 9.6_
 
-- [x] 10. Polish animations and visual effects
+- [ ] 10. Implement game over and victory conditions with React
 
-  - [x] 10.1 Enhance movement animations
-    - Add smooth easing functions to all character movements
-    - Implement anticipation and follow-through in animations
-    - Optimize animation performance with transform3d
-    - _Requirements: 5.1, 5.2, 6.2_
-  - [x] 10.2 Add particle effects and visual feedback
-    - Create CSS-only particle effects for dot collection
-    - Add screen shake effect for ghost collisions
-    - Implement power pellet glow and pulsing animations
-    - _Requirements: 5.4, 5.6, 6.2_
+  - [ ] 10.1 Add collision detection between Pacman and ghosts using React logic
+    - Implement collision detection functions in useGameLogic hook
+    - Create game over state management when collision occurs
+    - Handle ghost consumption during power mode with React state updates
+    - Trigger appropriate game state transitions through GameContext
+    - _Requirements: 3.4, 3.6, 9.4, 9.5_
+  - [ ] 10.2 Create victory condition and end game components
+    - Build GameOverScreen component with TailwindCSS styling and animations
+    - Create VictoryScreen component for round/game completion
+    - Add restart functionality with React state reset through GameContext
+    - Implement final score display and high score comparison
+    - _Requirements: 4.4, 4.6, 5.6, 9.6_
 
-- [x] 11. Optimize performance and cross-browser compatibility
+- [ ] 11. Polish animations and visual effects with TailwindCSS
 
-  - [x] 11.1 Performance optimization
-    - Use will-change property for animated elements
-    - Minimize layout thrashing with transform-only animations
-    - Add hardware acceleration hints for smooth 60fps
-    - _Requirements: 6.2, 5.1_
-  - [x] 11.2 Cross-browser testing and fixes
-    - Test and fix CSS Grid compatibility issues
-    - Ensure consistent animation timing across browsers
-    - Add vendor prefixes where necessary
-    - _Requirements: 6.1, 6.2_
+  - [ ] 11.1 Enhance movement animations with TailwindCSS
+    - Add smooth transitions using TailwindCSS transition utilities
+    - Implement easing functions with TailwindCSS ease-in-out classes
+    - Optimize animations with TailwindCSS transform utilities
+    - Create custom animation keyframes for character-specific movements
+    - _Requirements: 5.1, 5.2, 9.2_
+  - [ ] 11.2 Add particle effects and visual feedback with React and TailwindCSS
+    - Create ParticleEffect component for dot collection animations
+    - Add screen shake effect using React state and TailwindCSS animations
+    - Implement power pellet glow with TailwindCSS shadow and animate-pulse
+    - Create celebration animations for high scores and level completion
+    - _Requirements: 5.4, 5.6, 9.2, 9.6_
 
-- [x] 12. Implement multi-round progression system
+- [ ] 12. Optimize performance and cross-browser compatibility
 
-  - [x] 12.1 Create round counter and display
-    - Add CSS counter for tracking current round (1-20)
-    - Display round progress in UI with "Round X / 20" format
-    - Style round display to match game aesthetic
-    - _Requirements: 6.1, 6.4, 7.4_
-  - [x] 12.2 Build round advancement logic
-    - Detect when all dots are collected using CSS counters
-    - Increment round counter when victory condition is met
-    - Reset maze dots for new round using CSS visibility toggles
-    - _Requirements: 6.2, 6.5_
-  - [x] 12.3 Implement difficulty scaling
-    - Create CSS custom properties for ghost speed based on round number
-    - Use calc() functions to decrease ghost animation duration each round
-    - Test speed progression to ensure playable difficulty curve
-    - _Requirements: 6.3, 6.6_
+  - [ ] 12.1 Performance optimization with React best practices
+    - Implement React.memo for component optimization
+    - Use useCallback and useMemo hooks to prevent unnecessary re-renders
+    - Optimize TailwindCSS build with purging unused styles
+    - Add performance monitoring and frame rate optimization
+    - _Requirements: 9.5, 5.1_
+  - [ ] 12.2 Cross-browser testing and React compatibility
+    - Test React application across different browsers (Chrome, Firefox, Safari, Edge)
+    - Ensure TailwindCSS compatibility and responsive design
+    - Add polyfills if necessary for older browser support
+    - Verify localStorage functionality across different browsers
+    - _Requirements: 9.1, 9.2_
 
-- [ ] 13. Build high score tracking system
+- [ ] 13. Implement multi-round progression system with React
 
-  - [ ] 13.1 Create high score display
-    - Add HTML elements for current score and high score display
-    - Style high score display prominently in game UI
-    - Use CSS counters and data attributes for score values
-    - _Requirements: 7.1, 7.3, 7.5_
-  - [ ] 13.2 Implement score comparison logic
-    - Create CSS-based score comparison using data attributes
-    - Add visual celebration effects for new high scores
-    - Display high score achievement feedback to player
-    - _Requirements: 7.2, 7.6_
+  - [ ] 13.1 Create useRound custom hook for round management
+    - Build useRound hook for tracking current round (1-20) with useState
+    - Implement round progression logic and victory condition detection
+    - Add round reset functionality for new game sessions
+    - Connect round state to GameContext for global access
+    - _Requirements: 6.1, 6.4, 7.4, 9.5_
+  - [ ] 13.2 Build round advancement logic with React
+    - Detect victory condition using React state (all dots collected)
+    - Implement automatic round increment when all dots are collected
+    - Reset maze state for new round using React state management
+    - Add round transition animations and user feedback
+    - _Requirements: 6.2, 6.5, 9.5_
+  - [ ] 13.3 Implement difficulty scaling with React
+    - Create difficulty scaling logic in useGameLogic hook
+    - Adjust ghost speed based on round number using React state
+    - Implement progressive difficulty increases (ghost speed, AI aggressiveness)
+    - Test difficulty progression with React component updates
+    - _Requirements: 6.3, 6.6, 9.5_
 
-- [ ] 14. Integrate browser storage for score persistence
+- [ ] 14. Build high score tracking system with React
 
-  - [ ] 14.1 Create minimal JavaScript storage module
-    - Write ScoreStorage module with getHighScore and setHighScore methods
-    - Add localStorage availability detection and fallback handling
-    - Implement graceful degradation for browsers without storage support
+  - [ ] 14.1 Create useHighScore custom hook for score management
+    - Build useHighScore hook combining useScore and useLocalStorage
+    - Implement high score comparison logic and automatic updates
+    - Add score validation and data integrity checks
+    - Connect high score state to GameContext for global access
+    - _Requirements: 7.1, 7.3, 7.5, 9.5, 9.6_
+  - [ ] 14.2 Implement score celebration and feedback with React
+    - Create NewHighScore component with TailwindCSS celebration animations
+    - Add achievement feedback using React conditional rendering
+    - Implement score milestone celebrations (every 1000 points, etc.)
+    - Create visual feedback for score increases with animated counters
+    - _Requirements: 7.2, 7.6, 9.2, 9.6_
+
+- [ ] 15. Integrate browser storage with React hooks
+
+  - [ ] 15.1 Create useLocalStorage custom hook
+    - Build useLocalStorage hook with useState and useEffect for persistence
+    - Add JSON serialization/deserialization with error handling
+    - Implement fallback behavior when localStorage is unavailable
+    - Create TypeScript interfaces for stored data structure
     - _Requirements: 8.1, 8.3, 8.4, 9.7_
-  - [ ] 14.2 Connect storage to game scoring system
-    - Load stored high score on game initialization
-    - Save new high scores to localStorage when achieved
-    - Update high score display with persisted values
-    - _Requirements: 8.2, 8.5_
+  - [ ] 15.2 Connect storage to game scoring system with React
+    - Integrate useLocalStorage hook with useScore hook for high score persistence
+    - Load stored high score on application initialization using useEffect
+    - Automatically save new high scores when score state updates
+    - Add data validation and migration for stored game data
+    - _Requirements: 8.2, 8.5, 9.2, 9.5_
 
-- [ ] 15. Implement game completion system
+- [ ] 16. Implement game completion system with React
 
-  - [ ] 15.1 Add round 20 completion detection
-    - Detect when player completes all 20 rounds
-    - Display game completion message and final score
-    - Show total completion time and performance statistics
-    - _Requirements: 6.6_
-  - [ ] 15.2 Create game completion celebration
-    - Add special visual effects for completing all rounds
-    - Display final high score comparison and achievement
-    - Provide option to restart from round 1
-    - _Requirements: 7.6_
+  - [ ] 16.1 Add round 20 completion detection with React logic
+    - Implement game completion detection in useGameLogic hook
+    - Create GameCompleteScreen component with TailwindCSS styling
+    - Display completion statistics using React state (total score, time played)
+    - Add final high score comparison and celebration
+    - _Requirements: 6.6, 9.5, 9.6_
+  - [ ] 16.2 Create game completion celebration with React animations
+    - Add celebration animations using TailwindCSS and React state
+    - Create achievement display with conditional rendering
+    - Implement restart functionality with React state reset through GameContext
+    - Add social sharing functionality for completed games
+    - _Requirements: 7.6, 9.2, 9.5_
 
-- [ ] 16. Add accessibility and responsive design
+- [ ] 17. Add accessibility and responsive design with React and TailwindCSS
 
-  - [ ] 16.1 Implement keyboard navigation
-    - Ensure all controls are keyboard accessible
-    - Add focus indicators for control elements
-    - Test with screen readers for semantic structure
-    - _Requirements: 9.3, 2.2_
-  - [ ] 16.2 Create responsive design
-    - Scale game board appropriately for different screen sizes
-    - Maintain aspect ratio and playability on mobile devices
-    - Add media queries for optimal viewing experience
-    - _Requirements: 5.5, 1.5_
+  - [ ] 17.1 Implement keyboard navigation and accessibility
+    - Add proper ARIA labels and roles to React components
+    - Implement keyboard navigation using React event handlers
+    - Test with screen readers and add semantic HTML structure
+    - Add focus management for modal dialogs and game states
+    - _Requirements: 9.3, 2.2, 9.1_
+  - [ ] 17.2 Create responsive design with TailwindCSS
+    - Use TailwindCSS responsive utilities for different screen sizes
+    - Implement mobile-first design approach with responsive breakpoints
+    - Add touch controls for mobile devices using React event handlers
+    - Create adaptive UI that works on desktop, tablet, and mobile
+    - _Requirements: 5.5, 1.5, 9.6_
 
-- [ ] 17. Implement symmetrical maze layouts for each round
+- [ ] 18. Implement symmetrical maze layouts for each round
 
-  - [x] 17.1 Create maze generation system
+  - [ ] 18.1 Create maze generation system with React state
     - Design multiple symmetrical maze patterns (at least 5 unique layouts)
+    - Create useMaze custom hook for maze state management
+    - Implement maze data structures using TypeScript interfaces
     - Ensure each maze maintains classic Pacman gameplay balance
-    - Create JavaScript functions to generate maze layouts programmatically
-    - _Requirements: 1.1, 1.2, 6.2_
-  - [x] 17.2 Implement round-based maze switching
-    - Connect maze generation to round progression system
-    - Cycle through different maze layouts as rounds advance
+    - _Requirements: 1.1, 1.2, 6.2, 9.2_
+  - [ ] 18.2 Implement round-based maze switching with React
+    - Connect maze generation to round progression system through GameContext
+    - Cycle through different maze layouts as rounds advance using React state
     - Ensure proper dot and power pellet placement in each layout
-    - _Requirements: 6.2, 6.5, 1.3, 1.4_
-  - [x] 17.3 Maintain maze symmetry and playability
+    - Add maze transition animations using TailwindCSS
+    - _Requirements: 6.2, 6.5, 1.3, 1.4, 9.5_
+  - [ ] 18.3 Maintain maze symmetry and playability with React validation
     - Ensure all generated mazes are horizontally or vertically symmetrical
     - Verify ghost spawn areas and Pacman starting position work in all layouts
     - Test that all mazes provide fair gameplay and strategic depth
-    - _Requirements: 1.1, 3.1, 2.1_
+    - Add maze validation functions in React components
+    - _Requirements: 1.1, 3.1, 2.1, 9.4_
 
-- [ ] 18. Optimize performance and cross-browser compatibility
-  - [ ] 18.1 Performance optimization
-    - Use will-change property for animated elements
+- [ ] 19. Final optimization and testing
+  - [ ] 19.1 Performance optimization with React and TailwindCSS
+    - Implement React.memo, useCallback, and useMemo for performance
+    - Use will-change property for animated elements in TailwindCSS
     - Minimize layout thrashing with transform-only animations
-    - Add hardware acceleration hints for smooth 60fps
+    - Add hardware acceleration hints for smooth 60fps gameplay
     - Test performance with multiple rounds and score tracking
-    - _Requirements: 9.2, 5.1_
-  - [ ] 18.2 Cross-browser testing and fixes
-    - Test localStorage functionality across different browsers
-    - Ensure consistent animation timing across browsers
-    - Add vendor prefixes where necessary
-    - Verify CSS Grid compatibility for maze layout
+    - _Requirements: 9.2, 5.1, 9.5_
+  - [ ] 19.2 Cross-browser testing and React compatibility
+    - Test React application and localStorage functionality across different browsers
+    - Ensure consistent animation timing and TailwindCSS compatibility
+    - Add polyfills if necessary for older browser support
+    - Verify responsive design works across different devices
+    - Test game performance on mobile devices
     - _Requirements: 9.1, 9.2, 8.3_

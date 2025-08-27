@@ -2,91 +2,129 @@
 
 ## Overview
 
-The CSS-only Pacman game leverages advanced CSS techniques to create an interactive gaming experience without JavaScript. The architecture uses a combination of CSS Grid for layout, CSS animations for movement, checkbox/radio button state management for user input, and complex selectors for game logic. The design prioritizes smooth animations, responsive interactions, and faithful recreation of classic Pacman mechanics while maintaining clean, semantic HTML structure.
+The React Pacman game is built as a modern single-page application using React 18+ with functional components and hooks, styled entirely with TailwindCSS utilities. The architecture emphasizes component composition, declarative state management, and responsive design patterns. The game leverages React's virtual DOM for efficient updates, custom hooks for game logic encapsulation, and TailwindCSS's utility-first approach for consistent styling and animations.
 
-The core innovation lies in using hidden form controls to manage game state, CSS counters for scoring, and layered positioning for collision detection. All character movements are achieved through CSS transforms and transitions, while game logic is handled via cascading selectors that respond to input states.
+The design centers around a main Game component that orchestrates child components (GameBoard, Pacman, Ghosts, ScoreBoard, GameControls) through props and context. All game state is managed through React hooks, with custom hooks abstracting complex game mechanics like collision detection, AI behavior, and score management. TailwindCSS provides all styling, animations, and responsive behavior through utility classes.
 
 ## Architecture
 
-The game consists of five main architectural layers:
+The React Pacman game follows a layered component architecture with clear separation of concerns:
 
-1. **HTML Structure Layer**: Semantic markup defining game board, characters, and control elements
-2. **CSS Layout Layer**: Grid-based maze layout with positioned game elements
-3. **Animation Engine Layer**: Keyframe animations and transitions for character movement
-4. **State Management Layer**: Hidden form controls and CSS selectors for game logic
-5. **Storage Layer**: Minimal JavaScript module for persistent high score storage
+1. **Presentation Layer**: React functional components with TailwindCSS styling
+2. **State Management Layer**: Custom hooks and React Context for global state
+3. **Game Logic Layer**: Custom hooks encapsulating game mechanics and rules
+4. **Event Handling Layer**: React event handlers and keyboard/touch input management
+5. **Persistence Layer**: localStorage integration through custom hooks
 
 ```mermaid
 graph TD
-    A[HTML Structure] --> B[CSS Grid Layout]
-    B --> C[Animation Engine]
-    C --> D[State Management]
-    D --> E[User Interactions]
-    E --> F[Visual Feedback]
-    F --> C
+    A[App Component] --> B[GameProvider Context]
+    B --> C[Game Component]
+    C --> D[GameBoard Component]
+    C --> E[ScoreBoard Component]
+    C --> F[GameControls Component]
 
-    G[Checkbox Controls] --> D
-    H[Radio Buttons] --> D
-    I[CSS Counters] --> J[Score Display]
-    D --> J
+    D --> G[MazeCell Components]
+    D --> H[Pacman Component]
+    D --> I[Ghost Components]
 
-    K[Storage Layer] --> L[High Score Persistence]
-    J --> M[Score Comparison]
-    M --> K
+    J[useGameState Hook] --> B
+    K[useMovement Hook] --> H
+    L[useGhostAI Hook] --> I
+    M[useScore Hook] --> E
+    N[useLocalStorage Hook] --> M
 
-    N[Round Counter] --> O[Difficulty Scaling]
-    O --> P[Ghost Speed Adjustment]
+    O[TailwindCSS Utilities] --> D
+    O --> E
+    O --> F
+    O --> H
+    O --> I
+
+    P[React Event Handlers] --> F
     P --> C
-    D --> N
 ```
 
 ## Components and Interfaces
 
-### Game Board Component
+### GameBoard Component
 
 **Purpose**: Defines the maze structure and game boundaries
-**Implementation**: CSS Grid with named grid areas for walls and pathways
+**Implementation**: React component with TailwindCSS Grid layout
 **Interface**:
 
-```css
-.game-board {
-  display: grid;
-  grid-template-columns: repeat(21, 1fr);
-  grid-template-rows: repeat(21, 1fr);
-  gap: 2px;
-}
+```jsx
+const GameBoard = ({ maze, pacman, ghosts, onCellClick }) => {
+  return (
+    <div className="grid grid-cols-21 grid-rows-21 gap-0.5 p-2 bg-black border-4 border-blue-600 rounded-lg">
+      {maze.map((row, y) =>
+        row.map((cell, x) => (
+          <MazeCell
+            key={`${x}-${y}`}
+            type={cell}
+            x={x}
+            y={y}
+            onClick={() => onCellClick(x, y)}
+          />
+        ))
+      )}
+      <Pacman {...pacman} />
+      {ghosts.map((ghost) => (
+        <Ghost key={ghost.id} {...ghost} />
+      ))}
+    </div>
+  );
+};
 ```
 
 **Responsibilities**:
 
-- Define maze layout using grid positioning
-- Provide collision boundaries through grid constraints
-- Support responsive scaling for different screen sizes
+- Render maze layout using TailwindCSS Grid
+- Manage maze cell components and their states
+- Handle click events for debugging/testing
+- Support responsive scaling with TailwindCSS responsive utilities
 
-### Pacman Character Component
+### Pacman Component
 
 **Purpose**: Player-controlled character with directional movement and eating animation
-**Implementation**: Positioned div with CSS transforms and keyframe animations
+**Implementation**: React component with TailwindCSS styling and animations
 **Interface**:
 
-```css
-.pacman {
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #ffff00;
-  transform: translate(var(--x), var(--y)) rotate(var(--direction));
-  transition: transform 0.3s ease-in-out;
-}
+```jsx
+const Pacman = ({ x, y, direction, isMoving, isEating }) => {
+  const directionClasses = {
+    up: 'rotate-[-90deg]',
+    down: 'rotate-90',
+    left: 'rotate-180',
+    right: 'rotate-0',
+  };
+
+  return (
+    <div
+      className={`
+        absolute w-6 h-6 bg-yellow-400 rounded-full
+        transition-all duration-300 ease-in-out
+        ${directionClasses[direction]}
+        ${isMoving ? 'animate-pulse' : ''}
+        ${isEating ? 'animate-bounce' : ''}
+      `}
+      style={{
+        transform: `translate(${x * 24}px, ${y * 24}px)`,
+      }}
+    >
+      <div className="w-full h-full relative">
+        <div className="absolute inset-0 bg-yellow-400 rounded-full animate-ping opacity-75" />
+      </div>
+    </div>
+  );
+};
 ```
 
 **Responsibilities**:
 
-- Respond to directional input controls
-- Animate mouth opening/closing during movement
-- Handle collision detection with dots and ghosts
-- Maintain position within maze boundaries
+- Render Pacman character with TailwindCSS styling
+- Handle directional rotation and movement animations
+- Display eating and movement state animations
+- Maintain position through React props
 
 ### Ghost Components
 
@@ -112,71 +150,154 @@ graph TD
 - Provide collision detection with Pacman
 - Display vulnerability state with color changes
 
-### Control System Component
+### GameControls Component
 
-**Purpose**: Manages user input and game state without JavaScript
-**Implementation**: Hidden radio buttons and checkboxes with CSS selectors
+**Purpose**: Manages user input and game interactions
+**Implementation**: React component with event handlers and keyboard listeners
 **Interface**:
 
-```html
-<input type="radio" name="direction" id="up" class="control-input" />
-<input
-  type="radio"
-  name="direction"
-  id="down"
-  class="control-input"
-/>
-<input
-  type="radio"
-  name="direction"
-  id="left"
-  class="control-input"
-/>
-<input
-  type="radio"
-  name="direction"
-  id="right"
-  class="control-input"
-/>
-<input type="checkbox" id="power-mode" class="power-state" />
+```jsx
+const GameControls = ({ onDirectionChange, onPause, onRestart }) => {
+  useEffect(() => {
+    const handleKeyPress = (event) => {
+      switch (event.key) {
+        case 'ArrowUp':
+        case 'w':
+          onDirectionChange('up');
+          break;
+        case 'ArrowDown':
+        case 's':
+          onDirectionChange('down');
+          break;
+        case 'ArrowLeft':
+        case 'a':
+          onDirectionChange('left');
+          break;
+        case 'ArrowRight':
+        case 'd':
+          onDirectionChange('right');
+          break;
+        case ' ':
+          onPause();
+          break;
+        case 'r':
+          onRestart();
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () =>
+      window.removeEventListener('keydown', handleKeyPress);
+  }, [onDirectionChange, onPause, onRestart]);
+
+  return (
+    <div className="fixed bottom-4 right-4 flex flex-col gap-2">
+      <button
+        onClick={() => onDirectionChange('up')}
+        className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-colors"
+      >
+        ↑
+      </button>
+      <div className="flex gap-2">
+        <button
+          onClick={() => onDirectionChange('left')}
+          className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          ←
+        </button>
+        <button
+          onClick={() => onDirectionChange('down')}
+          className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          ↓
+        </button>
+        <button
+          onClick={() => onDirectionChange('right')}
+          className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          →
+        </button>
+      </div>
+    </div>
+  );
+};
 ```
 
 **Responsibilities**:
 
-- Capture keyboard/click input for movement
-- Maintain current direction state
-- Toggle power pellet mode
-- Trigger game state changes
+- Handle keyboard input for movement
+- Provide touch/click controls for mobile
+- Manage pause and restart functionality
+- Trigger game state changes through callbacks
 
-### Scoring System Component
+### ScoreBoard Component
 
-**Purpose**: Tracks and displays game score using CSS counters with persistent high score storage
-**Implementation**: CSS counters with content generation and minimal JavaScript for localStorage
+**Purpose**: Tracks and displays game score with persistent high score storage
+**Implementation**: React component with hooks for state management and localStorage
 **Interface**:
 
-```css
-body {
-  counter-reset: score 0 lives 3 round 1;
-}
-.score::after {
-  content: counter(score);
-}
-.high-score::after {
-  content: attr(data-high-score);
-}
-.round::after {
-  content: counter(round);
-}
+```jsx
+const ScoreBoard = ({
+  score,
+  highScore,
+  lives,
+  round,
+  gameState,
+}) => {
+  return (
+    <div className="flex justify-between items-center w-full max-w-2xl bg-gradient-to-r from-blue-800 to-blue-600 text-yellow-400 p-4 rounded-lg border-2 border-yellow-400 shadow-lg">
+      <div className="flex flex-col items-center">
+        <span className="text-lg font-bold">SCORE</span>
+        <span className="text-2xl font-mono">
+          {score.toLocaleString()}
+        </span>
+      </div>
+      <div className="flex flex-col items-center">
+        <span className="text-sm text-orange-400">HIGH SCORE</span>
+        <span className="text-lg font-mono text-orange-400">
+          {highScore.toLocaleString()}
+        </span>
+      </div>
+      <div className="flex flex-col items-center">
+        <span className="text-lg font-bold text-red-400">LIVES</span>
+        <span className="text-2xl font-mono text-red-400">
+          {lives}
+        </span>
+      </div>
+      <div className="flex flex-col items-center">
+        <span className="text-sm text-green-400">ROUND</span>
+        <span className="text-lg font-mono text-green-400">
+          {round} / 20
+        </span>
+      </div>
+      <div className="flex flex-col items-center">
+        <span className="text-sm">STATUS</span>
+        <span
+          className={`text-lg font-bold ${
+            gameState === 'playing'
+              ? 'text-green-400'
+              : gameState === 'paused'
+              ? 'text-yellow-400'
+              : gameState === 'game-over'
+              ? 'text-red-400'
+              : 'text-blue-400'
+          }`}
+        >
+          {gameState.toUpperCase()}
+        </span>
+      </div>
+    </div>
+  );
+};
 ```
 
 **Responsibilities**:
 
-- Increment score when dots/ghosts are consumed
-- Display current score and high score in real-time
-- Track current round progression (1-20)
-- Handle round advancement and difficulty scaling
-- Persist high scores to browser localStorage
-- Handle game completion after round 20
+- Display current score, high score, lives, and round
+- Handle score updates through React props
+- Manage visual states based on game status
+- Integrate with localStorage through custom hooks
 
 ### Round Progression Component
 
@@ -203,47 +324,113 @@ body {
 - Display round progression to player
 - Trigger game completion after round 20
 
-### Storage Management Component
+### useLocalStorage Hook
 
-**Purpose**: Handles persistent high score storage using browser localStorage
-**Implementation**: Minimal JavaScript module for storage operations only
+**Purpose**: Handles persistent data storage using browser localStorage
+**Implementation**: Custom React hook for localStorage operations
 **Interface**:
 
-```javascript
-const ScoreStorage = {
-  getHighScore: () =>
-    localStorage.getItem('pacman-high-score') || '0',
-  setHighScore: (score) =>
-    localStorage.setItem('pacman-high-score', score),
-  isAvailable: () => typeof Storage !== 'undefined',
+```jsx
+const useLocalStorage = (key, initialValue) => {
+  const [storedValue, setStoredValue] = useState(() => {
+    try {
+      const item = window.localStorage.getItem(key);
+      return item ? JSON.parse(item) : initialValue;
+    } catch (error) {
+      console.error(
+        `Error reading localStorage key "${key}":`,
+        error
+      );
+      return initialValue;
+    }
+  });
+
+  const setValue = useCallback(
+    (value) => {
+      try {
+        const valueToStore =
+          value instanceof Function ? value(storedValue) : value;
+        setStoredValue(valueToStore);
+        window.localStorage.setItem(
+          key,
+          JSON.stringify(valueToStore)
+        );
+      } catch (error) {
+        console.error(
+          `Error setting localStorage key "${key}":`,
+          error
+        );
+      }
+    },
+    [key, storedValue]
+  );
+
+  return [storedValue, setValue];
 };
+
+// Usage in components
+const useHighScore = () => useLocalStorage('pacman-high-score', 0);
+const useGameSettings = () =>
+  useLocalStorage('pacman-settings', {
+    soundEnabled: true,
+    difficulty: 'normal',
+  });
 ```
 
 **Responsibilities**:
 
-- Save high scores to localStorage
-- Retrieve stored high scores on game load
-- Handle localStorage unavailability gracefully
-- Provide fallback for browsers without storage support
+- Provide React hook interface for localStorage
+- Handle JSON serialization/deserialization
+- Manage error handling for storage operations
+- Support multiple storage keys with type safety
 
 ## Data Models
 
 ### Game State Model
 
-```css
-:root {
-  --pacman-x: 10;
-  --pacman-y: 15;
-  --pacman-direction: 0deg;
-  --game-state: playing; /* playing, paused, game-over, victory, round-complete, game-complete */
-  --power-mode: inactive; /* active, inactive */
-  --current-score: 0;
-  --high-score: 0;
-  --lives: 3;
-  --current-round: 1;
-  --max-rounds: 20;
-  --ghost-base-speed: 2s;
-  --ghost-speed-multiplier: calc(1 - (var(--current-round) * 0.025));
+```typescript
+interface GameState {
+  pacman: {
+    x: number;
+    y: number;
+    direction: 'up' | 'down' | 'left' | 'right';
+    isMoving: boolean;
+    isEating: boolean;
+  };
+  ghosts: Array<{
+    id: string;
+    x: number;
+    y: number;
+    direction: 'up' | 'down' | 'left' | 'right';
+    color: 'red' | 'pink' | 'blue' | 'orange';
+    isVulnerable: boolean;
+    isFlashing: boolean;
+  }>;
+  gameStatus:
+    | 'ready'
+    | 'playing'
+    | 'paused'
+    | 'game-over'
+    | 'victory'
+    | 'round-complete'
+    | 'game-complete';
+  powerMode: {
+    isActive: boolean;
+    timeRemaining: number;
+    ghostsEaten: number;
+  };
+  score: {
+    current: number;
+    high: number;
+  };
+  lives: number;
+  round: {
+    current: number;
+    max: number;
+  };
+  maze: number[][];
+  dots: Set<string>; // Set of "x,y" coordinates
+  powerPellets: Set<string>; // Set of "x,y" coordinates
 }
 ```
 
@@ -277,12 +464,54 @@ const ScoreStorage = {
 
 ### Maze Layout Model
 
-The maze is represented as a CSS Grid with specific cell types:
+The maze is represented as a 2D array with React components for each cell type:
 
-- **Wall cells**: `grid-area` with solid background
-- **Path cells**: Empty grid areas for movement
-- **Dot cells**: Path cells with `::before` pseudo-elements
-- **Power pellet cells**: Special dots with larger size and glow effect
+```typescript
+enum CellType {
+  WALL = 1,
+  PATH = 0,
+  DOT = 2,
+  POWER_PELLET = 3,
+  GHOST_HOUSE = 4,
+}
+
+interface MazeCell {
+  type: CellType;
+  x: number;
+  y: number;
+  isCollected?: boolean;
+}
+
+const MazeCell: React.FC<MazeCell> = ({
+  type,
+  x,
+  y,
+  isCollected,
+}) => {
+  const cellClasses = {
+    [CellType.WALL]: 'bg-blue-600 border border-blue-400',
+    [CellType.PATH]: 'bg-black',
+    [CellType.DOT]: 'bg-black relative',
+    [CellType.POWER_PELLET]: 'bg-black relative',
+    [CellType.GHOST_HOUSE]: 'bg-gray-800',
+  };
+
+  return (
+    <div className={`w-6 h-6 ${cellClasses[type]}`}>
+      {type === CellType.DOT && !isCollected && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-1 h-1 bg-yellow-400 rounded-full shadow-sm shadow-yellow-400" />
+        </div>
+      )}
+      {type === CellType.POWER_PELLET && !isCollected && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-3 h-3 bg-yellow-400 rounded-full animate-pulse shadow-lg shadow-yellow-400" />
+        </div>
+      )}
+    </div>
+  );
+};
+```
 
 ### Character Position Model
 
@@ -364,26 +593,26 @@ The maze is represented as a CSS Grid with specific cell types:
 
 ## Implementation Notes
 
-### CSS-Only Movement Limitation
+### React State Management Strategy
 
-Since CSS cannot directly respond to keyboard events, the design uses labeled radio buttons that can be triggered with keyboard navigation (Tab + Space/Enter). This provides the closest approximation to real-time keyboard control in a CSS-only environment.
+The game uses a combination of local component state (useState) and global state (React Context) to manage game data. Local state handles component-specific data like animation states, while global state manages shared game data like score, round, and character positions. Custom hooks encapsulate complex state logic and provide clean interfaces to components.
 
-### Collision Detection Approach
+### Collision Detection Implementation
 
-Collision detection relies on overlapping positioned elements and CSS selectors. When Pacman's position matches a dot's position (using CSS `calc()` comparisons), the dot element becomes hidden and the score counter increments.
+Collision detection is implemented through JavaScript functions that compare character positions on each game tick. The useGameLoop hook runs collision checks using requestAnimationFrame for smooth 60fps performance. Position-based collision detection compares grid coordinates between Pacman, ghosts, dots, and walls using efficient algorithms.
 
-### Ghost AI Simulation
+### Ghost AI Architecture
 
-Ghost movement is achieved through predefined CSS animation paths with staggered timing delays. Each ghost follows a different animation sequence to create the illusion of intelligent behavior.
+Each ghost is controlled by the useGhostAI custom hook, which implements different AI behaviors (chase, scatter, flee) based on game state. The AI uses pathfinding algorithms to navigate the maze and responds to power pellet activation. Ghost movement is updated through React state and animated with TailwindCSS transitions.
 
-### Round Progression Implementation
+### Animation and Movement System
 
-Round advancement is handled through CSS counters and custom properties. When all dots are collected (tracked via CSS counters), the round counter increments and ghost speed variables are recalculated. The maze resets by toggling visibility classes on dot elements.
+Character movement combines React state updates with TailwindCSS transform utilities. Position changes trigger React re-renders that update transform styles, creating smooth animations. The useMovement hook manages movement logic, collision detection, and animation state, while TailwindCSS provides the visual transitions.
 
-### Storage Integration Strategy
+### Performance Optimization Strategy
 
-High score persistence requires minimal JavaScript integration while maintaining the CSS-only game logic. The storage module operates independently, only interfacing with the game during score comparison and persistence events. This preserves the core CSS-only architecture while adding essential persistence functionality.
+The application uses React.memo for component memoization, useCallback for event handler optimization, and useMemo for expensive calculations. TailwindCSS utilities are purged during build to minimize CSS bundle size. The game loop uses requestAnimationFrame for optimal performance and includes frame rate limiting for consistent gameplay across devices.
 
-### Performance Considerations
+### Responsive Design Implementation
 
-The design minimizes DOM manipulation by using CSS transforms exclusively for movement, ensuring smooth 60fps animations. All state changes occur through CSS class toggles and selector cascading rather than DOM element creation/destruction. Round progression and difficulty scaling use CSS custom property calculations to avoid JavaScript performance overhead during gameplay.
+TailwindCSS responsive utilities handle different screen sizes automatically. The game board scales using responsive grid classes, while touch controls are shown on mobile devices. The useMediaQuery custom hook detects device capabilities and adjusts game behavior accordingly.
