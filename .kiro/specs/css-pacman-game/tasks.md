@@ -47,14 +47,14 @@
     - Connect movement state to Pacman component props
     - _Requirements: 2.2, 2.4, 9.4, 9.2_
 
-- [ ] 5. Implement collision detection and dot collection with React
-  - [ ] 5.1 Create useCollisionDetection custom hook
+- [x] 5. Implement collision detection and dot collection with React
+  - [x] 5.1 Create useCollisionDetection custom hook
     - Build collision detection functions for character-to-wall and character-to-character
     - Implement grid-based position checking using maze array data
     - Add boundary validation to prevent movement outside game area
     - Create efficient collision checking with position comparison algorithms
     - _Requirements: 2.4, 2.6, 9.4_
-  - [ ] 5.2 Build useScore hook and dot collection system
+  - [x] 5.2 Build useScore hook and dot collection system
     - Create useScore custom hook with useState for score management
     - Implement dot collection detection when Pacman position matches dot position
     - Add score increment logic for different collectible types
