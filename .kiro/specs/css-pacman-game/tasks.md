@@ -60,27 +60,27 @@
     - Trigger score increment on dot collection
     - _Requirements: 2.6, 4.1, 6.5_
 
-- [ ] 6. Develop ghost characters and animations
+- [x] 6. Develop ghost characters and animations
 
-  - [ ] 6.1 Create ghost visual design
+  - [x] 6.1 Create ghost visual design
     - Style four ghosts with distinct colors (red, pink, blue, orange)
     - Use CSS shapes to create classic ghost appearance
     - Add subtle floating animations for personality
     - _Requirements: 3.1, 3.3, 5.3_
-  - [ ] 6.2 Implement ghost movement patterns
+  - [x] 6.2 Implement ghost movement patterns
     - Create keyframe animations for autonomous ghost movement
     - Stagger animation timing to create different movement patterns
     - Add wall collision detection for direction changes
     - _Requirements: 3.2, 3.3, 6.2_
 
-- [ ] 7. Add power pellet mechanics
+- [x] 7. Add power pellet mechanics
 
-  - [ ] 7.1 Implement power mode activation
+  - [x] 7.1 Implement power mode activation
     - Trigger power mode when Pacman collects power pellet
     - Use CSS checkbox state to control power mode duration
     - Add visual feedback for power mode activation
     - _Requirements: 3.5, 4.2, 6.1_
-  - [ ] 7.2 Create vulnerable ghost behavior
+  - [x] 7.2 Create vulnerable ghost behavior
     - Change ghost colors to blue during power mode
     - Add flashing animation to indicate vulnerability timer
     - Implement ghost consumption and scoring

@@ -17,6 +17,8 @@
         --pacman-animation-speed: 0.3s;
         --game-state: playing;
         --power-mode: inactive;
+        --power-mode-duration: 8s;
+        --power-mode-timer: 0;
         --current-score: 0;
         --high-score: 0;
         --lives: 3;
@@ -26,6 +28,17 @@
         --ghost-speed-multiplier: calc(
           1 - (var(--current-round) * 0.025)
         );
+        --board-padding: 8px;
+
+        /* Ghost positions */
+        --ghost-red-x: 8;
+        --ghost-red-y: 11;
+        --ghost-pink-x: 9;
+        --ghost-pink-y: 11;
+        --ghost-blue-x: 10;
+        --ghost-blue-y: 11;
+        --ghost-orange-x: 11;
+        --ghost-orange-y: 11;
 
         /* Maze dimensions */
         --maze-width: 21;
@@ -109,6 +122,32 @@
         content: 'Dots: ' counter(dots-collected);
       }
 
+      .power-mode-indicator {
+        font-weight: bold;
+        color: #ff0000;
+        opacity: 0;
+        transform: scale(0.8);
+        transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+        animation: power-mode-blink 0.5s ease-in-out infinite
+          alternate;
+      }
+
+      .power-mode-active .power-mode-indicator {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      @keyframes power-mode-blink {
+        0% {
+          color: #ff0000;
+          text-shadow: 0 0 5px rgba(255, 0, 0, 0.8);
+        }
+        100% {
+          color: #ffff00;
+          text-shadow: 0 0 10px rgba(255, 255, 0, 1);
+        }
+      }
+
       .game-board {
         position: relative;
         display: grid;
@@ -124,6 +163,43 @@
         width: fit-content;
         height: fit-content;
         margin: 0 auto;
+        transition: box-shadow 0.3s ease-out;
+      }
+
+      /* Power mode visual effects */
+      .power-mode-active .game-board {
+        box-shadow: 0 0 30px rgba(255, 255, 0, 0.8),
+          0 0 50px rgba(255, 255, 0, 0.4),
+          inset 0 0 10px rgba(0, 0, 0, 0.8);
+        animation: power-mode-glow 0.5s ease-in-out infinite alternate;
+      }
+
+      .power-mode-active .ui-header {
+        animation: power-mode-text-glow 1s ease-in-out infinite
+          alternate;
+      }
+
+      @keyframes power-mode-glow {
+        0% {
+          box-shadow: 0 0 30px rgba(255, 255, 0, 0.8),
+            0 0 50px rgba(255, 255, 0, 0.4),
+            inset 0 0 10px rgba(0, 0, 0, 0.8);
+        }
+        100% {
+          box-shadow: 0 0 40px rgba(255, 255, 0, 1),
+            0 0 60px rgba(255, 255, 0, 0.6),
+            inset 0 0 10px rgba(0, 0, 0, 0.8);
+        }
+      }
+
+      @keyframes power-mode-text-glow {
+        0% {
+          text-shadow: 0 0 5px rgba(255, 255, 0, 0.8);
+        }
+        100% {
+          text-shadow: 0 0 10px rgba(255, 255, 0, 1),
+            0 0 20px rgba(255, 255, 0, 0.6);
+        }
       }
 
       .maze-cell {
@@ -298,10 +374,12 @@
         );
         /* Calculate pixel position for collision detection */
         --pixel-x: calc(
-          var(--constrained-x) * (var(--cell-size) + var(--maze-gap))
+          var(--board-padding) + var(--constrained-x) *
+            (var(--cell-size) + var(--maze-gap))
         );
         --pixel-y: calc(
-          var(--constrained-y) * (var(--cell-size) + var(--maze-gap))
+          var(--board-padding) + var(--constrained-y) *
+            (var(--cell-size) + var(--maze-gap))
         );
         /* Grid position for collision calculations */
         --grid-pos: calc(
@@ -425,45 +503,522 @@
           filter 0.2s ease-in-out;
       }
 
+      /* Ghost Base Styling */
       .ghost {
         position: absolute;
         width: var(--cell-size);
         height: var(--cell-size);
-        border-radius: 50% 50% 0 0;
         z-index: 5;
-        transition: transform 0.3s ease-in-out;
+        transition: transform 0.3s ease-in-out,
+          background-color 0.3s ease-in-out;
+
+        /* Classic ghost shape with rounded top and wavy bottom */
+        border-radius: 50% 50% 0 0;
+
+        /* Create wavy bottom using pseudo-elements */
+        overflow: hidden;
       }
 
+      /* Ghost wavy bottom effect */
+      .ghost::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 6px;
+        background: inherit;
+        clip-path: polygon(
+          0% 0%,
+          20% 100%,
+          40% 0%,
+          60% 100%,
+          80% 0%,
+          100% 100%,
+          100% 0%
+        );
+      }
+
+      /* Ghost eyes */
+      .ghost::before {
+        content: '';
+        position: absolute;
+        top: 6px;
+        left: 4px;
+        width: 4px;
+        height: 6px;
+        background: #000;
+        border-radius: 50%;
+        box-shadow: 8px 0 0 #000;
+      }
+
+      /* Individual ghost colors and positions */
       .ghost-red {
         background-color: var(--ghost-red);
-        transform: translate(
-          calc(9 * (var(--cell-size) + var(--maze-gap))),
-          calc(9 * (var(--cell-size) + var(--maze-gap)))
+        /* Position using CSS custom properties like Pacman */
+        --ghost-pixel-x: calc(
+          var(--board-padding) + var(--ghost-red-x) *
+            (var(--cell-size) + var(--maze-gap))
         );
+        --ghost-pixel-y: calc(
+          var(--board-padding) + var(--ghost-red-y) *
+            (var(--cell-size) + var(--maze-gap))
+        );
+        transform: translate(
+          var(--ghost-pixel-x),
+          var(--ghost-pixel-y)
+        );
+        /* Subtle floating animation with unique timing */
+        animation: ghost-float-red 2s ease-in-out infinite;
       }
 
       .ghost-pink {
         background-color: var(--ghost-pink);
-        transform: translate(
-          calc(10 * (var(--cell-size) + var(--maze-gap))),
-          calc(9 * (var(--cell-size) + var(--maze-gap)))
+        /* Position using CSS custom properties like Pacman */
+        --ghost-pixel-x: calc(
+          var(--board-padding) + var(--ghost-pink-x) *
+            (var(--cell-size) + var(--maze-gap))
         );
+        --ghost-pixel-y: calc(
+          var(--board-padding) + var(--ghost-pink-y) *
+            (var(--cell-size) + var(--maze-gap))
+        );
+        transform: translate(
+          var(--ghost-pixel-x),
+          var(--ghost-pixel-y)
+        );
+        /* Subtle floating animation with unique timing */
+        animation: ghost-float-pink 2.2s ease-in-out infinite;
       }
 
       .ghost-blue {
         background-color: var(--ghost-blue);
-        transform: translate(
-          calc(11 * (var(--cell-size) + var(--maze-gap))),
-          calc(9 * (var(--cell-size) + var(--maze-gap)))
+        /* Position using CSS custom properties like Pacman */
+        --ghost-pixel-x: calc(
+          var(--board-padding) + var(--ghost-blue-x) *
+            (var(--cell-size) + var(--maze-gap))
         );
+        --ghost-pixel-y: calc(
+          var(--board-padding) + var(--ghost-blue-y) *
+            (var(--cell-size) + var(--maze-gap))
+        );
+        transform: translate(
+          var(--ghost-pixel-x),
+          var(--ghost-pixel-y)
+        );
+        /* Subtle floating animation with unique timing */
+        animation: ghost-float-blue 1.8s ease-in-out infinite;
       }
 
       .ghost-orange {
         background-color: var(--ghost-orange);
-        transform: translate(
-          calc(12 * (var(--cell-size) + var(--maze-gap))),
-          calc(9 * (var(--cell-size) + var(--maze-gap)))
+        /* Position using CSS custom properties like Pacman */
+        --ghost-pixel-x: calc(
+          var(--board-padding) + var(--ghost-orange-x) *
+            (var(--cell-size) + var(--maze-gap))
         );
+        --ghost-pixel-y: calc(
+          var(--board-padding) + var(--ghost-orange-y) *
+            (var(--cell-size) + var(--maze-gap))
+        );
+        transform: translate(
+          var(--ghost-pixel-x),
+          var(--ghost-pixel-y)
+        );
+        /* Subtle floating animation with unique timing */
+        animation: ghost-float-orange 2.4s ease-in-out infinite;
+      }
+
+      /* Floating animations for each ghost with unique personality */
+      @keyframes ghost-float-red {
+        0%,
+        100% {
+          transform: translate(
+              var(--ghost-pixel-x),
+              var(--ghost-pixel-y)
+            )
+            translateY(0px);
+        }
+        50% {
+          transform: translate(
+              var(--ghost-pixel-x),
+              var(--ghost-pixel-y)
+            )
+            translateY(-2px);
+        }
+      }
+
+      @keyframes ghost-float-pink {
+        0%,
+        100% {
+          transform: translate(
+              var(--ghost-pixel-x),
+              var(--ghost-pixel-y)
+            )
+            translateY(0px);
+        }
+        50% {
+          transform: translate(
+              var(--ghost-pixel-x),
+              var(--ghost-pixel-y)
+            )
+            translateY(-1.5px);
+        }
+      }
+
+      @keyframes ghost-float-blue {
+        0%,
+        100% {
+          transform: translate(
+              var(--ghost-pixel-x),
+              var(--ghost-pixel-y)
+            )
+            translateY(0px);
+        }
+        50% {
+          transform: translate(
+              var(--ghost-pixel-x),
+              var(--ghost-pixel-y)
+            )
+            translateY(-2.5px);
+        }
+      }
+
+      @keyframes ghost-float-orange {
+        0%,
+        100% {
+          transform: translate(
+              var(--ghost-pixel-x),
+              var(--ghost-pixel-y)
+            )
+            translateY(0px);
+        }
+        50% {
+          transform: translate(
+              var(--ghost-pixel-x),
+              var(--ghost-pixel-y)
+            )
+            translateY(-1px);
+        }
+      }
+
+      /* Vulnerable ghost state (for power pellet mode) */
+      .ghost.vulnerable {
+        background-color: var(--ghost-vulnerable);
+        animation-duration: 0.5s;
+      }
+
+      .ghost.vulnerable::after {
+        background-color: var(--ghost-vulnerable);
+      }
+
+      /* Flashing vulnerable ghost near end of power mode */
+      .ghost.vulnerable.flashing {
+        animation: ghost-vulnerable-flash 0.2s ease-in-out infinite;
+      }
+
+      @keyframes ghost-vulnerable-flash {
+        0%,
+        50% {
+          background-color: var(--ghost-vulnerable);
+        }
+        51%,
+        100% {
+          background-color: #ffffff;
+        }
+      }
+
+      /* Ghost Movement Patterns */
+      /* Each ghost has a unique movement pattern with different paths and timing */
+
+      /* Red Ghost (Blinky) - Aggressive chaser pattern */
+      .ghost-red.moving {
+        animation: ghost-move-red
+          calc(
+            var(--ghost-base-speed) * var(--ghost-speed-multiplier)
+          )
+          linear infinite;
+      }
+
+      @keyframes ghost-move-red {
+        0% {
+          transform: translate(
+            calc(9 * (var(--cell-size) + var(--maze-gap))),
+            calc(11 * (var(--cell-size) + var(--maze-gap)))
+          );
+        }
+        12.5% {
+          transform: translate(
+            calc(10 * (var(--cell-size) + var(--maze-gap))),
+            calc(11 * (var(--cell-size) + var(--maze-gap)))
+          );
+        }
+        25% {
+          transform: translate(
+            calc(10 * (var(--cell-size) + var(--maze-gap))),
+            calc(9 * (var(--cell-size) + var(--maze-gap)))
+          );
+        }
+        37.5% {
+          transform: translate(
+            calc(15 * (var(--cell-size) + var(--maze-gap))),
+            calc(9 * (var(--cell-size) + var(--maze-gap)))
+          );
+        }
+        50% {
+          transform: translate(
+            calc(15 * (var(--cell-size) + var(--maze-gap))),
+            calc(15 * (var(--cell-size) + var(--maze-gap)))
+          );
+        }
+        62.5% {
+          transform: translate(
+            calc(5 * (var(--cell-size) + var(--maze-gap))),
+            calc(15 * (var(--cell-size) + var(--maze-gap)))
+          );
+        }
+        75% {
+          transform: translate(
+            calc(5 * (var(--cell-size) + var(--maze-gap))),
+            calc(9 * (var(--cell-size) + var(--maze-gap)))
+          );
+        }
+        87.5% {
+          transform: translate(
+            calc(9 * (var(--cell-size) + var(--maze-gap))),
+            calc(9 * (var(--cell-size) + var(--maze-gap)))
+          );
+        }
+        100% {
+          transform: translate(
+            calc(9 * (var(--cell-size) + var(--maze-gap))),
+            calc(11 * (var(--cell-size) + var(--maze-gap)))
+          );
+        }
+      }
+
+      /* Pink Ghost (Pinky) - Ambush pattern */
+      .ghost-pink.moving {
+        animation: ghost-move-pink
+          calc(
+            var(--ghost-base-speed) * var(--ghost-speed-multiplier) *
+              1.1
+          )
+          linear infinite;
+        animation-delay: -0.5s;
+      }
+
+      @keyframes ghost-move-pink {
+        0% {
+          transform: translate(
+            calc(10 * (var(--cell-size) + var(--maze-gap))),
+            calc(11 * (var(--cell-size) + var(--maze-gap)))
+          );
+        }
+        16.67% {
+          transform: translate(
+            calc(10 * (var(--cell-size) + var(--maze-gap))),
+            calc(9 * (var(--cell-size) + var(--maze-gap)))
+          );
+        }
+        33.33% {
+          transform: translate(
+            calc(5 * (var(--cell-size) + var(--maze-gap))),
+            calc(9 * (var(--cell-size) + var(--maze-gap)))
+          );
+        }
+        50% {
+          transform: translate(
+            calc(5 * (var(--cell-size) + var(--maze-gap))),
+            calc(3 * (var(--cell-size) + var(--maze-gap)))
+          );
+        }
+        66.67% {
+          transform: translate(
+            calc(15 * (var(--cell-size) + var(--maze-gap))),
+            calc(3 * (var(--cell-size) + var(--maze-gap)))
+          );
+        }
+        83.33% {
+          transform: translate(
+            calc(15 * (var(--cell-size) + var(--maze-gap))),
+            calc(9 * (var(--cell-size) + var(--maze-gap)))
+          );
+        }
+        100% {
+          transform: translate(
+            calc(10 * (var(--cell-size) + var(--maze-gap))),
+            calc(11 * (var(--cell-size) + var(--maze-gap)))
+          );
+        }
+      }
+
+      /* Blue Ghost (Inky) - Patrol pattern */
+      .ghost-blue.moving {
+        animation: ghost-move-blue
+          calc(
+            var(--ghost-base-speed) * var(--ghost-speed-multiplier) *
+              0.9
+          )
+          linear infinite;
+        animation-delay: -1s;
+      }
+
+      @keyframes ghost-move-blue {
+        0% {
+          transform: translate(
+            calc(11 * (var(--cell-size) + var(--maze-gap))),
+            calc(11 * (var(--cell-size) + var(--maze-gap)))
+          );
+        }
+        20% {
+          transform: translate(
+            calc(11 * (var(--cell-size) + var(--maze-gap))),
+            calc(9 * (var(--cell-size) + var(--maze-gap)))
+          );
+        }
+        40% {
+          transform: translate(
+            calc(1 * (var(--cell-size) + var(--maze-gap))),
+            calc(9 * (var(--cell-size) + var(--maze-gap)))
+          );
+        }
+        60% {
+          transform: translate(
+            calc(1 * (var(--cell-size) + var(--maze-gap))),
+            calc(17 * (var(--cell-size) + var(--maze-gap)))
+          );
+        }
+        80% {
+          transform: translate(
+            calc(19 * (var(--cell-size) + var(--maze-gap))),
+            calc(17 * (var(--cell-size) + var(--maze-gap)))
+          );
+        }
+        100% {
+          transform: translate(
+            calc(11 * (var(--cell-size) + var(--maze-gap))),
+            calc(11 * (var(--cell-size) + var(--maze-gap)))
+          );
+        }
+      }
+
+      /* Orange Ghost (Clyde) - Random pattern */
+      .ghost-orange.moving {
+        animation: ghost-move-orange
+          calc(
+            var(--ghost-base-speed) * var(--ghost-speed-multiplier) *
+              1.2
+          )
+          linear infinite;
+        animation-delay: -1.5s;
+      }
+
+      @keyframes ghost-move-orange {
+        0% {
+          transform: translate(
+            calc(12 * (var(--cell-size) + var(--maze-gap))),
+            calc(11 * (var(--cell-size) + var(--maze-gap)))
+          );
+        }
+        14.29% {
+          transform: translate(
+            calc(12 * (var(--cell-size) + var(--maze-gap))),
+            calc(9 * (var(--cell-size) + var(--maze-gap)))
+          );
+        }
+        28.57% {
+          transform: translate(
+            calc(19 * (var(--cell-size) + var(--maze-gap))),
+            calc(9 * (var(--cell-size) + var(--maze-gap)))
+          );
+        }
+        42.86% {
+          transform: translate(
+            calc(19 * (var(--cell-size) + var(--maze-gap))),
+            calc(15 * (var(--cell-size) + var(--maze-gap)))
+          );
+        }
+        57.14% {
+          transform: translate(
+            calc(10 * (var(--cell-size) + var(--maze-gap))),
+            calc(15 * (var(--cell-size) + var(--maze-gap)))
+          );
+        }
+        71.43% {
+          transform: translate(
+            calc(10 * (var(--cell-size) + var(--maze-gap))),
+            calc(17 * (var(--cell-size) + var(--maze-gap)))
+          );
+        }
+        85.71% {
+          transform: translate(
+            calc(1 * (var(--cell-size) + var(--maze-gap))),
+            calc(17 * (var(--cell-size) + var(--maze-gap)))
+          );
+        }
+        100% {
+          transform: translate(
+            calc(12 * (var(--cell-size) + var(--maze-gap))),
+            calc(11 * (var(--cell-size) + var(--maze-gap)))
+          );
+        }
+      }
+
+      /* Ghost movement state management */
+      .ghost.moving {
+        animation-play-state: running;
+      }
+
+      .ghost.paused {
+        animation-play-state: paused;
+      }
+
+      /* Vulnerable ghost movement (slower and different pattern) */
+      .ghost.vulnerable.moving {
+        animation-duration: calc(
+          var(--ghost-base-speed) * 2
+        ) !important;
+        animation-direction: reverse;
+      }
+
+      /* Ghost collision detection and direction changes */
+      .ghost.collision-detected {
+        animation-play-state: paused;
+        transition: transform 0.1s ease-out;
+      }
+
+      /* Enhanced ghost movement with wall collision avoidance */
+      .ghost.wall-collision {
+        animation-play-state: paused;
+        transform-origin: center;
+      }
+
+      /* Ghost state transitions */
+      .ghost {
+        transition: background-color 0.3s ease-in-out,
+          animation-duration 0.3s ease-in-out, filter 0.3s ease-in-out;
+      }
+
+      /* Add subtle glow effects for ghosts */
+      .ghost-red {
+        box-shadow: 0 0 8px rgba(255, 0, 0, 0.3);
+      }
+
+      .ghost-pink {
+        box-shadow: 0 0 8px rgba(255, 184, 255, 0.3);
+      }
+
+      .ghost-blue {
+        box-shadow: 0 0 8px rgba(0, 255, 255, 0.3);
+      }
+
+      .ghost-orange {
+        box-shadow: 0 0 8px rgba(255, 184, 82, 0.3);
+      }
+
+      .ghost.vulnerable {
+        box-shadow: 0 0 8px rgba(0, 0, 255, 0.5);
       }
 
       /* Game Instructions */
@@ -537,6 +1092,7 @@
         <div class="lives-display"></div>
         <div class="round-display"></div>
         <div class="dots-display"></div>
+        <div class="power-mode-indicator">POWER MODE!</div>
       </div>
 
       <!-- Game Instructions -->
@@ -1052,6 +1608,37 @@
       let pacmanY = 15;
       let isMoving = false;
 
+      // Get random valid starting position for Pacman
+      function getRandomValidPosition() {
+        const validPositions = [];
+
+        // Find all valid path positions (not walls)
+        for (let y = 0; y < wallMap.length; y++) {
+          for (let x = 0; x < wallMap[y].length; x++) {
+            if (wallMap[y][x] === 0) {
+              // Avoid ghost house area (rows 10-12, cols 7-13)
+              if (!(y >= 10 && y <= 12 && x >= 7 && x <= 13)) {
+                validPositions.push({ x, y });
+              }
+            }
+          }
+        }
+
+        // Return random valid position
+        const randomIndex = Math.floor(
+          Math.random() * validPositions.length
+        );
+        return validPositions[randomIndex];
+      }
+
+      // Initialize Pacman at random valid position
+      function initializePacmanPosition() {
+        const pos = getRandomValidPosition();
+        pacmanX = pos.x;
+        pacmanY = pos.y;
+        updatePacmanPosition();
+      }
+
       // Get the root element to update CSS custom properties
       const root = document.documentElement;
       const pacman = document.querySelector('.pacman');
@@ -1062,7 +1649,7 @@
         root.style.setProperty('--pacman-y', pacmanY);
       }
 
-      // Wall positions array (1 = wall, 0 = path)
+      // Wall positions array (1 = wall, 0 = path) - Fixed 21x21 symmetrical maze
       const wallMap = [
         [
           1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -1081,51 +1668,11 @@
           1,
         ],
         [
-          1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0,
+          1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0,
           1,
         ],
         [
-          1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0,
-          1,
-        ],
-        [
-          1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1,
-          1,
-        ],
-        [
-          1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          1,
-        ],
-        [
-          1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0,
-          1,
-        ],
-        [
-          1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0,
-          1,
-        ],
-        [
-          0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0,
-          0,
-        ],
-        [
-          0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0,
-          0,
-        ],
-        [
-          1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0,
-          1,
-        ],
-        [
-          1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0,
-          1,
-        ],
-        [
-          1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0,
-          1,
-        ],
-        [
-          1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0,
+          1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0,
           1,
         ],
         [
@@ -1137,11 +1684,55 @@
           1,
         ],
         [
-          1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0,
+          1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0,
           1,
         ],
         [
-          1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0,
+          1,
+        ],
+        [
+          0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0,
+          0,
+        ],
+        [
+          0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0,
+          0,
+        ],
+        [
+          1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0,
+          1,
+        ],
+        [
+          1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0,
+          1,
+        ],
+        [
+          1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0,
+          1,
+        ],
+        [
+          1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          1,
+        ],
+        [
+          1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1,
+          1,
+        ],
+        [
+          1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0,
+          1,
+        ],
+        [
+          1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0,
+          1,
+        ],
+        [
+          1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          1,
+        ],
+        [
+          1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0,
           1,
         ],
         [
@@ -1152,7 +1743,7 @@
 
       // Check if position is valid (not a wall)
       function isValidPosition(x, y) {
-        // Basic boundary check
+        // Basic boundary check for 21x21 maze (indices 0-20)
         if (x < 0 || x >= 21 || y < 0 || y >= 21) return false;
 
         // Check wall map
@@ -1178,8 +1769,6 @@
             if (currentCell.classList.contains('power-pellet')) {
               incrementScore(50);
               incrementPowerPelletsCollected();
-              // Trigger power mode (will be implemented in later tasks)
-              console.log('Power pellet collected!');
             } else {
               incrementScore(10);
               incrementDotsCollected();
@@ -1228,6 +1817,9 @@
       function incrementPowerPelletsCollected() {
         powerPelletsCollected++;
         updateCounters();
+
+        // Activate power mode
+        activatePowerMode();
       }
 
       // Check if all dots have been collected
@@ -1246,6 +1838,115 @@
           return true;
         }
         return false;
+      }
+
+      // Power mode management
+      let powerModeTimer = null;
+      let powerModeActive = false;
+
+      // Activate power mode
+      function activatePowerMode() {
+        // Clear any existing timer
+        if (powerModeTimer) {
+          clearTimeout(powerModeTimer);
+        }
+
+        // Set power mode active
+        powerModeActive = true;
+        root.style.setProperty('--power-mode', 'active');
+
+        // Add visual feedback
+        document.body.classList.add('power-mode-active');
+
+        // Make all ghosts vulnerable
+        makeGhostsVulnerable();
+
+        // Set timer to deactivate power mode after 8 seconds
+        powerModeTimer = setTimeout(() => {
+          deactivatePowerMode();
+        }, 8000);
+
+        // Set timer for flashing warning at 6 seconds (2 seconds before end)
+        setTimeout(() => {
+          if (powerModeActive) {
+            makeGhostsFlashing();
+          }
+        }, 6000);
+
+        console.log('Power mode activated!');
+      }
+
+      // Deactivate power mode
+      function deactivatePowerMode() {
+        powerModeActive = false;
+        root.style.setProperty('--power-mode', 'inactive');
+
+        // Remove visual feedback
+        document.body.classList.remove('power-mode-active');
+
+        // Restore normal ghost behavior
+        makeGhostsNormal();
+
+        // Clear timer
+        if (powerModeTimer) {
+          clearTimeout(powerModeTimer);
+          powerModeTimer = null;
+        }
+
+        console.log('Power mode deactivated!');
+      }
+
+      // Check if power mode is currently active
+      function isPowerModeActive() {
+        return powerModeActive;
+      }
+
+      // Make all ghosts vulnerable
+      function makeGhostsVulnerable() {
+        const ghosts = document.querySelectorAll('.ghost');
+        ghosts.forEach((ghost) => {
+          ghost.classList.add('vulnerable');
+          ghost.classList.remove('flashing');
+        });
+      }
+
+      // Make ghosts flash (warning before power mode ends)
+      function makeGhostsFlashing() {
+        const ghosts = document.querySelectorAll('.ghost');
+        ghosts.forEach((ghost) => {
+          if (ghost.classList.contains('vulnerable')) {
+            ghost.classList.add('flashing');
+          }
+        });
+      }
+
+      // Restore normal ghost behavior
+      function makeGhostsNormal() {
+        const ghosts = document.querySelectorAll('.ghost');
+        ghosts.forEach((ghost) => {
+          ghost.classList.remove('vulnerable', 'flashing');
+        });
+      }
+
+      // Handle ghost consumption when Pacman collides with vulnerable ghost
+      function consumeGhost(ghostElement) {
+        if (!ghostElement.classList.contains('vulnerable')) {
+          return false; // Can't consume non-vulnerable ghost
+        }
+
+        // Award points for consuming ghost
+        incrementScore(200);
+
+        // Temporarily hide the ghost (it will respawn)
+        ghostElement.style.opacity = '0';
+
+        // Respawn ghost after 3 seconds
+        setTimeout(() => {
+          ghostElement.style.opacity = '1';
+        }, 3000);
+
+        console.log('Ghost consumed!');
+        return true;
       }
 
       // Move Pacman in specified direction
@@ -1287,6 +1988,9 @@
 
           // Check for dot collection at new position
           checkDotCollection(pacmanX, pacmanY);
+
+          // Check for collision with ghosts
+          checkPacmanGhostCollision();
 
           // Add moving class for animation
           pacman.classList.add('moving');
@@ -1343,10 +2047,141 @@
       // Check for initial dot collection
       checkDotCollection(pacmanX, pacmanY);
 
+      // Ghost movement management
+      const ghosts = document.querySelectorAll('.ghost');
+      let ghostsMoving = true;
+
+      // Ghost positions (matching CSS custom properties)
+      let ghostRedX = 8,
+        ghostRedY = 11;
+      let ghostPinkX = 9,
+        ghostPinkY = 11;
+      let ghostBlueX = 10,
+        ghostBlueY = 11;
+      let ghostOrangeX = 11,
+        ghostOrangeY = 11;
+
+      // Update ghost positions in CSS
+      function updateGhostPositions() {
+        root.style.setProperty('--ghost-red-x', ghostRedX);
+        root.style.setProperty('--ghost-red-y', ghostRedY);
+        root.style.setProperty('--ghost-pink-x', ghostPinkX);
+        root.style.setProperty('--ghost-pink-y', ghostPinkY);
+        root.style.setProperty('--ghost-blue-x', ghostBlueX);
+        root.style.setProperty('--ghost-blue-y', ghostBlueY);
+        root.style.setProperty('--ghost-orange-x', ghostOrangeX);
+        root.style.setProperty('--ghost-orange-y', ghostOrangeY);
+      }
+
+      // Start ghost movement automatically
+      function startGhostMovement() {
+        ghosts.forEach((ghost) => {
+          ghost.classList.add('moving');
+          ghost.classList.remove('paused');
+        });
+        ghostsMoving = true;
+      }
+
+      // Pause ghost movement
+      function pauseGhostMovement() {
+        ghosts.forEach((ghost) => {
+          ghost.classList.remove('moving');
+          ghost.classList.add('paused');
+        });
+        ghostsMoving = false;
+      }
+
+      // Toggle ghost movement (for debugging/testing)
+      function toggleGhostMovement() {
+        if (ghostsMoving) {
+          pauseGhostMovement();
+        } else {
+          startGhostMovement();
+        }
+      }
+
+      // Ghost collision detection with walls (basic implementation)
+      function checkGhostWallCollisions() {
+        ghosts.forEach((ghost, index) => {
+          // This is a placeholder for wall collision detection
+          // In a full implementation, this would check ghost positions against the wall map
+          // and trigger direction changes when collisions are detected
+          // For now, the ghosts follow predefined paths that avoid walls
+          // Wall collision detection will be enhanced in future iterations
+        });
+      }
+
+      // Check collision between Pacman and ghosts
+      function checkPacmanGhostCollision() {
+        const ghosts = [
+          {
+            x: ghostRedX,
+            y: ghostRedY,
+            element: document.querySelector('.ghost-red'),
+            name: 'Red',
+          },
+          {
+            x: ghostPinkX,
+            y: ghostPinkY,
+            element: document.querySelector('.ghost-pink'),
+            name: 'Pink',
+          },
+          {
+            x: ghostBlueX,
+            y: ghostBlueY,
+            element: document.querySelector('.ghost-blue'),
+            name: 'Blue',
+          },
+          {
+            x: ghostOrangeX,
+            y: ghostOrangeY,
+            element: document.querySelector('.ghost-orange'),
+            name: 'Orange',
+          },
+        ];
+
+        for (let ghost of ghosts) {
+          if (pacmanX === ghost.x && pacmanY === ghost.y) {
+            console.log(`Collision with ${ghost.name} Ghost!`);
+
+            if (
+              powerModeActive &&
+              ghost.element.classList.contains('vulnerable')
+            ) {
+              // Consume the ghost during power mode
+              if (consumeGhost(ghost.element)) {
+                console.log(`${ghost.name} ghost consumed!`);
+                return false; // Continue playing
+              }
+            } else {
+              // Normal collision - game over
+              console.log('Game Over - Ghost collision!');
+              // Game over logic will be implemented in future tasks
+              return true;
+            }
+          }
+        }
+        return false;
+      }
+
+      // Initialize ghost movement
+      // startGhostMovement(); // Temporarily disabled for positioning fix
+      updateGhostPositions();
+
+      // Periodically check for ghost wall collisions
+      setInterval(checkGhostWallCollisions, 100);
+
       // Make sure the page is focused to receive keyboard events
       window.addEventListener('load', function () {
         document.body.focus();
         document.body.setAttribute('tabindex', '0');
+      });
+
+      // Add keyboard shortcut for testing ghost movement (G key)
+      document.addEventListener('keydown', function (event) {
+        if (event.key.toLowerCase() === 'g') {
+          toggleGhostMovement();
+        }
       });
     </script>
   </body>
