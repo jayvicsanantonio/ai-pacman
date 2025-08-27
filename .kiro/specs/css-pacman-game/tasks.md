@@ -86,7 +86,7 @@
     - Implement ghost consumption and scoring
     - _Requirements: 3.5, 3.6, 4.3_
 
-- [ ] 8. Build scoring and UI system
+- [x] 8. Build scoring and UI system
 
   - [x] 8.1 Implement CSS counter-based scoring
     - Set up CSS counters for score, lives, and collected items
@@ -112,14 +112,14 @@
     - Add game over screen with restart option
     - _Requirements: 4.4, 4.6, 5.6_
 
-- [ ] 10. Polish animations and visual effects
+- [x] 10. Polish animations and visual effects
 
-  - [ ] 10.1 Enhance movement animations
+  - [x] 10.1 Enhance movement animations
     - Add smooth easing functions to all character movements
     - Implement anticipation and follow-through in animations
     - Optimize animation performance with transform3d
     - _Requirements: 5.1, 5.2, 6.2_
-  - [ ] 10.2 Add particle effects and visual feedback
+  - [x] 10.2 Add particle effects and visual feedback
     - Create CSS-only particle effects for dot collection
     - Add screen shake effect for ghost collisions
     - Implement power pellet glow and pulsing animations
