@@ -47,14 +47,14 @@
     - Implement smooth transform transitions for movement
     - _Requirements: 2.2, 2.4, 6.2_
 
-- [ ] 5. Implement collision detection and dot collection
+- [x] 5. Implement collision detection and dot collection
 
-  - [ ] 5.1 Create position-based collision system
+  - [x] 5.1 Create position-based collision system
     - Use CSS calc() functions to determine character grid positions
     - Implement overlap detection using z-index and positioning
     - Add collision boundaries to prevent movement through walls
     - _Requirements: 2.4, 2.6, 6.4_
-  - [ ] 5.2 Build dot collection mechanics
+  - [x] 5.2 Build dot collection mechanics
     - Hide dots when Pacman position matches dot position
     - Use CSS counters to track collected dots
     - Trigger score increment on dot collection

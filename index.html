@@ -33,6 +33,10 @@
         --cell-size: 24px;
         --maze-gap: 2px;
 
+        /* Collision detection variables */
+        --collision-tolerance: 2px;
+        --wall-collision-buffer: 1px;
+
         /* Colors */
         --wall-color: #2121de;
         --wall-border-color: #4040ff;
@@ -62,7 +66,8 @@
         align-items: center;
         min-height: 100vh;
         padding: 20px;
-        counter-reset: score 0 lives 3 round 1 dots-collected 0;
+        counter-reset: score 0 lives 3 round 1 dots-collected 0
+          power-pellets-collected 0;
       }
 
       .game-container {
@@ -98,6 +103,10 @@
 
       .round-display::after {
         content: 'Round ' counter(round) ' / 20';
+      }
+
+      .dots-display::after {
+        content: 'Dots: ' counter(dots-collected);
       }
 
       .game-board {
@@ -164,6 +173,20 @@
         background-color: var(--dot-color);
         border-radius: 50%;
         box-shadow: 0 0 3px rgba(255, 255, 0, 0.6);
+        transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+      }
+
+      /* Collision detection for dots - hide when Pacman is at same position */
+      .maze-cell.dot {
+        --cell-x: 0; /* Will be set via data attributes */
+        --cell-y: 0; /* Will be set via data attributes */
+        --is-collected: 0; /* 1 when collected, 0 when not */
+      }
+
+      /* Hide collected dots */
+      .maze-cell.dot.collected::before {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0);
       }
 
       .power-pellet::before {
@@ -180,6 +203,59 @@
           0 0 25px rgba(255, 255, 0, 0.5);
         animation: power-pellet-pulse 1s ease-in-out infinite
           alternate;
+        transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+      }
+
+      /* Hide collected power pellets */
+      .maze-cell.power-pellet.collected::before {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0);
+        animation: none;
+      }
+
+      /* Collection effect animation */
+      @keyframes dot-collect {
+        0% {
+          transform: translate(-50%, -50%) scale(1);
+          opacity: 1;
+        }
+        50% {
+          transform: translate(-50%, -50%) scale(1.5);
+          opacity: 0.8;
+        }
+        100% {
+          transform: translate(-50%, -50%) scale(0);
+          opacity: 0;
+        }
+      }
+
+      @keyframes power-pellet-collect {
+        0% {
+          transform: translate(-50%, -50%) scale(1);
+          opacity: 1;
+          box-shadow: 0 0 15px var(--dot-color),
+            0 0 25px rgba(255, 255, 0, 0.5);
+        }
+        50% {
+          transform: translate(-50%, -50%) scale(1.8);
+          opacity: 0.9;
+          box-shadow: 0 0 25px var(--dot-color),
+            0 0 40px rgba(255, 255, 0, 0.8);
+        }
+        100% {
+          transform: translate(-50%, -50%) scale(0);
+          opacity: 0;
+          box-shadow: none;
+        }
+      }
+
+      /* Apply collection animations */
+      .maze-cell.dot.collected::before {
+        animation: dot-collect 0.3s ease-out forwards;
+      }
+
+      .maze-cell.power-pellet.collected::before {
+        animation: power-pellet-collect 0.4s ease-out forwards;
       }
 
       @keyframes power-pellet-pulse {
@@ -211,7 +287,7 @@
           100% 100%,
           100% 0%
         );
-        /* Use constrained position variables for boundary checking */
+        /* Enhanced position constraints with collision detection */
         --constrained-x: max(
           0,
           min(var(--pacman-x), calc(var(--maze-width) - 1))
@@ -220,16 +296,19 @@
           0,
           min(var(--pacman-y), calc(var(--maze-height) - 1))
         );
-        transform: translate(
-            calc(
-              var(--constrained-x) *
-                (var(--cell-size) + var(--maze-gap))
-            ),
-            calc(
-              var(--constrained-y) *
-                (var(--cell-size) + var(--maze-gap))
-            )
-          )
+        /* Calculate pixel position for collision detection */
+        --pixel-x: calc(
+          var(--constrained-x) * (var(--cell-size) + var(--maze-gap))
+        );
+        --pixel-y: calc(
+          var(--constrained-y) * (var(--cell-size) + var(--maze-gap))
+        );
+        /* Grid position for collision calculations */
+        --grid-pos: calc(
+          var(--constrained-y) * var(--maze-width) +
+            var(--constrained-x)
+        );
+        transform: translate(var(--pixel-x), var(--pixel-y))
           rotate(var(--pacman-direction));
         transition: transform 0.3s
             cubic-bezier(0.25, 0.46, 0.45, 0.94),
@@ -457,6 +536,7 @@
         <div class="high-score-display" data-high-score="0"></div>
         <div class="lives-display"></div>
         <div class="round-display"></div>
+        <div class="dots-display"></div>
       </div>
 
       <!-- Game Instructions -->
@@ -982,13 +1062,190 @@
         root.style.setProperty('--pacman-y', pacmanY);
       }
 
+      // Wall positions array (1 = wall, 0 = path)
+      const wallMap = [
+        [
+          1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+          1,
+        ],
+        [
+          1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          1,
+        ],
+        [
+          1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0,
+          1,
+        ],
+        [
+          1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          1,
+        ],
+        [
+          1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0,
+          1,
+        ],
+        [
+          1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0,
+          1,
+        ],
+        [
+          1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1,
+          1,
+        ],
+        [
+          1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          1,
+        ],
+        [
+          1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0,
+          1,
+        ],
+        [
+          1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0,
+          1,
+        ],
+        [
+          0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0,
+          0,
+        ],
+        [
+          0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0,
+          0,
+        ],
+        [
+          1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0,
+          1,
+        ],
+        [
+          1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0,
+          1,
+        ],
+        [
+          1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0,
+          1,
+        ],
+        [
+          1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0,
+          1,
+        ],
+        [
+          1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1,
+          1,
+        ],
+        [
+          1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          1,
+        ],
+        [
+          1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0,
+          1,
+        ],
+        [
+          1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          1,
+        ],
+        [
+          1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+          1,
+        ],
+      ];
+
       // Check if position is valid (not a wall)
       function isValidPosition(x, y) {
         // Basic boundary check
         if (x < 0 || x >= 21 || y < 0 || y >= 21) return false;
 
-        // For now, allow movement anywhere (can be enhanced with wall detection)
-        return true;
+        // Check wall map
+        return wallMap[y][x] === 0;
+      }
+
+      // Check for dot collection at current position
+      function checkDotCollection(x, y) {
+        const cellIndex = y * 21 + x;
+        const mazeCells = document.querySelectorAll('.maze-cell');
+        const currentCell = mazeCells[cellIndex];
+
+        if (
+          currentCell &&
+          (currentCell.classList.contains('dot') ||
+            currentCell.classList.contains('power-pellet'))
+        ) {
+          if (!currentCell.classList.contains('collected')) {
+            // Mark as collected
+            currentCell.classList.add('collected');
+
+            // Update score and counters
+            if (currentCell.classList.contains('power-pellet')) {
+              incrementScore(50);
+              incrementPowerPelletsCollected();
+              // Trigger power mode (will be implemented in later tasks)
+              console.log('Power pellet collected!');
+            } else {
+              incrementScore(10);
+              incrementDotsCollected();
+            }
+
+            // Add collection effect
+            currentCell.style.setProperty('--collection-effect', '1');
+
+            // Check for victory condition
+            setTimeout(() => {
+              checkVictoryCondition();
+            }, 100);
+
+            return true;
+          }
+        }
+        return false;
+      }
+
+      // Game counters
+      let currentScore = 0;
+      let dotsCollected = 0;
+      let powerPelletsCollected = 0;
+      let currentLives = 3;
+      let currentRound = 1;
+
+      // Update all counters
+      function updateCounters() {
+        document.body.style.counterReset = `score ${currentScore} lives ${currentLives} round ${currentRound} dots-collected ${dotsCollected} power-pellets-collected ${powerPelletsCollected}`;
+        root.style.setProperty('--current-score', currentScore);
+      }
+
+      // Increment score using CSS counters
+      function incrementScore(points) {
+        currentScore += points;
+        updateCounters();
+      }
+
+      // Increment dots collected counter
+      function incrementDotsCollected() {
+        dotsCollected++;
+        updateCounters();
+      }
+
+      // Increment power pellets collected counter
+      function incrementPowerPelletsCollected() {
+        powerPelletsCollected++;
+        updateCounters();
+      }
+
+      // Check if all dots have been collected
+      function checkVictoryCondition() {
+        const totalDots =
+          document.querySelectorAll('.maze-cell.dot').length;
+        const totalPowerPellets = document.querySelectorAll(
+          '.maze-cell.power-pellet'
+        ).length;
+        const totalCollectibles = totalDots + totalPowerPellets;
+        const totalCollected = dotsCollected + powerPelletsCollected;
+
+        if (totalCollected >= totalCollectibles) {
+          console.log('Victory! All dots collected!');
+          // Victory logic will be implemented in later tasks
+          return true;
+        }
+        return false;
       }
 
       // Move Pacman in specified direction
@@ -999,24 +1256,24 @@
 
         switch (direction) {
           case 'up':
-            newY = Math.max(0, pacmanY - 1);
+            newY = pacmanY - 1;
             rotation = 270;
             break;
           case 'down':
-            newY = Math.min(20, pacmanY + 1);
+            newY = pacmanY + 1;
             rotation = 90;
             break;
           case 'left':
-            newX = Math.max(0, pacmanX - 1);
+            newX = pacmanX - 1;
             rotation = 180;
             break;
           case 'right':
-            newX = Math.min(20, pacmanX + 1);
+            newX = pacmanX + 1;
             rotation = 0;
             break;
         }
 
-        // Update position if valid
+        // Update position if valid (collision detection with walls)
         if (isValidPosition(newX, newY)) {
           pacmanX = newX;
           pacmanY = newY;
@@ -1028,6 +1285,9 @@
           );
           updatePacmanPosition();
 
+          // Check for dot collection at new position
+          checkDotCollection(pacmanX, pacmanY);
+
           // Add moving class for animation
           pacman.classList.add('moving');
           pacman.classList.remove('stationary');
@@ -1037,6 +1297,12 @@
             pacman.classList.remove('moving');
             pacman.classList.add('stationary');
           }, 300);
+        } else {
+          // Hit a wall - just update direction without moving
+          root.style.setProperty(
+            '--pacman-direction',
+            rotation + 'deg'
+          );
         }
       }
 
@@ -1070,8 +1336,12 @@
         }
       });
 
-      // Initialize Pacman position
+      // Initialize game
+      updateCounters(); // Initialize counters
       updatePacmanPosition();
+
+      // Check for initial dot collection
+      checkDotCollection(pacmanX, pacmanY);
 
       // Make sure the page is focused to receive keyboard events
       window.addEventListener('load', function () {
