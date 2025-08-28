@@ -32,7 +32,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
 }) => {
   return (
     <div className="flex items-center justify-center p-2 sm:p-4">
-      <div className="relative grid grid-cols-21 grid-rows-21 gap-0.5 p-1 sm:p-2 bg-black border-2 sm:border-4 border-blue-600 rounded-lg shadow-2xl max-w-full overflow-hidden">
+      <div className="neon-frame relative grid grid-cols-21 grid-rows-21 gap-0.5 p-1 sm:p-2 bg-black bg-maze-grid rounded-xl max-w-full overflow-hidden">
         {maze.map((row, y) =>
           row.map((cellType, x) => {
             const cellKey = `${x},${y}`;

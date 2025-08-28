@@ -482,22 +482,24 @@ function App() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden scanline">
       <div className="text-center mb-6">
-        <h1 className="text-4xl font-bold text-yellow-400 mb-2">
-          React Pacman Game
+        <h1 className="font-arcade text-5xl text-yellow-400 drop-shadow-[0_0_8px_rgba(247,213,29,0.8)] mb-3 animate-flicker">
+          AI Pacman
         </h1>
-        <p className="text-white text-lg">
+        <p className="text-white/90 text-base sm:text-lg">
           Complete Game with Ghosts & Power Mode
         </p>
 
         {/* Game Stats */}
-        <div className="mt-4 flex gap-6 justify-center text-lg font-semibold">
-          <span className="text-yellow-400">
-            Score: {score.toLocaleString()}
-          </span>
-          <span className="text-red-400">Lives: {lives}</span>
-          <span className="text-green-400">Status: {gameStatus}</span>
+        <div className="mt-4 flex gap-4 sm:gap-6 justify-center text-sm sm:text-lg font-semibold">
+          <div className="glass-panel px-3 sm:px-4 py-2 rounded-md flex gap-4">
+            <span className="text-yellow-400">
+              Score: {score.toLocaleString()}
+            </span>
+            <span className="text-red-400">Lives: {lives}</span>
+            <span className="text-green-400 capitalize">Status: {gameStatus}</span>
+          </div>
         </div>
       </div>
 
@@ -531,9 +533,9 @@ function App() {
 
         {/* Game Over Screen */}
         {gameStatus === 'game-over' && (
-          <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-            <div className="bg-gray-800 rounded-lg p-8 text-center border-2 border-yellow-400">
-              <h2 className="text-3xl font-bold text-yellow-400 mb-4">
+          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+            <div className="neon-frame bg-gray-900/90 p-8 text-center border-yellow-400/50">
+              <h2 className="font-arcade text-3xl text-yellow-400 mb-4">
                 {lives <= 0 ? 'Game Over!' : 'Victory!'}
               </h2>
               <p className="text-white text-xl mb-2">
@@ -549,7 +551,7 @@ function App() {
               )}
               <button
                 onClick={handleRestart}
-                className="bg-yellow-500 hover:bg-yellow-600 text-black px-6 py-2 rounded-lg font-bold transition-colors"
+                className="bg-yellow-500 hover:bg-yellow-600 text-black px-6 py-2 rounded-lg font-bold transition-transform duration-200 hover:scale-105 shadow-neonYellow"
               >
                 Play Again
               </button>

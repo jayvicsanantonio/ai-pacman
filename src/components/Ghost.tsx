@@ -30,14 +30,14 @@ export const Ghost: React.FC<GhostProps> = ({
       if (isFlashing) {
         // Flashing animation when vulnerability is about to end
         // Alternates between blue and white rapidly
-        baseClasses += ' bg-blue-500 animate-pulse shadow-blue-400';
+        baseClasses += ' bg-blue-500 animate-flicker shadow-blue-400';
       } else {
         // Solid blue when vulnerable with glow effect
         baseClasses += ' bg-blue-600 shadow-blue-500';
       }
     } else {
       // Normal ghost color with appropriate shadow
-      baseClasses += ` ${ghostColors[color]}`;
+      baseClasses += ` ${ghostColors[color]} drop-shadow-[0_0_8px_rgba(255,255,255,0.15)]`;
 
       // Add color-specific shadows for normal state
       switch (color) {
@@ -85,7 +85,7 @@ export const Ghost: React.FC<GhostProps> = ({
     <>
       {/* Small screens version */}
       <div
-        className={`absolute sm:hidden transition-all duration-200 ease-in-out z-10 pointer-events-none ${directionClasses[direction]}`}
+        className={`absolute sm:hidden transition-all duration-200 ease-in-out z-10 pointer-events-none ${directionClasses[direction]} will-change-transform animate-float`}
         style={{
           left: `${getCellCenter(x, 24, containerPaddingSmall) - 8}px`,
           top: `${getCellCenter(y, 24, containerPaddingSmall) - 8}px`,
@@ -130,7 +130,7 @@ export const Ghost: React.FC<GhostProps> = ({
 
       {/* Large screens version */}
       <div
-        className={`absolute hidden sm:block transition-all duration-200 ease-in-out z-10 pointer-events-none ${directionClasses[direction]}`}
+        className={`absolute hidden sm:block transition-all duration-200 ease-in-out z-10 pointer-events-none ${directionClasses[direction]} will-change-transform animate-float`}
         style={{
           left: `${getCellCenter(x, 32, containerPaddingLarge) - 11}px`,
           top: `${getCellCenter(y, 32, containerPaddingLarge) - 11}px`,

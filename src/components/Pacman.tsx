@@ -73,7 +73,7 @@ export const Pacman: React.FC<PacmanProps> = ({
     <>
       {/* Small screens version */}
       <div
-        className="absolute sm:hidden transition-all duration-150 ease-linear z-30 pointer-events-none"
+        className="absolute sm:hidden transition-all duration-150 ease-linear z-30 pointer-events-none will-change-transform"
         style={{
           left: `${getCellCenter(x, cellSizeSmall, containerPaddingSmall) - pacmanSizeSmall / 2}px`,
           top: `${getCellCenter(y, cellSizeSmall, containerPaddingSmall) - pacmanSizeSmall / 2}px`,
@@ -82,14 +82,14 @@ export const Pacman: React.FC<PacmanProps> = ({
         }}
       >
         <div
-          className="relative w-full h-full transition-transform duration-150 ease-out"
+          className="relative w-full h-full transition-transform duration-150 ease-out drop-shadow-[0_0_8px_rgba(247,213,29,0.8)]"
           style={{
             transform: `rotate(${getRotationAngle(direction)}deg)`,
           }}
         >
           {/* Main Pacman body */}
           <div
-            className="w-full h-full relative transition-all duration-200 ease-in-out"
+            className="w-full h-full relative transition-all duration-200 ease-in-out animate-glowPulse"
             style={{
               background:
                 'radial-gradient(circle at 30% 30%, #fef08a, #facc15, #eab308)',
@@ -133,7 +133,7 @@ export const Pacman: React.FC<PacmanProps> = ({
 
       {/* Large screens version */}
       <div
-        className="absolute hidden sm:block transition-all duration-150 ease-linear z-30 pointer-events-none"
+        className="absolute hidden sm:block transition-all duration-150 ease-linear z-30 pointer-events-none will-change-transform"
         style={{
           left: `${getCellCenter(x, cellSizeLarge, containerPaddingLarge) - pacmanSizeLarge / 2}px`,
           top: `${getCellCenter(y, cellSizeLarge, containerPaddingLarge) - pacmanSizeLarge / 2}px`,
@@ -142,14 +142,14 @@ export const Pacman: React.FC<PacmanProps> = ({
         }}
       >
         <div
-          className="relative w-full h-full transition-transform duration-150 ease-out"
+          className="relative w-full h-full transition-transform duration-150 ease-out drop-shadow-[0_0_10px_rgba(247,213,29,0.8)]"
           style={{
             transform: `rotate(${getRotationAngle(direction)}deg)`,
           }}
         >
           {/* Main Pacman body */}
           <div
-            className="w-full h-full relative transition-all duration-200 ease-in-out"
+            className="w-full h-full relative transition-all duration-200 ease-in-out animate-glowPulse"
             style={{
               background:
                 'radial-gradient(circle at 30% 30%, #fef08a, #facc15, #eab308)',

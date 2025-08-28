@@ -28,8 +28,8 @@ export const PowerPellet: React.FC<PowerPelletProps> = ({
         }
       }}
     >
-      <div className="w-2 h-2 sm:w-3 sm:h-3 bg-yellow-400 rounded-full animate-pulse shadow-lg shadow-yellow-400 transition-all duration-300 hover:scale-110 hover:shadow-xl hover:shadow-yellow-400 glow-effect">
-        <div className="absolute inset-0 bg-yellow-300 rounded-full animate-ping opacity-75" />
+      <div className="w-2 h-2 sm:w-3 sm:h-3 bg-pacman-yellow rounded-full animate-glowPulse shadow-neonYellow transition-all duration-300 hover:scale-110 hover:shadow-neonYellow glow-effect relative">
+        <div className="absolute inset-0 rounded-full animate-ping-fast opacity-60" style={{ background: 'radial-gradient(circle, rgba(247,213,29,0.7), transparent 70%)' }} />
       </div>
     </div>
   );

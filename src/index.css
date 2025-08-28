@@ -3,14 +3,55 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --bg-start: #0b0f1a;
+    --bg-mid: #070b14;
+    --bg-end: #000000;
+  }
   body {
-    @apply bg-black text-white font-mono;
+    @apply text-white font-mono min-h-screen;
+    background:
+      radial-gradient(100% 120% at 50% 0%, var(--bg-start) 0%, var(--bg-mid) 55%, var(--bg-end) 100%);
+  }
+  h1, h2, h3, .font-arcade {
+    font-family: "Press Start 2P", ui-sans-serif, system-ui, sans-serif;
+    letter-spacing: 0.02em;
   }
 }
+
 @layer components {
   .glow-effect {
     box-shadow:
       0 0 10px rgba(251, 191, 36, 0.8),
       0 0 20px rgba(251, 191, 36, 0.4);
+  }
+  .neon-frame {
+    @apply border-4 border-blue-600 rounded-xl shadow-neonBlue bg-black/80 backdrop-blur-sm;
+  }
+  .glass-panel {
+    @apply bg-white/5 backdrop-blur-md border border-white/15 rounded-lg shadow-glass;
+  }
+  .scanline {
+    position: relative;
+  }
+  .scanline::after {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(255,255,255,0.03),
+      rgba(255,255,255,0.03) 1px,
+      transparent 2px,
+      transparent 4px
+    );
+    mix-blend-mode: overlay;
+  }
+  .bg-maze-grid {
+    background-image:
+      linear-gradient(rgba(59, 130, 246, 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(59, 130, 246, 0.08) 1px, transparent 1px);
+    background-size: 24px 24px, 24px 24px;
   }
 }

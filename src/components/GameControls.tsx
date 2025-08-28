@@ -161,7 +161,7 @@ export const GameControls: React.FC<GameControlsProps> = ({
       {/* Desktop Controls - Visible on larger screens */}
       <div className="hidden md:flex fixed bottom-4 right-4 flex-col gap-3 z-10">
         {/* Directional controls */}
-        <div className="bg-gray-800 bg-opacity-90 p-4 rounded-lg border border-gray-600">
+        <div className="glass-panel p-4">
           <div className="flex flex-col gap-2">
             {/* Up button */}
             <div className="flex justify-center">
@@ -210,7 +210,7 @@ export const GameControls: React.FC<GameControlsProps> = ({
         </div>
 
         {/* Game control buttons */}
-        <div className="bg-gray-800 bg-opacity-90 p-4 rounded-lg border border-gray-600 flex gap-2">
+        <div className="glass-panel p-4 flex gap-2">
           <button
             onClick={handlePauseClick}
             className={`${buttonBaseClasses} ${disabledClasses} px-4 py-2 text-sm bg-yellow-600 hover:bg-yellow-700`}

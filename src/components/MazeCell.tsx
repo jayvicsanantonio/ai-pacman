@@ -24,17 +24,17 @@ export const MazeCell: React.FC<MazeCellProps> = ({
 
     switch (type) {
       case CellType.WALL:
-        return `${baseClasses} bg-blue-600 border border-blue-400 rounded-sm shadow-inner`;
+        return `${baseClasses} bg-gradient-to-br from-blue-700 to-blue-900 border border-blue-400/40 rounded-sm shadow-[inset_0_0_8px_rgba(0,0,0,0.7)]`;
       case CellType.PATH:
-        return `${baseClasses} bg-black`;
+        return `${baseClasses} bg-black/90`;
       case CellType.DOT:
-        return `${baseClasses} bg-black flex items-center justify-center`;
+        return `${baseClasses} bg-black/90 flex items-center justify-center`;
       case CellType.POWER_PELLET:
-        return `${baseClasses} bg-black flex items-center justify-center`;
+        return `${baseClasses} bg-black/90 flex items-center justify-center`;
       case CellType.GHOST_HOUSE:
-        return `${baseClasses} bg-gray-800 border border-gray-600`;
+        return `${baseClasses} bg-gray-800/90 border border-gray-600/50`;
       default:
-        return `${baseClasses} bg-black`;
+        return `${baseClasses} bg-black/90`;
     }
   };
 

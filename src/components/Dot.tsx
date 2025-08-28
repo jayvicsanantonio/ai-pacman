@@ -28,7 +28,7 @@ export const Dot: React.FC<DotProps> = ({
         }
       }}
     >
-      <div className="w-0.5 h-0.5 sm:w-1 sm:h-1 bg-yellow-400 rounded-full shadow-sm shadow-yellow-400 animate-pulse transition-all duration-200 hover:scale-125 hover:shadow-md hover:shadow-yellow-400" />
+      <div className="w-0.5 h-0.5 sm:w-1 sm:h-1 bg-pacman-yellow rounded-full shadow-[0_0_6px_rgba(247,213,29,0.8)] animate-glowPulse transition-all duration-200 hover:scale-125 hover:shadow-neonYellow" />
     </div>
   );
 };
