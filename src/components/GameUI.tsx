@@ -1,7 +1,7 @@
 import React from 'react';
 import { ScoreBoard } from './ScoreBoard';
 import { GameStatus } from './GameStatus';
-import { useGameContext } from '../context/GameContext';
+import { useGameContext } from '../hooks/useGameContext';
 import styles from '../styles/GameUI.module.css';
 
 interface GameUIProps {

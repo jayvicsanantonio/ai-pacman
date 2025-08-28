@@ -245,7 +245,7 @@ export const SmoothPacman: React.FC<SmoothPacmanProps> = ({
       </div>
 
       {/* Custom keyframes for smooth animations */}
-      <style jsx>{`
+      <style>{`
         @keyframes ping {
           75%, 100% {
             transform: scale(2);

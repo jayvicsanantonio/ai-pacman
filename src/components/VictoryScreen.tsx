@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useGameContext } from '../context/GameContext';
+import { useGameContext } from '../hooks/useGameContext';
 import { useGameState } from '../hooks/useGameState';
 import { formatScore, formatTime, calculateBonusPoints } from '../utils/gameUtils';
 

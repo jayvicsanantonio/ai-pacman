@@ -27,7 +27,7 @@ export const EnhancedPowerPellet: React.FC<EnhancedPowerPelletProps> = ({
   const [isHovered, setIsHovered] = useState(false);
   const [rotationAngle, setRotationAngle] = useState(0);
   const [energyWaves, setEnergyWaves] = useState<number[]>([]);
-  const animationRef = useRef<number>();
+  const animationRef = useRef<number>(0);
 
   // Continuous rotation animation
   useEffect(() => {
@@ -154,7 +154,7 @@ export const EnhancedPowerPellet: React.FC<EnhancedPowerPelletProps> = ({
       onKeyDown={handleKeyDown}
     >
       {/* Energy waves */}
-      {energyWaves.map((waveTime, index) => {
+      {energyWaves.map((waveTime) => {
         const age = Date.now() - waveTime;
         const progress = age / 3000; // 3 second wave lifecycle
         const opacity = Math.max(0, 1 - progress);

@@ -1,6 +1,6 @@
 import React from 'react';
 import { formatScore, formatTime } from '../utils/gameUtils';
-import { useGameContext } from '../context/GameContext';
+import { useGameContext } from '../hooks/useGameContext';
 import styles from '../styles/ScoreBoard.module.css';
 
 interface ScoreBoardProps {

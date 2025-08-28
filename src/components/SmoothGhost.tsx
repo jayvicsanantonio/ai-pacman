@@ -267,8 +267,8 @@ export const SmoothGhost: React.FC<SmoothGhostProps> = ({
       </div>
 
       {/* CSS Variables and custom animations */}
-      <style jsx>{`
-        :global(:root) {
+      <style>{`
+        :root {
           --ghost-red-light: rgba(239, 68, 68, 0.4);
           --ghost-pink-light: rgba(236, 72, 153, 0.4);
           --ghost-blue-light: rgba(59, 130, 246, 0.4);

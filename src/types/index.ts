@@ -44,6 +44,7 @@ export interface GhostState {
   color: GhostColor;
   isVulnerable: boolean;
   isFlashing: boolean;
+  mode?: 'normal' | 'vulnerable' | 'eaten';
 }
 
 export interface PowerModeState {

@@ -27,7 +27,7 @@ export const EnhancedGhost: React.FC<EnhancedGhostProps> = ({
   const [previousPosition, setPreviousPosition] = useState({ x, y });
   const [eyeDirection, setEyeDirection] = useState(direction);
   const [bobOffset, setBobOffset] = useState(0);
-  const animationRef = useRef<number>();
+  const animationRef = useRef<number>(0);
   
   // Track position changes for movement animations
   useEffect(() => {

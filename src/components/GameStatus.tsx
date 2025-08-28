@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useGameContext } from '../context/GameContext';
+import { useGameContext } from '../hooks/useGameContext';
 import styles from '../styles/GameStatus.module.css';
 
 interface GameStatusProps {

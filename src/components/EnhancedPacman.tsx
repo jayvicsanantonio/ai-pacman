@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { Direction } from '../types';
 
 interface EnhancedPacmanProps {
@@ -26,7 +26,7 @@ export const EnhancedPacman: React.FC<EnhancedPacmanProps> = ({
   const [isAnimating, setIsAnimating] = useState(false);
   const [previousPosition, setPreviousPosition] = useState({ x, y });
   const [trailPositions, setTrailPositions] = useState<Array<{ x: number; y: number; opacity: number }>>([]);
-  const animationRef = useRef<number>();
+  // const animationRef = useRef<number>(0);
 
   // Track position changes for trail effect
   useEffect(() => {

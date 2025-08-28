@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef } from 'react';
-import { useGameContext } from '../context/GameContext';
+import { useGameContext } from '../hooks/useGameContext';
 import { useGameState } from './useGameState';
 import { calculateGhostPoints } from '../utils/gameUtils';
-import type { Position, GhostState, GameStatus } from '../types';
+import type { Position, GhostState } from '../types';
 
 interface UseGameLogicOptions {
   onPacmanGhostCollision?: (ghost: GhostState, pacmanPos: Position) => void;
@@ -106,7 +106,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}): UseGameLogicRet
       options.onGhostEaten?.(ghost, points);
       
       // Update ghost state to eaten/fleeing
-      const updatedGhosts = state.ghosts.map(g => 
+      const updatedGhosts = state.ghosts.map((g: GhostState) => 
         g.id === ghost.id 
           ? { ...g, isVulnerable: false, isFlashing: false }
           : g
@@ -120,7 +120,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}): UseGameLogicRet
   }, [state.powerMode.isActive, state.ghosts, actions, options]);
 
   // Eat a vulnerable ghost
-  const eatGhost = useCallback((ghost: GhostState, pacmanPos: Position): number => {
+  const eatGhost = useCallback((ghost: GhostState, _pacmanPos: Position): number => {
     const ghostIndex = state.powerMode.ghostsEaten;
     const points = calculateGhostPoints(ghostIndex);
     
@@ -134,7 +134,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}): UseGameLogicRet
   }, [state.powerMode.ghostsEaten, gameState, actions]);
 
   // Handle life lost
-  const handleLifeLost = useCallback((reason?: string) => {
+  const handleLifeLost = useCallback((_reason?: string) => {
     if (invincibilityRef.current) {
       return; // Already processing life loss
     }
@@ -183,7 +183,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}): UseGameLogicRet
   }, [state.gameStatus, state.lives, gameState, actions, options]);
 
   // Handle game over
-  const handleGameOver = useCallback((reason: 'collision' | 'no-lives' = 'no-lives') => {
+  const handleGameOver = useCallback((_reason: 'collision' | 'no-lives' = 'no-lives') => {
     gameState.endGame('game-over');
     invincibilityRef.current = false;
     

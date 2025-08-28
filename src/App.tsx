@@ -65,9 +65,7 @@ function App() {
     collectPowerPellet,
     resetCollectibles,
     getTotalDotsRemaining,
-    getTotalPowerPelletsRemaining,
   } = useCollectibles(initialDots, initialPowerPellets);
-  // Memoized power pellet system callbacks to prevent unnecessary re-renders
   const powerPelletCallbacks = useMemo(
     () => ({
       onPowerPelletCollected: (position: Position, points: number) => {

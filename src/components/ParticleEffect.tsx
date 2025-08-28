@@ -34,12 +34,10 @@ export const ParticleEffect: React.FC<ParticleEffectProps> = ({
   onComplete,
   particleCount = 8,
   duration = 1000,
-  colors = ['#facc15', '#fbbf24', '#f59e0b'],
-  size = 'medium',
 }) => {
   const [particles, setParticles] = useState<Particle[]>([]);
-  const animationRef = useRef<number>();
-  const startTimeRef = useRef<number>();
+  const animationRef = useRef<number | null>(null);
+  const startTimeRef = useRef<number | null>(null);
 
   // Particle configurations for different effect types
   const getParticleConfig = (type: string) => {

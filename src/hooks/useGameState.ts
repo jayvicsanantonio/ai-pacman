@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useGameContext } from '../context/GameContext';
+import { useGameContext } from './useGameContext';
 import { useLocalStorage } from './useLocalStorage';
 import type { GameState, GhostState, Position } from '../types';
 

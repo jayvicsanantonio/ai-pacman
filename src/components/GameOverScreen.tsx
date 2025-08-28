@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useGameContext } from '../context/GameContext';
+import { useGameContext } from '../hooks/useGameContext';
 import { useGameState } from '../hooks/useGameState';
 import { formatScore, formatTime } from '../utils/gameUtils';
 
@@ -13,7 +13,7 @@ interface GameOverScreenProps {
 
 export const GameOverScreen: React.FC<GameOverScreenProps> = ({
   onRestart,
-  onContinue,
+  onContinue: _onContinue,
   onMainMenu,
   showAnimation = true,
   autoFocus = true,
@@ -66,9 +66,6 @@ export const GameOverScreen: React.FC<GameOverScreenProps> = ({
     onRestart?.() || gameState.startGame();
   };
 
-  const handleContinue = () => {
-    onContinue?.();
-  };
 
   const handleMainMenu = () => {
     onMainMenu?.() || gameState.restartGame();

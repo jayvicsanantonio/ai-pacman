@@ -1,5 +1,5 @@
 import React, { useEffect, useCallback, useRef } from 'react';
-import { useGameContext } from '../context/GameContext';
+import { useGameContext } from '../hooks/useGameContext';
 import { useGameLogic } from '../hooks/useGameLogic';
 import { useGameState } from '../hooks/useGameState';
 import GameOverScreen from './GameOverScreen';
@@ -43,7 +43,7 @@ export const GameEngine: React.FC<GameEngineProps> = ({
   enableGameOverConditions = true,
   onGameStart,
   onGamePause,
-  onGameResume,
+  onGameResume: _onGameResume,
   onGameOver,
   onRoundComplete,
   onGameComplete,
@@ -235,12 +235,12 @@ export const GameEngine: React.FC<GameEngineProps> = ({
 
   // Attach API to window for external access (development only)
   useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.DEV) {
       (window as any).gameEngine = gameEngineAPI;
     }
     
     return () => {
-      if (process.env.NODE_ENV === 'development') {
+      if (import.meta.env.DEV) {
         delete (window as any).gameEngine;
       }
     };
@@ -294,7 +294,7 @@ export const GameEngine: React.FC<GameEngineProps> = ({
       )}
       
       {/* Development Debug Info */}
-      {process.env.NODE_ENV === 'development' && (
+      {import.meta.env.DEV && (
         <div className="fixed bottom-4 left-4 bg-black bg-opacity-75 text-white p-2 rounded text-xs z-50">
           <div>Status: {state.gameStatus}</div>
           <div>Score: {state.score.current}</div>

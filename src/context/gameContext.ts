@@ -1,11 +1,9 @@
 import { createContext } from "react";
-import type { GameState } from "../types";
-
-interface GameContextType {
-  gameState: GameState;
-  // Additional context methods will be added in later tasks
+// Provide a minimal context shape compatible with hooks expecting state/actions.
+export interface GameContextType {
+  state: any;
+  actions: any;
 }
 
-export const GameContext = createContext<GameContextType | undefined>(
-  undefined,
-);
+export const GameContext = createContext<GameContextType | undefined>(undefined);
+

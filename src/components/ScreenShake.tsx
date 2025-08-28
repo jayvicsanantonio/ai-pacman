@@ -16,8 +16,8 @@ export const ScreenShake: React.FC<ScreenShakeProps> = ({
   children,
 }) => {
   const [shakeOffset, setShakeOffset] = useState({ x: 0, y: 0 });
-  const animationRef = useRef<number>();
-  const startTimeRef = useRef<number>();
+  const animationRef = useRef<number | null>(null);
+  const startTimeRef = useRef<number | null>(null);
 
   // Shake intensity configurations
   const getIntensityConfig = (intensity: string) => {
