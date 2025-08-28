@@ -129,14 +129,14 @@
     - Implement final score display and high score comparison
     - _Requirements: 4.4, 4.6, 5.6, 9.6_
 
-- [ ] 11. Polish animations and visual effects with TailwindCSS
-  - [ ] 11.1 Enhance movement animations with TailwindCSS
+- [x] 11. Polish animations and visual effects with TailwindCSS
+  - [x] 11.1 Enhance movement animations with TailwindCSS
     - Add smooth transitions using TailwindCSS transition utilities
     - Implement easing functions with TailwindCSS ease-in-out classes
     - Optimize animations with TailwindCSS transform utilities
     - Create custom animation keyframes for character-specific movements
     - _Requirements: 5.1, 5.2, 9.2_
-  - [ ] 11.2 Add particle effects and visual feedback with React and TailwindCSS
+  - [x] 11.2 Add particle effects and visual feedback with React and TailwindCSS
     - Create ParticleEffect component for dot collection animations
     - Add screen shake effect using React state and TailwindCSS animations
     - Implement power pellet glow with TailwindCSS shadow and animate-pulse
