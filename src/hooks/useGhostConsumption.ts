@@ -45,11 +45,23 @@ export const useGhostConsumption = (
       isPowerModeActive: boolean,
       isFlashingPhase: boolean
     ): GhostState[] => {
-      return ghosts.map((ghost) => ({
-        ...ghost,
-        isVulnerable: isPowerModeActive,
-        isFlashing: isPowerModeActive && isFlashingPhase,
-      }));
+      return ghosts.map((ghost) => {
+        // Eaten ghosts are never vulnerable and don't flash
+        if (ghost.mode === 'eaten') {
+          return {
+            ...ghost,
+            isVulnerable: false,
+            isFlashing: false,
+          };
+        }
+        
+        // Other ghosts follow normal power mode rules
+        return {
+          ...ghost,
+          isVulnerable: isPowerModeActive,
+          isFlashing: isPowerModeActive && isFlashingPhase,
+        };
+      });
     },
     []
   );

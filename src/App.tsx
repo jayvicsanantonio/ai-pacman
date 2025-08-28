@@ -170,58 +170,64 @@ function App() {
     [handleGhostPositionChange, handleGhostDirectionChange]
   );
 
-  // Memoized ghost speed to prevent hook recreation
-  const ghostSpeed = useMemo(() => {
+  // Calculate individual ghost speeds based on their state
+  const getGhostSpeed = useCallback((ghostId: string) => {
+    const ghost = ghosts.find(g => g.id === ghostId);
+    // Eaten ghosts return to normal speed (200ms) regardless of power mode
+    if (ghost?.mode === 'eaten') {
+      return 200;
+    }
+    // Other ghosts slow down during power mode if vulnerable
     return powerPelletSystem.powerMode.isActive ? 450 : 200;
-  }, [powerPelletSystem.powerMode.isActive]);
+  }, [ghosts, powerPelletSystem.powerMode.isActive]);
 
-  // Individual ghost AI hooks with stable configuration
+  // Individual ghost AI hooks with dynamic speed calculation
   const blinkyAI = useGhostAI({
     ghostId: 'blinky',
     ...ghostAIConfig,
-    speed: ghostSpeed,
+    speed: getGhostSpeed('blinky'),
     initialPosition: GHOST_CONFIGS[0].initialPosition,
     initialDirection: GHOST_CONFIGS[0].initialDirection,
     personality: GHOST_CONFIGS[0].personality,
     pacmanPosition,
     pacmanDirection,
-    isVulnerable: powerPelletSystem.powerMode.isActive,
+    isVulnerable: powerPelletSystem.powerMode.isActive && ghosts.find(g => g.id === 'blinky')?.mode !== 'eaten',
   });
 
   const pinkyAI = useGhostAI({
     ghostId: 'pinky',
     ...ghostAIConfig,
-    speed: ghostSpeed,
+    speed: getGhostSpeed('pinky'),
     initialPosition: GHOST_CONFIGS[1].initialPosition,
     initialDirection: GHOST_CONFIGS[1].initialDirection,
     personality: GHOST_CONFIGS[1].personality,
     pacmanPosition,
     pacmanDirection,
-    isVulnerable: powerPelletSystem.powerMode.isActive,
+    isVulnerable: powerPelletSystem.powerMode.isActive && ghosts.find(g => g.id === 'pinky')?.mode !== 'eaten',
   });
 
   const inkyAI = useGhostAI({
     ghostId: 'inky',
     ...ghostAIConfig,
-    speed: ghostSpeed,
+    speed: getGhostSpeed('inky'),
     initialPosition: GHOST_CONFIGS[2].initialPosition,
     initialDirection: GHOST_CONFIGS[2].initialDirection,
     personality: GHOST_CONFIGS[2].personality,
     pacmanPosition,
     pacmanDirection,
-    isVulnerable: powerPelletSystem.powerMode.isActive,
+    isVulnerable: powerPelletSystem.powerMode.isActive && ghosts.find(g => g.id === 'inky')?.mode !== 'eaten',
   });
 
   const clydeAI = useGhostAI({
     ghostId: 'clyde',
     ...ghostAIConfig,
-    speed: ghostSpeed,
+    speed: getGhostSpeed('clyde'),
     initialPosition: GHOST_CONFIGS[3].initialPosition,
     initialDirection: GHOST_CONFIGS[3].initialDirection,
     personality: GHOST_CONFIGS[3].personality,
     pacmanPosition,
     pacmanDirection,
-    isVulnerable: powerPelletSystem.powerMode.isActive,
+    isVulnerable: powerPelletSystem.powerMode.isActive && ghosts.find(g => g.id === 'clyde')?.mode !== 'eaten',
   });
 
   // Collect all ghost AIs for easier management
