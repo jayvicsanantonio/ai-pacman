@@ -33,6 +33,7 @@ export interface PacmanState {
   direction: Direction;
   isMoving: boolean;
   isEating: boolean;
+  isAnimating?: boolean;
 }
 
 export interface GhostState {

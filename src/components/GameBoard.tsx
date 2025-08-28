@@ -5,9 +5,9 @@ import {
   type MazeCell as MazeCellType,
   type PacmanState,
 } from '../types';
-import { Ghost } from './Ghost';
 import { MazeCell } from './MazeCell';
 import { Pacman } from './Pacman';
+import { Ghost } from './Ghost';
 
 interface GameBoardProps {
   maze: number[][];

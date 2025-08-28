@@ -133,9 +133,10 @@ function App() {
     },
   });
 
-  // Memoized ghost update handlers to prevent AI hook re-creation
+  // Memoized ghost update handlers for smooth movement
   const handleGhostPositionChange = useCallback(
     (ghostId: string, position: { x: number; y: number }) => {
+      // Update visual position for smooth rendering
       setGhosts((prev) =>
         prev.map((ghost) =>
           ghost.id === ghostId
