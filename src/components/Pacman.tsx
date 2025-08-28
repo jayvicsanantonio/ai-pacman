@@ -115,28 +115,6 @@ export const Pacman: React.FC<PacmanProps> = ({
               />
             )}
 
-            {/* Eye */}
-            <div
-              className="absolute bg-black rounded-full"
-              style={{
-                width: '4px',
-                height: '4px',
-                top: '30%',
-                left: '45%',
-              }}
-            />
-
-            {/* Highlight for 3D effect */}
-            <div
-              className="absolute bg-yellow-200 rounded-full opacity-70"
-              style={{
-                width: '3px',
-                height: '3px',
-                top: '25%',
-                left: '35%',
-              }}
-            />
-
             {/* Movement glow effect */}
             {isMoving && (
               <div
@@ -188,7 +166,7 @@ export const Pacman: React.FC<PacmanProps> = ({
                   width: 0,
                   height: 0,
                   borderStyle: 'solid',
-                  borderWidth: `${pacmanSizeLarge / 4}px ${pacmanSizeLarge / 3}px ${pacmanSizeLarge / 4}px 0`,
+                  borderWidth: `${pacmanSizeLarge / 2}px ${pacmanSizeLarge / 2}px ${pacmanSizeLarge / 2}px 0`,
                   borderColor: 'transparent black transparent transparent',
                   right: '0px',
                   top: '50%',
@@ -196,28 +174,6 @@ export const Pacman: React.FC<PacmanProps> = ({
                 }}
               />
             )}
-
-            {/* Eye */}
-            <div
-              className="absolute bg-black rounded-full"
-              style={{
-                width: '4px',
-                height: '4px',
-                top: '30%',
-                left: '45%',
-              }}
-            />
-
-            {/* Highlight for 3D effect */}
-            <div
-              className="absolute bg-yellow-200 rounded-full opacity-70"
-              style={{
-                width: '5px',
-                height: '5px',
-                top: '25%',
-                left: '35%',
-              }}
-            />
 
             {/* Movement glow effect */}
             {isMoving && (
