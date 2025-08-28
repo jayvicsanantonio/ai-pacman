@@ -1,9 +1,7 @@
 import React from 'react';
 import type { GhostState } from '../types/index';
 
-interface GhostProps extends GhostState {
-  cellSize?: number;
-}
+interface GhostProps extends GhostState {}
 
 export const Ghost: React.FC<GhostProps> = ({
   id,
@@ -13,7 +11,6 @@ export const Ghost: React.FC<GhostProps> = ({
   color,
   isVulnerable,
   isFlashing,
-  cellSize = 24,
 }) => {
   // Color variants for different ghost types
   const ghostColors = {
@@ -26,8 +23,7 @@ export const Ghost: React.FC<GhostProps> = ({
   // Vulnerable state styling with blue coloring and flashing animation
   const getGhostClasses = () => {
     let baseClasses = `
-      absolute w-6 h-6 transition-all duration-200 ease-in-out
-      rounded-t-full shadow-lg
+      w-full h-full rounded-t-full shadow-lg
     `;
 
     if (isVulnerable) {
@@ -71,48 +67,111 @@ export const Ghost: React.FC<GhostProps> = ({
     right: 'scale-x-[1]',
   };
 
+  // Grid positioning system matching Pacman component
+  const gap = 2; // gap-0.5 from GameBoard
+  const containerPaddingSmall = 4; // p-1 from GameBoard
+  const containerPaddingLarge = 8; // p-2 from GameBoard
+
+  // Calculate center position within each cell, accounting for container padding
+  const getCellCenter = (
+    coord: number,
+    cellSize: number,
+    containerPadding: number
+  ) => {
+    return containerPadding + coord * (cellSize + gap) + cellSize / 2;
+  };
+
   return (
-    <div
-      className={`${getGhostClasses()} ${directionClasses[direction]}`}
-      style={{
-        transform: `translate(${x * cellSize}px, ${y * cellSize}px)`,
-        zIndex: 10,
-      }}
-      data-ghost-id={id}
-      data-testid={`ghost-${id}`}
-    >
-      {/* Ghost body with rounded top */}
-      <div className="w-full h-full relative">
-        {/* Ghost eyes */}
-        <div className="absolute top-1 left-1 w-1 h-1 bg-white rounded-full"></div>
-        <div className="absolute top-1 right-1 w-1 h-1 bg-white rounded-full"></div>
+    <>
+      {/* Small screens version */}
+      <div
+        className={`absolute sm:hidden transition-all duration-200 ease-in-out z-10 pointer-events-none ${directionClasses[direction]}`}
+        style={{
+          left: `${getCellCenter(x, 24, containerPaddingSmall) - 8}px`,
+          top: `${getCellCenter(y, 24, containerPaddingSmall) - 8}px`,
+          width: '16px',
+          height: '16px',
+        }}
+        data-ghost-id={id}
+        data-testid={`ghost-${id}`}
+      >
+        <div className={getGhostClasses()}>
+          {/* Ghost eyes */}
+          <div className="absolute top-1 left-1 w-1 h-1 bg-white rounded-full"></div>
+          <div className="absolute top-1 right-1 w-1 h-1 bg-white rounded-full"></div>
 
-        {/* Ghost bottom wavy edge */}
-        <div className="absolute bottom-0 left-0 w-full h-1 flex">
-          <div className="flex-1 bg-current rounded-bl-full"></div>
-          <div className="flex-1 bg-current rounded-br-full"></div>
+          {/* Ghost bottom wavy edge */}
+          <div className="absolute bottom-0 left-0 w-full h-1 flex">
+            <div className="flex-1 bg-current rounded-bl-full"></div>
+            <div className="flex-1 bg-current rounded-br-full"></div>
+          </div>
+
+          {/* Vulnerable state indicator */}
+          {isVulnerable && (
+            <>
+              {/* Pulsing glow effect */}
+              <div className="absolute inset-0 bg-blue-300 rounded-t-full opacity-30 animate-ping"></div>
+
+              {/* Flashing overlay when about to end */}
+              {isFlashing && (
+                <div className="absolute inset-0 bg-white rounded-t-full opacity-60 animate-pulse"></div>
+              )}
+
+              {/* Scared face expression */}
+              <div className="absolute top-1 left-1 w-1 h-1 bg-white rounded-full animate-bounce"></div>
+              <div className="absolute top-1 right-1 w-1 h-1 bg-white rounded-full animate-bounce"></div>
+
+              {/* Scared mouth */}
+              <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-white rounded-full"></div>
+            </>
+          )}
         </div>
-
-        {/* Vulnerable state indicator */}
-        {isVulnerable && (
-          <>
-            {/* Pulsing glow effect */}
-            <div className="absolute inset-0 bg-blue-300 rounded-t-full opacity-30 animate-ping"></div>
-
-            {/* Flashing overlay when about to end */}
-            {isFlashing && (
-              <div className="absolute inset-0 bg-white rounded-t-full opacity-60 animate-pulse"></div>
-            )}
-
-            {/* Scared face expression */}
-            <div className="absolute top-1 left-1 w-1 h-1 bg-white rounded-full animate-bounce"></div>
-            <div className="absolute top-1 right-1 w-1 h-1 bg-white rounded-full animate-bounce"></div>
-
-            {/* Scared mouth */}
-            <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-white rounded-full"></div>
-          </>
-        )}
       </div>
-    </div>
+
+      {/* Large screens version */}
+      <div
+        className={`absolute hidden sm:block transition-all duration-200 ease-in-out z-10 pointer-events-none ${directionClasses[direction]}`}
+        style={{
+          left: `${getCellCenter(x, 32, containerPaddingLarge) - 11}px`,
+          top: `${getCellCenter(y, 32, containerPaddingLarge) - 11}px`,
+          width: '22px',
+          height: '22px',
+        }}
+        data-ghost-id={id}
+        data-testid={`ghost-${id}-lg`}
+      >
+        <div className={getGhostClasses()}>
+          {/* Ghost eyes */}
+          <div className="absolute top-1 left-1 w-2 h-2 bg-white rounded-full"></div>
+          <div className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full"></div>
+
+          {/* Ghost bottom wavy edge */}
+          <div className="absolute bottom-0 left-0 w-full h-2 flex">
+            <div className="flex-1 bg-current rounded-bl-full"></div>
+            <div className="flex-1 bg-current rounded-br-full"></div>
+          </div>
+
+          {/* Vulnerable state indicator */}
+          {isVulnerable && (
+            <>
+              {/* Pulsing glow effect */}
+              <div className="absolute inset-0 bg-blue-300 rounded-t-full opacity-30 animate-ping"></div>
+
+              {/* Flashing overlay when about to end */}
+              {isFlashing && (
+                <div className="absolute inset-0 bg-white rounded-t-full opacity-60 animate-pulse"></div>
+              )}
+
+              {/* Scared face expression */}
+              <div className="absolute top-1 left-1 w-2 h-2 bg-white rounded-full animate-bounce"></div>
+              <div className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full animate-bounce"></div>
+
+              {/* Scared mouth */}
+              <div className="absolute top-3 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-white rounded-full"></div>
+            </>
+          )}
+        </div>
+      </div>
+    </>
   );
 };

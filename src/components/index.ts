@@ -1,12 +1,13 @@
 // Component exports for the Pacman game
 // Individual components will be implemented in later tasks
 
-export { GameBoard } from './GameBoard';
-export { MazeCell } from './MazeCell';
 export { Dot } from './Dot';
-export { PowerPellet } from './PowerPellet';
-export { Pacman } from './Pacman';
+export { GameBoard } from './GameBoard';
 export { GameControls } from './GameControls';
 export { Ghost } from './Ghost';
+export { default as GhostIntegrationDemo } from './GhostIntegrationDemo';
+export { MazeCell } from './MazeCell';
+export { Pacman } from './Pacman';
 export { PowerModeDemo } from './PowerModeDemo';
+export { PowerPellet } from './PowerPellet';
 // export { ScoreBoard } from './ScoreBoard';

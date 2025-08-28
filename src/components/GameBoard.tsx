@@ -1,9 +1,11 @@
 import React from 'react';
 import {
   CellType,
+  type GhostState,
   type MazeCell as MazeCellType,
   type PacmanState,
 } from '../types';
+import { Ghost } from './Ghost';
 import { MazeCell } from './MazeCell';
 import { Pacman } from './Pacman';
 
@@ -12,6 +14,7 @@ interface GameBoardProps {
   dots: Set<string>;
   powerPellets: Set<string>;
   pacman?: PacmanState;
+  ghosts?: GhostState[];
   onCellClick?: (x: number, y: number) => void;
   onDotCollect?: (x: number, y: number) => void;
   onPowerPelletCollect?: (x: number, y: number) => void;
@@ -22,6 +25,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
   dots,
   powerPellets,
   pacman,
+  ghosts,
   onCellClick,
   onDotCollect,
   onPowerPelletCollect,
@@ -81,6 +85,11 @@ export const GameBoard: React.FC<GameBoardProps> = ({
             isEating={pacman.isEating}
           />
         )}
+
+        {/* Render Ghosts if provided */}
+        {ghosts?.map((ghost) => (
+          <Ghost key={ghost.id} {...ghost} />
+        ))}
       </div>
     </div>
   );

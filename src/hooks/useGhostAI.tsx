@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Direction, Position } from '../types/index';
 import { CellType } from '../types/index';
 
@@ -204,7 +204,7 @@ export const useGhostAI = ({
               // Direct chase - target Pacman's current position
               return pacmanPos;
 
-            case 'ambush':
+            case 'ambush': {
               // Target 4 cells ahead of Pacman
               const ambushTarget = { ...pacmanPos };
               switch (pacmanDirection) {
@@ -222,6 +222,7 @@ export const useGhostAI = ({
                   break;
               }
               return ambushTarget;
+            }
 
             case 'random':
               // Mix of direct chase and random movement
@@ -258,8 +259,8 @@ export const useGhostAI = ({
           }
           break;
 
-        case 'flee': // Run away from Pacman
-        {
+        case 'flee': {
+          // Run away from Pacman
           const fleeX = currentPos.x + (currentPos.x - pacmanPos.x) * 2;
           const fleeY = currentPos.y + (currentPos.y - pacmanPos.y) * 2;
           return { x: fleeX, y: fleeY };
