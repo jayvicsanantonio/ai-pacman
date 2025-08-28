@@ -163,18 +163,23 @@ function App() {
   const ghostAIConfig = useMemo(
     () => ({
       maze: sampleMaze,
-      speed: 200, // Base speed, will be overridden dynamically
+      speed: 200, // Base speed - will be updated via separate method
       onPositionChange: handleGhostPositionChange,
       onDirectionChange: handleGhostDirectionChange,
     }),
     [handleGhostPositionChange, handleGhostDirectionChange]
   );
 
-  // Individual ghost AI hooks with optimized configuration
+  // Memoized ghost speed to prevent hook recreation
+  const ghostSpeed = useMemo(() => {
+    return powerPelletSystem.powerMode.isActive ? 450 : 200;
+  }, [powerPelletSystem.powerMode.isActive]);
+
+  // Individual ghost AI hooks with stable configuration
   const blinkyAI = useGhostAI({
     ghostId: 'blinky',
     ...ghostAIConfig,
-    speed: powerPelletSystem.powerMode.isActive ? 450 : 200, // Moderately slow during power mode
+    speed: ghostSpeed,
     initialPosition: GHOST_CONFIGS[0].initialPosition,
     initialDirection: GHOST_CONFIGS[0].initialDirection,
     personality: GHOST_CONFIGS[0].personality,
@@ -186,7 +191,7 @@ function App() {
   const pinkyAI = useGhostAI({
     ghostId: 'pinky',
     ...ghostAIConfig,
-    speed: powerPelletSystem.powerMode.isActive ? 450 : 200, // Moderately slow during power mode
+    speed: ghostSpeed,
     initialPosition: GHOST_CONFIGS[1].initialPosition,
     initialDirection: GHOST_CONFIGS[1].initialDirection,
     personality: GHOST_CONFIGS[1].personality,
@@ -198,7 +203,7 @@ function App() {
   const inkyAI = useGhostAI({
     ghostId: 'inky',
     ...ghostAIConfig,
-    speed: powerPelletSystem.powerMode.isActive ? 450 : 200, // Moderately slow during power mode
+    speed: ghostSpeed,
     initialPosition: GHOST_CONFIGS[2].initialPosition,
     initialDirection: GHOST_CONFIGS[2].initialDirection,
     personality: GHOST_CONFIGS[2].personality,
@@ -210,7 +215,7 @@ function App() {
   const clydeAI = useGhostAI({
     ghostId: 'clyde',
     ...ghostAIConfig,
-    speed: powerPelletSystem.powerMode.isActive ? 450 : 200, // Moderately slow during power mode
+    speed: ghostSpeed,
     initialPosition: GHOST_CONFIGS[3].initialPosition,
     initialDirection: GHOST_CONFIGS[3].initialDirection,
     personality: GHOST_CONFIGS[3].personality,
@@ -236,9 +241,13 @@ function App() {
     setGhosts(initialGhosts);
   }, []);
 
-  // Update ghost vulnerability based on power mode
+  // Update ghost vulnerability based on power mode with debouncing
   useEffect(() => {
-    setGhosts((prev) => powerPelletSystem.updateGhostStates(prev));
+    const timeoutId = setTimeout(() => {
+      setGhosts((prev) => powerPelletSystem.updateGhostStates(prev));
+    }, 50); // 50ms debounce to prevent rapid flickering
+
+    return () => clearTimeout(timeoutId);
   }, [powerPelletSystem.powerMode.isActive, powerPelletSystem.isFlashingPhase]);
 
   // Handle ghost collisions
@@ -253,13 +262,13 @@ function App() {
         // Ghosts were consumed
         setGhosts(collisionResult.updatedGhosts);
       } else {
-        // Check for regular collision (game over)
-        const collidingGhost = ghosts.find(
-          (ghost) =>
-            ghost.x === pacmanPos.x &&
-            ghost.y === pacmanPos.y &&
-            !powerPelletSystem.isGhostVulnerable(ghost)
-        );
+        // Check for regular collision (game over) with tolerance
+        const collidingGhost = ghosts.find((ghost) => {
+          const deltaX = Math.abs(ghost.x - pacmanPos.x);
+          const deltaY = Math.abs(ghost.y - pacmanPos.y);
+          const isColliding = deltaX <= 0.5 && deltaY <= 0.5;
+          return isColliding && !powerPelletSystem.isGhostVulnerable(ghost);
+        });
 
         if (collidingGhost) {
           console.log('Game Over - Pacman caught by ghost!');
@@ -409,7 +418,7 @@ function App() {
     
     console.log('🔄 Ghost states reset');
 
-    // 6. Reset power system
+    // 6. Reset power system (clears all power pellet timers)
     powerPelletSystem.resetPowerSystem();
     
     console.log('🔄 Power system reset');
@@ -427,16 +436,26 @@ function App() {
       eatingTimeoutRef.current = null;
     }
     
-    // 9. Start all movement again (after a small delay to ensure reset is complete)
-    setTimeout(() => {
+    // 9. Start all movement again (after ensuring all timers are cleared)
+    Promise.resolve().then(() => {
+      // Use Promise.resolve() for better synchronization than setTimeout
       console.log('🔄 Restarting all movement...');
       startMoving(); // Start Pacman movement
       ghostAIs.forEach((ai) => ai.startAI()); // Start ghost AIs
       console.log('🔄 All AIs restarted!');
-    }, 100);
+    });
     
     console.log('🔄 Game restart complete!');
   };
+
+  // Cleanup effect for timer memory leak prevention
+  useEffect(() => {
+    return () => {
+      if (eatingTimeoutRef.current) {
+        clearTimeout(eatingTimeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center p-4">

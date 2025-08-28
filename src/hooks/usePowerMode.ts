@@ -146,10 +146,6 @@ export const usePowerMode = (
       return 0;
     }
 
-    const newGhostsEaten = powerMode.ghostsEaten + 1;
-
-    // Points double for each ghost eaten in sequence: 200, 400, 800, 1600
-    const points = GHOST_BASE_POINTS * Math.pow(2, powerMode.ghostsEaten);
 
     setPowerMode((prev) => ({
       ...prev,

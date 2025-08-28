@@ -67,9 +67,11 @@ export const useGhostConsumption = (
       const updatedGhosts: GhostState[] = [];
 
       ghosts.forEach((ghost) => {
-        // Check if Pacman and ghost are at the same position
-        const isColliding =
-          pacmanPosition.x === ghost.x && pacmanPosition.y === ghost.y;
+        // Check collision with tolerance for speed differences
+        // Allow slight position tolerance to handle 200ms vs 450ms movement timing
+        const deltaX = Math.abs(pacmanPosition.x - ghost.x);
+        const deltaY = Math.abs(pacmanPosition.y - ghost.y);
+        const isColliding = deltaX <= 0.5 && deltaY <= 0.5;
 
         if (isColliding && isGhostVulnerable(ghost, isPowerModeActive)) {
           // Ghost is consumed
