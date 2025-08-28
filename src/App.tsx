@@ -163,11 +163,11 @@ function App() {
   const ghostAIConfig = useMemo(
     () => ({
       maze: sampleMaze,
-      speed: 250,
+      speed: powerPelletSystem.powerMode.isActive ? 400 : 200, // Slower when vulnerable (400ms), same as Pacman when normal (200ms)
       onPositionChange: handleGhostPositionChange,
       onDirectionChange: handleGhostDirectionChange,
     }),
-    [handleGhostPositionChange, handleGhostDirectionChange]
+    [handleGhostPositionChange, handleGhostDirectionChange, powerPelletSystem.powerMode.isActive]
   );
 
   // Individual ghost AI hooks with optimized configuration
