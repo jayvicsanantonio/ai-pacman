@@ -86,15 +86,15 @@ export const useGhostConsumption = (
             onGhostConsumed(ghost, points);
           }
 
-          // Temporarily remove ghost (or move to ghost house)
-          // For now, we'll move the ghost back to the ghost house
+          // Transport ghost to ghost house center (classic Pacman behavior)
           updatedGhosts.push({
             ...ghost,
-            x: 10, // Ghost house x position
-            y: 9, // Ghost house y position
+            x: 10, // Ghost house center x
+            y: 9, // Ghost house center y 
             isVulnerable: false,
             isFlashing: false,
-            direction: 'up', // Reset direction
+            direction: 'up', // Will exit upward
+            mode: 'eaten', // Special mode for exiting ghost house
           });
         } else {
           // Ghost remains unchanged

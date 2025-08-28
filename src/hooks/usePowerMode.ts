@@ -142,23 +142,34 @@ export const usePowerMode = (
 
   // Eat a ghost and calculate points
   const eatGhost = useCallback(() => {
-    if (!powerMode.isActive) {
-      return 0;
-    }
+    let pointsEarned = 0;
+    let newGhostsEaten = 0;
+    
+    setPowerMode((prev) => {
+      if (!prev.isActive) {
+        return prev;
+      }
 
+      newGhostsEaten = prev.ghostsEaten + 1;
 
-    setPowerMode((prev) => ({
-      ...prev,
-      ghostsEaten: newGhostsEaten,
-    }));
+      // Points double for each ghost eaten in sequence: 200, 400, 800, 1600
+      // Cap at 1600 points (4 ghosts maximum multiplier)
+      const multiplier = Math.min(prev.ghostsEaten, 3);
+      pointsEarned = GHOST_BASE_POINTS * Math.pow(2, multiplier);
+
+      return {
+        ...prev,
+        ghostsEaten: newGhostsEaten,
+      };
+    });
 
     // Call ghost eaten callback
     if (onGhostEaten) {
-      onGhostEaten(newGhostsEaten, points);
+      onGhostEaten(newGhostsEaten, pointsEarned);
     }
 
-    return points;
-  }, [powerMode.isActive, powerMode.ghostsEaten, onGhostEaten]);
+    return pointsEarned;
+  }, [onGhostEaten]);
 
   // Reset power mode to initial state
   const resetPowerMode = useCallback(() => {

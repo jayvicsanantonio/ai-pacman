@@ -261,6 +261,24 @@ function App() {
       if (collisionResult.consumedGhosts.length > 0) {
         // Ghosts were consumed
         setGhosts(collisionResult.updatedGhosts);
+        
+        // Reset AI state for consumed ghosts to sync with ghost house position
+        collisionResult.consumedGhosts.forEach(ghostId => {
+          switch (ghostId) {
+            case 'blinky':
+              blinkyAI.resetAI();
+              break;
+            case 'pinky':
+              pinkyAI.resetAI();
+              break;
+            case 'inky':
+              inkyAI.resetAI();
+              break;
+            case 'clyde':
+              clydeAI.resetAI();
+              break;
+          }
+        });
       } else {
         // Check for regular collision (game over) with tolerance
         const collidingGhost = ghosts.find((ghost) => {

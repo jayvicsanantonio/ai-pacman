@@ -280,6 +280,15 @@ export const useGhostAI = ({
   const determineAIMode = useCallback((currentMode: AIMode): AIMode => {
     const { isVulnerable } = optionsRef.current;
 
+    // If in eaten mode, check if we've reached outside ghost house
+    if (currentMode === 'eaten') {
+      // If ghost has exited ghost house (y <= 7), return to normal behavior
+      if (aiState.position.y <= 7) {
+        return 'scatter'; // Return to normal AI behavior
+      }
+      return 'eaten'; // Stay in eaten mode until out of ghost house
+    }
+
     // If vulnerable, switch to flee mode
     if (isVulnerable && currentMode !== 'flee') {
       return 'flee';
@@ -301,7 +310,7 @@ export const useGhostAI = ({
     } else {
       return 'scatter';
     }
-  }, []);
+  }, [aiState.position]);
 
   // Choose next direction based on AI logic
   const chooseNextDirection = useCallback(
@@ -310,6 +319,14 @@ export const useGhostAI = ({
 
       if (validDirections.length === 0) {
         return currentState.direction;
+      }
+
+      // Special handling for eaten mode - force upward movement to exit ghost house
+      if (currentState.mode === 'eaten') {
+        // If we're in the ghost house (y >= 8), prioritize upward movement
+        if (currentState.position.y >= 8 && validDirections.includes('up')) {
+          return 'up';
+        }
       }
 
       // Avoid reversing direction unless necessary
