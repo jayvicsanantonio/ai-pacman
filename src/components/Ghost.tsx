@@ -26,21 +26,38 @@ export const Ghost: React.FC<GhostProps> = ({
   // Vulnerable state styling with blue coloring and flashing animation
   const getGhostClasses = () => {
     let baseClasses = `
-      absolute w-6 h-6 transition-all duration-300 ease-in-out
-      rounded-t-full
+      absolute w-6 h-6 transition-all duration-200 ease-in-out
+      rounded-t-full shadow-lg
     `;
 
     if (isVulnerable) {
       if (isFlashing) {
         // Flashing animation when vulnerability is about to end
-        baseClasses += ' bg-blue-400 animate-pulse';
+        // Alternates between blue and white rapidly
+        baseClasses += ' bg-blue-500 animate-pulse shadow-blue-400';
       } else {
-        // Solid blue when vulnerable
-        baseClasses += ' bg-blue-600';
+        // Solid blue when vulnerable with glow effect
+        baseClasses += ' bg-blue-600 shadow-blue-500';
       }
     } else {
-      // Normal ghost color
+      // Normal ghost color with appropriate shadow
       baseClasses += ` ${ghostColors[color]}`;
+
+      // Add color-specific shadows for normal state
+      switch (color) {
+        case 'red':
+          baseClasses += ' shadow-red-400';
+          break;
+        case 'pink':
+          baseClasses += ' shadow-pink-400';
+          break;
+        case 'blue':
+          baseClasses += ' shadow-blue-400';
+          break;
+        case 'orange':
+          baseClasses += ' shadow-orange-400';
+          break;
+      }
     }
 
     return baseClasses;
@@ -78,7 +95,22 @@ export const Ghost: React.FC<GhostProps> = ({
 
         {/* Vulnerable state indicator */}
         {isVulnerable && (
-          <div className="absolute inset-0 bg-blue-300 rounded-t-full opacity-50 animate-ping"></div>
+          <>
+            {/* Pulsing glow effect */}
+            <div className="absolute inset-0 bg-blue-300 rounded-t-full opacity-30 animate-ping"></div>
+
+            {/* Flashing overlay when about to end */}
+            {isFlashing && (
+              <div className="absolute inset-0 bg-white rounded-t-full opacity-60 animate-pulse"></div>
+            )}
+
+            {/* Scared face expression */}
+            <div className="absolute top-1 left-1 w-1 h-1 bg-white rounded-full animate-bounce"></div>
+            <div className="absolute top-1 right-1 w-1 h-1 bg-white rounded-full animate-bounce"></div>
+
+            {/* Scared mouth */}
+            <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-white rounded-full"></div>
+          </>
         )}
       </div>
     </div>

@@ -76,12 +76,12 @@
     - _Requirements: 3.2, 3.3, 9.4, 9.2_
 
 - [ ] 7. Add power pellet mechanics with React state
-  - [ ] 7.1 Implement power mode activation with React hooks
+  - [x] 7.1 Implement power mode activation with React hooks
     - Create usePowerMode hook for power pellet state management
     - Add timer functionality using useEffect and setTimeout
     - Implement visual feedback with TailwindCSS animations and state changes
     - _Requirements: 3.5, 4.2, 9.1, 9.5_
-  - [ ] 7.2 Create vulnerable ghost behavior with React state
+  - [x] 7.2 Create vulnerable ghost behavior with React state
     - Update Ghost component to handle vulnerable state styling
     - Add flashing animation using TailwindCSS animate-pulse and conditional classes
     - Implement ghost consumption logic and scoring in React

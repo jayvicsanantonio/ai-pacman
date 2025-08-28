@@ -1,11 +1,11 @@
 import React from 'react';
-import { MazeCell } from './MazeCell';
-import { Pacman } from './Pacman';
 import {
   CellType,
   type MazeCell as MazeCellType,
   type PacmanState,
 } from '../types';
+import { MazeCell } from './MazeCell';
+import { Pacman } from './Pacman';
 
 interface GameBoardProps {
   maze: number[][];
@@ -34,6 +34,11 @@ export const GameBoard: React.FC<GameBoardProps> = ({
             const cellKey = `${x},${y}`;
             const hasDot = dots.has(cellKey);
             const hasPowerPellet = powerPellets.has(cellKey);
+
+            // Debug power pellets
+            if (hasPowerPellet) {
+              console.log(`Power pellet found at ${cellKey}`);
+            }
 
             // Determine the actual cell type based on collectibles
             let actualCellType = cellType as CellType;

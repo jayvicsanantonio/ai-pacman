@@ -8,4 +8,5 @@ export { PowerPellet } from './PowerPellet';
 export { Pacman } from './Pacman';
 export { GameControls } from './GameControls';
 export { Ghost } from './Ghost';
+export { PowerModeDemo } from './PowerModeDemo';
 // export { ScoreBoard } from './ScoreBoard';

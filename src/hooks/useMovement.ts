@@ -51,6 +51,8 @@ export const useMovement = ({
   const isValidPosition = useCallback((x: number, y: number): boolean => {
     const currentMaze = optionsRef.current.maze;
 
+    console.log(`Checking position validity: (${x}, ${y})`);
+
     // Check bounds
     if (
       x < 0 ||
@@ -58,27 +60,33 @@ export const useMovement = ({
       y >= currentMaze.length ||
       x >= currentMaze[0].length
     ) {
+      console.log(`Position (${x}, ${y}) is out of bounds`);
       return false;
     }
 
     const cellType = currentMaze[y][x];
+    console.log(`Cell type at (${x}, ${y}): ${cellType}`);
 
     // Allow movement on paths, dots (handled separately), power pellets (handled separately)
     // Disallow movement on walls and ghost house (unless it's the tunnel area)
     if (cellType === CellType.WALL) {
+      console.log(`Position (${x}, ${y}) is a wall`);
       return false;
     }
 
     // Special case: Allow movement through tunnel areas (sides of the maze)
     if (y === 9 && (x === 0 || x === 20)) {
+      console.log(`Position (${x}, ${y}) is tunnel area`);
       return true;
     }
 
     // Disallow movement into ghost house for Pacman
     if (cellType === CellType.GHOST_HOUSE) {
+      console.log(`Position (${x}, ${y}) is ghost house`);
       return false;
     }
 
+    console.log(`Position (${x}, ${y}) is valid`);
     return true;
   }, []);
 
@@ -128,9 +136,14 @@ export const useMovement = ({
   // Set the desired direction (will be applied when possible)
   const setDirection = useCallback(
     (newDirection: Direction) => {
+      console.log(`Setting direction to: ${newDirection}`);
       setMovementState((prev) => {
+        console.log(`Current position: ${prev.position.x}, ${prev.position.y}`);
+        const canMoveInDirection = canMove(prev.position, newDirection);
+        console.log(`Can move ${newDirection}: ${canMoveInDirection}`);
+
         // If we can immediately move in the new direction, change direction now
-        if (canMove(prev.position, newDirection)) {
+        if (canMoveInDirection) {
           // Notify about direction change
           if (
             optionsRef.current.onDirectionChange &&
@@ -146,6 +159,7 @@ export const useMovement = ({
           };
         } else {
           // Store the direction for later when it becomes possible
+          console.log(`Storing direction ${newDirection} for later`);
           return {
             ...prev,
             nextDirection: newDirection,
@@ -184,8 +198,14 @@ export const useMovement = ({
         }
 
         // Try to move in the current/new direction
-        if (canMove(prev.position, newDirection)) {
+        const canMoveNow = canMove(prev.position, newDirection);
+        console.log(
+          `Movement tick - Position: ${prev.position.x},${prev.position.y}, Direction: ${newDirection}, Can move: ${canMoveNow}`
+        );
+
+        if (canMoveNow) {
           const nextPos = getNextPosition(prev.position, newDirection);
+          console.log(`Moving to: ${nextPos.x},${nextPos.y}`);
 
           // Notify about position change
           if (optionsRef.current.onPositionChange) {
@@ -201,6 +221,7 @@ export const useMovement = ({
           };
         } else {
           // Can't move, stop moving
+          console.log(`Cannot move in direction ${newDirection}, stopping`);
           return {
             ...prev,
             direction: newDirection,
@@ -244,66 +265,7 @@ export const useMovement = ({
 
   // Auto-start movement when component mounts and handle cleanup
   useEffect(() => {
-    // Start the movement interval
-    const startInterval = () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-      intervalRef.current = setInterval(() => {
-        setMovementState((prev) => {
-          let newDirection = prev.direction;
-          let newNextDirection = prev.nextDirection;
-
-          // Check if we can change to the queued direction
-          if (
-            prev.nextDirection &&
-            canMove(prev.position, prev.nextDirection)
-          ) {
-            newDirection = prev.nextDirection;
-            newNextDirection = null;
-
-            // Notify about direction change
-            if (
-              optionsRef.current.onDirectionChange &&
-              prev.direction !== newDirection
-            ) {
-              optionsRef.current.onDirectionChange(newDirection);
-            }
-          }
-
-          // Try to move in the current/new direction
-          if (canMove(prev.position, newDirection)) {
-            const nextPos = getNextPosition(prev.position, newDirection);
-
-            // Notify about position change
-            if (optionsRef.current.onPositionChange) {
-              optionsRef.current.onPositionChange(nextPos);
-            }
-
-            return {
-              ...prev,
-              position: nextPos,
-              direction: newDirection,
-              nextDirection: newNextDirection,
-              isMoving: true,
-            };
-          } else {
-            // Can't move, stop moving
-            return {
-              ...prev,
-              direction: newDirection,
-              nextDirection: newNextDirection,
-              isMoving: false,
-            };
-          }
-        });
-      }, optionsRef.current.speed);
-    };
-
-    // Start movement
-    isMovingRef.current = true;
-    startInterval();
-
+    // Don't auto-start movement - let the user control it
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
@@ -311,7 +273,7 @@ export const useMovement = ({
       }
       isMovingRef.current = false;
     };
-  }, []); // Empty dependency array to run only once
+  }, []);
 
   return {
     position: movementState.position,

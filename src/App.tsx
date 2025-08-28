@@ -1,5 +1,6 @@
 import { GameBoard, GameControls } from './components';
-import { useCollectibles, useMovement } from './hooks';
+import { useCollectibles } from './hooks';
+import { useSimpleMovement } from './hooks/useSimpleMovement';
 import {
   sampleMaze,
   generateInitialDots,
@@ -29,7 +30,7 @@ function App() {
     startMoving,
     stopMoving,
     resetMovement,
-  } = useMovement({
+  } = useSimpleMovement({
     maze: sampleMaze,
     initialPosition: { x: 10, y: 15 }, // Starting position in the maze
     initialDirection: 'right',

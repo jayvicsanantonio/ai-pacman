@@ -1,10 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import type {
-  Direction,
-  Position,
-  GhostState,
-  PacmanState,
-} from '../types/index';
+import type { Direction, Position } from '../types/index';
 import { CellType } from '../types/index';
 
 type AIMode = 'chase' | 'scatter' | 'flee' | 'eaten';
@@ -263,11 +258,12 @@ export const useGhostAI = ({
           }
           break;
 
-        case 'flee':
-          // Run away from Pacman
+        case 'flee': // Run away from Pacman
+        {
           const fleeX = currentPos.x + (currentPos.x - pacmanPos.x) * 2;
           const fleeY = currentPos.y + (currentPos.y - pacmanPos.y) * 2;
           return { x: fleeX, y: fleeY };
+        }
 
         case 'eaten':
           // Return to ghost house center

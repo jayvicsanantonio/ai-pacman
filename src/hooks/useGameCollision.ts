@@ -84,7 +84,8 @@ export const useGameCollision = ({
         ghosts
       );
       if (ghostCollision.hasCollision) {
-        const ghost = ghostCollision.collisionData?.ghost;
+        const ghost = (ghostCollision.collisionData as { ghost: GhostState })
+          ?.ghost;
         if (ghost && onGhostCollision) {
           onGhostCollision(ghost, targetPos);
         }
