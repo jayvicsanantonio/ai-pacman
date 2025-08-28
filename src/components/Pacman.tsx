@@ -18,12 +18,12 @@ export const Pacman: React.FC<PacmanProps> = ({
 }) => {
   const [mouthOpen, setMouthOpen] = useState(false);
 
-  // Animate mouth opening/closing when moving
+  // Animate mouth opening/closing when moving or eating
   useEffect(() => {
     if (isMoving || isEating) {
       const interval = setInterval(() => {
         setMouthOpen((prev) => !prev);
-      }, 150);
+      }, 200); // Slightly slower for better visual effect
 
       return () => clearInterval(interval);
     } else {
@@ -47,47 +47,70 @@ export const Pacman: React.FC<PacmanProps> = ({
     }
   };
 
-  // Position calculation accounting for grid gap (16px cell + 2px gap on small, 24px cell + 2px gap on large)
-  const gridUnitSmall = 18; // 16px + 2px gap
-  const gridUnitLarge = 26; // 24px + 2px gap
+  // Grid cell dimensions (matching MazeCell.tsx)
+  // Small: w-6 h-6 (24px) with gap-0.5 (2px) + p-1 (4px padding)
+  // Large: w-8 h-8 (32px) with gap-0.5 (2px) + p-2 (8px padding)
+  const cellSizeSmall = 24;
+  const cellSizeLarge = 32;
+  const gap = 2;
+  const containerPaddingSmall = 4; // p-1
+  const containerPaddingLarge = 8; // p-2
+
+  // Calculate center position within each cell, accounting for container padding
+  const getCellCenter = (
+    coord: number,
+    cellSize: number,
+    containerPadding: number
+  ) => {
+    return containerPadding + coord * (cellSize + gap) + cellSize / 2;
+  };
+
+  // Pacman size (smaller than cell to ensure no wall overlap)
+  const pacmanSizeSmall = 16;
+  const pacmanSizeLarge = 22;
 
   return (
     <>
       {/* Small screens version */}
       <div
-        className="absolute sm:hidden transition-all duration-100 ease-linear z-20 pointer-events-none"
+        className="absolute sm:hidden transition-all duration-150 ease-linear z-30 pointer-events-none"
         style={{
-          transform: `translate(${x * gridUnitSmall + 1}px, ${y * gridUnitSmall + 1}px)`,
-          width: '14px',
-          height: '14px',
+          left: `${getCellCenter(x, cellSizeSmall, containerPaddingSmall) - pacmanSizeSmall / 2}px`,
+          top: `${getCellCenter(y, cellSizeSmall, containerPaddingSmall) - pacmanSizeSmall / 2}px`,
+          width: `${pacmanSizeSmall}px`,
+          height: `${pacmanSizeSmall}px`,
         }}
       >
         <div
-          className="relative w-full h-full transition-transform duration-100 ease-out"
+          className="relative w-full h-full transition-transform duration-150 ease-out"
           style={{
             transform: `rotate(${getRotationAngle(direction)}deg)`,
           }}
         >
           {/* Main Pacman body */}
           <div
-            className="w-full h-full relative transition-all duration-150 ease-in-out"
+            className="w-full h-full relative transition-all duration-200 ease-in-out"
             style={{
               background:
-                'radial-gradient(circle at 35% 35%, #fef08a, #facc15, #eab308)',
+                'radial-gradient(circle at 30% 30%, #fef08a, #facc15, #eab308)',
               borderRadius: '50%',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
-              overflow: 'hidden',
+              boxShadow:
+                '0 1px 2px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.3)',
             }}
           >
-            {/* Mouth opening - black circle overlay to create mouth effect */}
+            {/* Mouth opening */}
             {mouthOpen && (
               <div
-                className="absolute bg-black rounded-full"
+                className="absolute"
                 style={{
-                  width: '10px',
-                  height: '10px',
-                  right: '-2px',
-                  top: '2px',
+                  width: 0,
+                  height: 0,
+                  borderStyle: 'solid',
+                  borderWidth: `${pacmanSizeSmall / 4}px ${pacmanSizeSmall / 3}px ${pacmanSizeSmall / 4}px 0`,
+                  borderColor: 'transparent black transparent transparent',
+                  right: '0px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
                 }}
               />
             )}
@@ -96,35 +119,35 @@ export const Pacman: React.FC<PacmanProps> = ({
             <div
               className="absolute bg-black rounded-full"
               style={{
-                width: '2px',
-                height: '2px',
-                top: '3px',
-                left: '5px',
+                width: '4px',
+                height: '4px',
+                top: '30%',
+                left: '45%',
               }}
             />
 
             {/* Highlight for 3D effect */}
             <div
-              className="absolute bg-yellow-200 rounded-full opacity-60"
+              className="absolute bg-yellow-200 rounded-full opacity-70"
               style={{
                 width: '3px',
                 height: '3px',
-                top: '2px',
-                left: '3px',
+                top: '25%',
+                left: '35%',
               }}
             />
 
             {/* Movement glow effect */}
             {isMoving && (
               <div
-                className="absolute inset-0 bg-yellow-300 rounded-full animate-ping opacity-25"
-                style={{ animationDuration: '0.6s' }}
+                className="absolute inset-0 bg-yellow-300 rounded-full animate-ping opacity-30"
+                style={{ animationDuration: '1s' }}
               />
             )}
 
             {/* Eating effect */}
             {isEating && (
-              <div className="absolute inset-0 bg-yellow-100 rounded-full animate-pulse opacity-30" />
+              <div className="absolute inset-0 bg-yellow-100 rounded-full animate-pulse opacity-40" />
             )}
           </div>
         </div>
@@ -132,39 +155,44 @@ export const Pacman: React.FC<PacmanProps> = ({
 
       {/* Large screens version */}
       <div
-        className="absolute hidden sm:block transition-all duration-100 ease-linear z-20 pointer-events-none"
+        className="absolute hidden sm:block transition-all duration-150 ease-linear z-30 pointer-events-none"
         style={{
-          transform: `translate(${x * gridUnitLarge + 1}px, ${y * gridUnitLarge + 1}px)`,
-          width: '22px',
-          height: '22px',
+          left: `${getCellCenter(x, cellSizeLarge, containerPaddingLarge) - pacmanSizeLarge / 2}px`,
+          top: `${getCellCenter(y, cellSizeLarge, containerPaddingLarge) - pacmanSizeLarge / 2}px`,
+          width: `${pacmanSizeLarge}px`,
+          height: `${pacmanSizeLarge}px`,
         }}
       >
         <div
-          className="relative w-full h-full transition-transform duration-100 ease-out"
+          className="relative w-full h-full transition-transform duration-150 ease-out"
           style={{
             transform: `rotate(${getRotationAngle(direction)}deg)`,
           }}
         >
           {/* Main Pacman body */}
           <div
-            className="w-full h-full relative transition-all duration-150 ease-in-out"
+            className="w-full h-full relative transition-all duration-200 ease-in-out"
             style={{
               background:
-                'radial-gradient(circle at 35% 35%, #fef08a, #facc15, #eab308)',
+                'radial-gradient(circle at 30% 30%, #fef08a, #facc15, #eab308)',
               borderRadius: '50%',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
-              overflow: 'hidden',
+              boxShadow:
+                '0 2px 4px rgba(0,0,0,0.4), inset 0 1px 2px rgba(255,255,255,0.3)',
             }}
           >
-            {/* Mouth opening - black circle overlay to create mouth effect */}
+            {/* Mouth opening */}
             {mouthOpen && (
               <div
-                className="absolute bg-black rounded-full"
+                className="absolute"
                 style={{
-                  width: '16px',
-                  height: '16px',
-                  right: '-3px',
-                  top: '3px',
+                  width: 0,
+                  height: 0,
+                  borderStyle: 'solid',
+                  borderWidth: `${pacmanSizeLarge / 4}px ${pacmanSizeLarge / 3}px ${pacmanSizeLarge / 4}px 0`,
+                  borderColor: 'transparent black transparent transparent',
+                  right: '0px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
                 }}
               />
             )}
@@ -173,50 +201,32 @@ export const Pacman: React.FC<PacmanProps> = ({
             <div
               className="absolute bg-black rounded-full"
               style={{
-                width: '3px',
-                height: '3px',
-                top: '5px',
-                left: '8px',
+                width: '4px',
+                height: '4px',
+                top: '30%',
+                left: '45%',
               }}
             />
 
             {/* Highlight for 3D effect */}
             <div
-              className="absolute bg-yellow-200 rounded-full opacity-60"
+              className="absolute bg-yellow-200 rounded-full opacity-70"
               style={{
-                width: '4px',
-                height: '4px',
-                top: '3px',
-                left: '4px',
+                width: '5px',
+                height: '5px',
+                top: '25%',
+                left: '35%',
               }}
             />
 
             {/* Movement glow effect */}
             {isMoving && (
               <div
-                className="absolute inset-0 bg-yellow-300 rounded-full animate-ping opacity-25"
-                style={{ animationDuration: '0.6s' }}
+                className="absolute inset-0 bg-yellow-300 rounded-full animate-ping opacity-30"
+                style={{ animationDuration: '1s' }}
               />
             )}
-
-            {/* Eating effect */}
-            {isEating && (
-              <div className="absolute inset-0 bg-yellow-100 rounded-full animate-pulse opacity-30" />
-            )}
           </div>
-
-          {/* Eating particles for large screens */}
-          {isEating && mouthOpen && (
-            <div
-              className="absolute animate-bounce"
-              style={{
-                right: '-2px',
-                top: '9px',
-              }}
-            >
-              <div className="w-1 h-1 bg-white rounded-full opacity-75" />
-            </div>
-          )}
         </div>
       </div>
     </>

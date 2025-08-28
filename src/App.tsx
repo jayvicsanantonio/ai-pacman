@@ -1,16 +1,21 @@
+import { useRef, useState } from 'react';
 import { GameBoard, GameControls } from './components';
 import { useCollectibles } from './hooks';
 import { useSimpleMovement } from './hooks/useSimpleMovement';
+import type { Direction } from './types';
 import {
-  sampleMaze,
   generateInitialDots,
   generateInitialPowerPellets,
+  sampleMaze,
 } from './utils';
-import type { Direction } from './types';
 
 function App() {
   const initialDots = generateInitialDots(sampleMaze);
   const initialPowerPellets = generateInitialPowerPellets();
+
+  // State for eating animation
+  const [isEating, setIsEating] = useState(false);
+  const eatingTimeoutRef = useRef<number | null>(null);
 
   const {
     dots,
@@ -57,11 +62,37 @@ function App() {
   const handleDotCollect = (x: number, y: number) => {
     console.log(`Collected dot at ${x}, ${y}`);
     collectDot(x, y);
+
+    // Trigger eating animation
+    setIsEating(true);
+
+    // Clear existing timeout if any
+    if (eatingTimeoutRef.current) {
+      clearTimeout(eatingTimeoutRef.current);
+    }
+
+    // Reset eating animation after 400ms
+    eatingTimeoutRef.current = window.setTimeout(() => {
+      setIsEating(false);
+    }, 400);
   };
 
   const handlePowerPelletCollect = (x: number, y: number) => {
     console.log(`Collected power pellet at ${x}, ${y}`);
     collectPowerPellet(x, y);
+
+    // Trigger eating animation (longer for power pellets)
+    setIsEating(true);
+
+    // Clear existing timeout if any
+    if (eatingTimeoutRef.current) {
+      clearTimeout(eatingTimeoutRef.current);
+    }
+
+    // Reset eating animation after 600ms (longer for power pellets)
+    eatingTimeoutRef.current = window.setTimeout(() => {
+      setIsEating(false);
+    }, 600);
   };
 
   const handleDirectionChange = (direction: Direction) => {
@@ -80,6 +111,14 @@ function App() {
 
   const handleRestart = () => {
     resetMovement();
+    setIsEating(false);
+
+    // Clear eating timeout
+    if (eatingTimeoutRef.current) {
+      clearTimeout(eatingTimeoutRef.current);
+      eatingTimeoutRef.current = null;
+    }
+
     console.log('Game restarted');
   };
 
@@ -113,7 +152,7 @@ function App() {
             y: pacmanPosition.y,
             direction: pacmanDirection,
             isMoving: pacmanIsMoving,
-            isEating: false, // Will be implemented in later tasks
+            isEating: isEating,
           }}
         />
       </div>

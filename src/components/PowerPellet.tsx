@@ -17,7 +17,7 @@ export const PowerPellet: React.FC<PowerPelletProps> = ({
 
   return (
     <div
-      className="absolute inset-0 flex items-center justify-center cursor-pointer"
+      className="z-50 absolute inset-0 flex items-center justify-center cursor-pointer"
       onClick={() => onCollect?.(x, y)}
       role="button"
       tabIndex={0}

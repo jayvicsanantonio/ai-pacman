@@ -20,7 +20,7 @@ export const MazeCell: React.FC<MazeCellProps> = ({
 }) => {
   const getCellClasses = () => {
     const baseClasses =
-      'w-4 h-4 sm:w-6 sm:h-6 relative transition-all duration-200';
+      'w-6 h-6 sm:w-8 sm:h-8 relative transition-all duration-200';
 
     switch (type) {
       case CellType.WALL:
