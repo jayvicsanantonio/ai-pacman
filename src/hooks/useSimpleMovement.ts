@@ -25,6 +25,12 @@ export const useSimpleMovement = ({
   const [nextDirection, setNextDirection] = useState<Direction | null>(null);
 
   const intervalRef = useRef<number | null>(null);
+  const stateRef = useRef({ direction, nextDirection, onPositionChange, onDirectionChange });
+  
+  // Update state ref when values change
+  useEffect(() => {
+    stateRef.current = { direction, nextDirection, onPositionChange, onDirectionChange };
+  }, [direction, nextDirection, onPositionChange, onDirectionChange]);
 
   // Check if a position is within maze boundaries
   const isWithinBounds = useCallback(
@@ -148,7 +154,9 @@ export const useSimpleMovement = ({
 
   // Movement loop effect
   useEffect(() => {
+    console.log('🔄 Movement loop effect triggered:', { isMoving, speed });
     if (!isMoving) {
+      console.log('🔄 Not moving, clearing interval');
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
@@ -156,16 +164,19 @@ export const useSimpleMovement = ({
       return;
     }
 
+    console.log('🔄 Setting up movement interval with speed:', speed);
     intervalRef.current = window.setInterval(() => {
+      console.log('🔄 Movement interval tick!');
       setPosition((currentPos) => {
-        let currentDirection = direction;
+        const { direction: currentDirection, nextDirection, onPositionChange, onDirectionChange } = stateRef.current;
+        let activeDirection = currentDirection;
 
         // Check if we can change to the queued direction
         if (nextDirection && canMove(currentPos, nextDirection)) {
           console.log(
-            `Switching from ${currentDirection} to queued direction ${nextDirection}`
+            `Switching from ${activeDirection} to queued direction ${nextDirection}`
           );
-          currentDirection = nextDirection;
+          activeDirection = nextDirection;
           setDirectionState(nextDirection);
           setNextDirection(null);
 
@@ -176,8 +187,8 @@ export const useSimpleMovement = ({
         }
 
         // Try to move in the current direction
-        if (canMove(currentPos, currentDirection)) {
-          const nextPos = getNextPosition(currentPos, currentDirection);
+        if (canMove(currentPos, activeDirection)) {
+          const nextPos = getNextPosition(currentPos, activeDirection);
           console.log(
             `Moving from (${currentPos.x},${currentPos.y}) to (${nextPos.x},${nextPos.y})`
           );
@@ -191,7 +202,7 @@ export const useSimpleMovement = ({
         } else {
           // Cannot move in current direction - stop moving
           console.log(
-            `Cannot move ${currentDirection} from (${currentPos.x},${currentPos.y}), stopping`
+            `Cannot move ${activeDirection} from (${currentPos.x},${currentPos.y}), stopping`
           );
           setIsMoving(false);
           return currentPos;
@@ -205,16 +216,7 @@ export const useSimpleMovement = ({
         intervalRef.current = null;
       }
     };
-  }, [
-    isMoving,
-    direction,
-    nextDirection,
-    canMove,
-    getNextPosition,
-    onPositionChange,
-    onDirectionChange,
-    speed,
-  ]);
+  }, [isMoving, speed]); // Simplified dependencies to prevent interval clearing
 
   // Start moving
   const startMoving = useCallback(() => {

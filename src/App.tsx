@@ -64,7 +64,6 @@ function App() {
     collectDot,
     collectPowerPellet,
     getTotalDotsRemaining,
-    getTotalPowerPelletsRemaining,
   } = useCollectibles(initialDots, initialPowerPellets);
 
   // Memoized power pellet system callbacks to prevent unnecessary re-renders
@@ -163,17 +162,18 @@ function App() {
   const ghostAIConfig = useMemo(
     () => ({
       maze: sampleMaze,
-      speed: powerPelletSystem.powerMode.isActive ? 400 : 200, // Slower when vulnerable (400ms), same as Pacman when normal (200ms)
+      speed: 200, // Base speed, will be overridden dynamically
       onPositionChange: handleGhostPositionChange,
       onDirectionChange: handleGhostDirectionChange,
     }),
-    [handleGhostPositionChange, handleGhostDirectionChange, powerPelletSystem.powerMode.isActive]
+    [handleGhostPositionChange, handleGhostDirectionChange]
   );
 
   // Individual ghost AI hooks with optimized configuration
   const blinkyAI = useGhostAI({
     ghostId: 'blinky',
     ...ghostAIConfig,
+    speed: powerPelletSystem.powerMode.isActive ? 400 : 200, // Dynamic speed
     initialPosition: GHOST_CONFIGS[0].initialPosition,
     initialDirection: GHOST_CONFIGS[0].initialDirection,
     personality: GHOST_CONFIGS[0].personality,
@@ -185,6 +185,7 @@ function App() {
   const pinkyAI = useGhostAI({
     ghostId: 'pinky',
     ...ghostAIConfig,
+    speed: powerPelletSystem.powerMode.isActive ? 400 : 200, // Dynamic speed
     initialPosition: GHOST_CONFIGS[1].initialPosition,
     initialDirection: GHOST_CONFIGS[1].initialDirection,
     personality: GHOST_CONFIGS[1].personality,
@@ -196,6 +197,7 @@ function App() {
   const inkyAI = useGhostAI({
     ghostId: 'inky',
     ...ghostAIConfig,
+    speed: powerPelletSystem.powerMode.isActive ? 400 : 200, // Dynamic speed
     initialPosition: GHOST_CONFIGS[2].initialPosition,
     initialDirection: GHOST_CONFIGS[2].initialDirection,
     personality: GHOST_CONFIGS[2].personality,
@@ -207,6 +209,7 @@ function App() {
   const clydeAI = useGhostAI({
     ghostId: 'clyde',
     ...ghostAIConfig,
+    speed: powerPelletSystem.powerMode.isActive ? 400 : 200, // Dynamic speed
     initialPosition: GHOST_CONFIGS[3].initialPosition,
     initialDirection: GHOST_CONFIGS[3].initialDirection,
     personality: GHOST_CONFIGS[3].personality,
@@ -326,12 +329,22 @@ function App() {
   };
 
   const handleDirectionChange = (direction: Direction) => {
+    console.log('🎮 Direction change requested:', direction, {
+      gameStatus,
+      pacmanIsMoving,
+    });
     if (gameStatus === 'playing') {
       setDirection(direction);
+      console.log('🎮 Direction set to:', direction);
       // Start moving if not already moving
       if (!pacmanIsMoving) {
+        console.log('🎮 Starting movement...');
         startMoving();
+      } else {
+        console.log('🎮 Already moving, just changed direction');
       }
+    } else {
+      console.log('🎮 Game not playing, ignoring direction change');
     }
   };
 
@@ -396,29 +409,6 @@ function App() {
           </span>
           <span className="text-red-400">Lives: {lives}</span>
           <span className="text-green-400">Status: {gameStatus}</span>
-        </div>
-
-        {/* Power Mode Indicator */}
-        {powerPelletSystem.powerMode.isActive && (
-          <div className="mt-2 flex gap-4 justify-center">
-            <span className="text-blue-400 animate-pulse">
-              🔥 POWER MODE:{' '}
-              {Math.ceil(powerPelletSystem.powerMode.timeRemaining / 1000)}s
-            </span>
-            <span className="text-purple-400">
-              Ghosts Eaten: {powerPelletSystem.powerMode.ghostsEaten}
-            </span>
-          </div>
-        )}
-
-        {/* Game Stats */}
-        <div className="mt-4 flex gap-4 justify-center text-sm">
-          <span className="text-yellow-400">
-            Dots: {getTotalDotsRemaining()}
-          </span>
-          <span className="text-orange-400">
-            Pellets: {getTotalPowerPelletsRemaining()}
-          </span>
         </div>
       </div>
 
