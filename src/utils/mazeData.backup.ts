@@ -1,11 +1,7 @@
 import { CellType } from '../types';
 
-// Perfectly symmetrical and accessible 21x21 maze layout
-// 0 = PATH, 1 = WALL, 4 = GHOST_HOUSE
-// This maze ensures:
-// 1. Perfect horizontal symmetry
-// 2. All pellets are accessible from Pacman's starting position (10, 15)
-// 3. Power pellets at corners (1,3), (19,3), (1,17), (19,17) are all reachable
+// Perfectly symmetrical 21x21 maze layout
+// 0 = PATH, 1 = WALL, 2 = DOT (handled by dots Set), 3 = POWER_PELLET (handled by powerPellets Set), 4 = GHOST_HOUSE
 export const sampleMaze: number[][] = [
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
   [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
@@ -14,19 +10,19 @@ export const sampleMaze: number[][] = [
   [1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1],
   [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1],
   [1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1],
-  [0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0],
+  [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
   [1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 4, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1],
   [0, 0, 0, 0, 0, 0, 1, 0, 1, 4, 4, 4, 1, 0, 1, 0, 0, 0, 0, 0, 0],
   [1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1],
-  [0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0],
+  [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
   [1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1],
-  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-  [1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1],
-  [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
-  [1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1],
   [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1],
-  [1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+  [1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1],
   [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
 ];
 
@@ -37,20 +33,16 @@ export const generateInitialDots = (maze: number[][]): Set<string> => {
   // Get power pellet positions to exclude them from dots
   const powerPelletPositions = new Set(['1,3', '19,3', '1,17', '19,17']);
 
-  // Tunnel entrance positions to exclude from dots
-  const tunnelEntrances = new Set(['0,7', '20,7', '0,11', '20,11']);
-
   for (let y = 0; y < maze.length; y++) {
     for (let x = 0; x < maze[y].length; x++) {
       if (maze[y][x] === CellType.PATH) {
         const position = `${x},${y}`;
 
-        // Skip certain positions (like Pacman starting position, near ghost house, power pellets, and tunnel entrances)
+        // Skip certain positions (like Pacman starting position, near ghost house, and power pellets)
         if (
           !(x === 10 && y === 15) && // Pacman starting position
           !(x >= 9 && x <= 11 && y >= 8 && y <= 11) && // Near ghost house
-          !powerPelletPositions.has(position) && // Power pellet positions
-          !tunnelEntrances.has(position) // Tunnel entrance positions
+          !powerPelletPositions.has(position) // Power pellet positions
         ) {
           dots.add(position);
         }
@@ -61,11 +53,11 @@ export const generateInitialDots = (maze: number[][]): Set<string> => {
   return dots;
 };
 
-// Generate initial power pellets at the four corners (all accessible)
+// Generate initial power pellets at the four corners
 export const generateInitialPowerPellets = (): Set<string> => {
   const powerPellets = new Set<string>();
 
-  // Four corner positions for power pellets - all in accessible PATH areas
+  // Four corner positions for power pellets (all accessible)
   powerPellets.add('1,3'); // Top-left
   powerPellets.add('19,3'); // Top-right
   powerPellets.add('1,17'); // Bottom-left
@@ -74,7 +66,7 @@ export const generateInitialPowerPellets = (): Set<string> => {
   return powerPellets;
 };
 
-// Utility function to validate maze accessibility using BFS
+// Utility function to validate maze accessibility
 export const validateMazeAccessibility = (maze: number[][]): boolean => {
   const visited = new Set<string>();
   const queue = [{ x: 10, y: 15 }]; // Start from Pacman's position
@@ -109,33 +101,25 @@ export const validateMazeAccessibility = (maze: number[][]): boolean => {
       }
     }
 
-    // Handle tunnel connections (horizontal tunnels on rows 7 and 11)
-    if ((y === 7 || y === 11) && (x === 0 || x === 20)) {
-      const tunnelExit = { x: x === 0 ? 20 : 0, y: y };
-      const tunnelKey = `${tunnelExit.x},${tunnelExit.y}`;
-      if (
-        !visited.has(tunnelKey) &&
-        maze[tunnelExit.y][tunnelExit.x] === CellType.PATH
-      ) {
-        queue.push(tunnelExit);
+    // Handle tunnel connections
+    if (y === 7 || y === 11) {
+      if (x === 0) {
+        const tunnelExit = { x: 20, y: y };
+        if (!visited.has(`${tunnelExit.x},${tunnelExit.y}`)) {
+          queue.push(tunnelExit);
+        }
+      } else if (x === 20) {
+        const tunnelExit = { x: 0, y: y };
+        if (!visited.has(`${tunnelExit.x},${tunnelExit.y}`)) {
+          queue.push(tunnelExit);
+        }
       }
     }
   }
 
   // Check if all power pellet positions are reachable
   const powerPelletPositions = ['1,3', '19,3', '1,17', '19,17'];
-  const allPowerPelletsAccessible = powerPelletPositions.every((pos) =>
-    visited.has(pos)
-  );
-
-  // Count accessible dots
-  const dotPositions = generateInitialDots(maze);
-  const accessibleDots = Array.from(dotPositions).filter((pos) =>
-    visited.has(pos)
-  );
-  const allDotsAccessible = accessibleDots.length === dotPositions.size;
-
-  return allPowerPelletsAccessible && allDotsAccessible;
+  return powerPelletPositions.every((pos) => visited.has(pos));
 };
 
 // Utility function to check horizontal symmetry
@@ -147,9 +131,6 @@ export const isHorizontallySymmetrical = (maze: number[][]): boolean => {
     for (let x = 0; x < Math.floor(width / 2); x++) {
       const mirrorX = width - 1 - x;
       if (maze[y][x] !== maze[y][mirrorX]) {
-        console.log(
-          `Asymmetry found at (${x}, ${y}) vs (${mirrorX}, ${y}): ${maze[y][x]} !== ${maze[y][mirrorX]}`
-        );
         return false;
       }
     }
@@ -187,29 +168,6 @@ export const validateAndReportMaze = () => {
   }
 
   return report;
-};
-
-// Additional utility: Get maze statistics
-export const getMazeStatistics = () => {
-  const dots = generateInitialDots(sampleMaze);
-  const powerPellets = generateInitialPowerPellets();
-  const validation = validateAndReportMaze();
-
-  return {
-    totalDots: dots.size,
-    totalPowerPellets: powerPellets.size,
-    totalCollectibles: dots.size + powerPellets.size,
-    dimensions: `${sampleMaze[0].length}x${sampleMaze.length}`,
-    isAccessible: validation.isAccessible,
-    isSymmetrical: validation.isSymmetrical,
-    pacmanStartPosition: { x: 10, y: 15 },
-    powerPelletPositions: [
-      { x: 1, y: 3 },
-      { x: 19, y: 3 },
-      { x: 1, y: 17 },
-      { x: 19, y: 17 },
-    ],
-  };
 };
 
 // Auto-validate when module is loaded

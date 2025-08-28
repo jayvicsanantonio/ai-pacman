@@ -42,7 +42,11 @@ export const positionsEqual = (
   return pos1.x === pos2.x && pos1.y === pos2.y;
 };
 export {
-  sampleMaze,
   generateInitialDots,
   generateInitialPowerPellets,
+  getMazeStatistics,
+  isHorizontallySymmetrical,
+  sampleMaze,
+  validateAndReportMaze,
+  validateMazeAccessibility,
 } from './mazeData';

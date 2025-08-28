@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { GameBoard, GameControls } from './components';
+import MazeVisualization from './components/MazeVisualization';
 import { useCollectibles } from './hooks';
 import { useSimpleMovement } from './hooks/useSimpleMovement';
 import type { Direction } from './types';
@@ -12,6 +13,9 @@ import {
 function App() {
   const initialDots = generateInitialDots(sampleMaze);
   const initialPowerPellets = generateInitialPowerPellets();
+
+  // State for view toggle
+  const [showMazeAnalysis, setShowMazeAnalysis] = useState(false);
 
   // State for eating animation
   const [isEating, setIsEating] = useState(false);
@@ -129,41 +133,62 @@ function App() {
           React Pacman Game
         </h1>
         <p className="text-white text-lg">GameBoard Component Implementation</p>
-        <div className="flex gap-4 justify-center mt-4 text-sm">
-          <span className="text-yellow-400">
-            Dots Remaining: {getTotalDotsRemaining()}
-          </span>
-          <span className="text-orange-400">
-            Power Pellets: {getTotalPowerPelletsRemaining()}
-          </span>
+
+        {/* View Toggle Button */}
+        <div className="mt-4 mb-2">
+          <button
+            onClick={() => setShowMazeAnalysis(!showMazeAnalysis)}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+          >
+            {showMazeAnalysis ? 'Show Game' : 'Show Maze Analysis'}
+          </button>
         </div>
+
+        {!showMazeAnalysis && (
+          <div className="flex gap-4 justify-center text-sm">
+            <span className="text-yellow-400">
+              Dots Remaining: {getTotalDotsRemaining()}
+            </span>
+            <span className="text-orange-400">
+              Power Pellets: {getTotalPowerPelletsRemaining()}
+            </span>
+          </div>
+        )}
       </div>
 
-      <div className="w-full max-w-4xl">
-        <GameBoard
-          maze={sampleMaze}
-          dots={dots}
-          powerPellets={powerPellets}
-          onCellClick={(x, y) => console.log(`Clicked cell at ${x}, ${y}`)}
-          onDotCollect={handleDotCollect}
-          onPowerPelletCollect={handlePowerPelletCollect}
-          pacman={{
-            x: pacmanPosition.x,
-            y: pacmanPosition.y,
-            direction: pacmanDirection,
-            isMoving: pacmanIsMoving,
-            isEating: isEating,
-          }}
-        />
-      </div>
+      {showMazeAnalysis ? (
+        <div className="w-full">
+          <MazeVisualization />
+        </div>
+      ) : (
+        <>
+          <div className="w-full max-w-4xl">
+            <GameBoard
+              maze={sampleMaze}
+              dots={dots}
+              powerPellets={powerPellets}
+              onCellClick={(x, y) => console.log(`Clicked cell at ${x}, ${y}`)}
+              onDotCollect={handleDotCollect}
+              onPowerPelletCollect={handlePowerPelletCollect}
+              pacman={{
+                x: pacmanPosition.x,
+                y: pacmanPosition.y,
+                direction: pacmanDirection,
+                isMoving: pacmanIsMoving,
+                isEating: isEating,
+              }}
+            />
+          </div>
 
-      {/* Game Controls */}
-      <GameControls
-        onDirectionChange={handleDirectionChange}
-        onPause={handlePause}
-        onRestart={handleRestart}
-        disabled={false}
-      />
+          {/* Game Controls */}
+          <GameControls
+            onDirectionChange={handleDirectionChange}
+            onPause={handlePause}
+            onRestart={handleRestart}
+            disabled={false}
+          />
+        </>
+      )}
     </div>
   );
 }
