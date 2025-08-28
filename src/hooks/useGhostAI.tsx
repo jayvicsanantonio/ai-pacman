@@ -476,6 +476,14 @@ export const useGhostAI = ({
     });
   }, [isVulnerable, determineAIMode, getTargetPosition]);
 
+  // Restart AI interval when speed changes
+  useEffect(() => {
+    if (intervalRef.current) {
+      console.log(`🏃‍♀️ Ghost ${ghostId} speed changed to ${speed}ms, restarting AI...`);
+      startAI(); // This will clear the old interval and start a new one with the new speed
+    }
+  }, [speed, startAI, ghostId]);
+
   return {
     position: aiState.position,
     direction: aiState.direction,

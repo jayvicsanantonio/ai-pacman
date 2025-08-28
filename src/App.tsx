@@ -63,9 +63,10 @@ function App() {
     powerPellets,
     collectDot,
     collectPowerPellet,
+    resetCollectibles,
     getTotalDotsRemaining,
+    getTotalPowerPelletsRemaining,
   } = useCollectibles(initialDots, initialPowerPellets);
-
   // Memoized power pellet system callbacks to prevent unnecessary re-renders
   const powerPelletCallbacks = useMemo(
     () => ({
@@ -173,7 +174,7 @@ function App() {
   const blinkyAI = useGhostAI({
     ghostId: 'blinky',
     ...ghostAIConfig,
-    speed: powerPelletSystem.powerMode.isActive ? 400 : 200, // Dynamic speed
+    speed: powerPelletSystem.powerMode.isActive ? 450 : 200, // Moderately slow during power mode
     initialPosition: GHOST_CONFIGS[0].initialPosition,
     initialDirection: GHOST_CONFIGS[0].initialDirection,
     personality: GHOST_CONFIGS[0].personality,
@@ -185,7 +186,7 @@ function App() {
   const pinkyAI = useGhostAI({
     ghostId: 'pinky',
     ...ghostAIConfig,
-    speed: powerPelletSystem.powerMode.isActive ? 400 : 200, // Dynamic speed
+    speed: powerPelletSystem.powerMode.isActive ? 450 : 200, // Moderately slow during power mode
     initialPosition: GHOST_CONFIGS[1].initialPosition,
     initialDirection: GHOST_CONFIGS[1].initialDirection,
     personality: GHOST_CONFIGS[1].personality,
@@ -197,7 +198,7 @@ function App() {
   const inkyAI = useGhostAI({
     ghostId: 'inky',
     ...ghostAIConfig,
-    speed: powerPelletSystem.powerMode.isActive ? 400 : 200, // Dynamic speed
+    speed: powerPelletSystem.powerMode.isActive ? 450 : 200, // Moderately slow during power mode
     initialPosition: GHOST_CONFIGS[2].initialPosition,
     initialDirection: GHOST_CONFIGS[2].initialDirection,
     personality: GHOST_CONFIGS[2].personality,
@@ -209,7 +210,7 @@ function App() {
   const clydeAI = useGhostAI({
     ghostId: 'clyde',
     ...ghostAIConfig,
-    speed: powerPelletSystem.powerMode.isActive ? 400 : 200, // Dynamic speed
+    speed: powerPelletSystem.powerMode.isActive ? 450 : 200, // Moderately slow during power mode
     initialPosition: GHOST_CONFIGS[3].initialPosition,
     initialDirection: GHOST_CONFIGS[3].initialDirection,
     personality: GHOST_CONFIGS[3].personality,
@@ -273,6 +274,11 @@ function App() {
               // Reset positions but continue game
               resetMovement();
               ghostAIs.forEach((ai) => ai.resetAI());
+              // Restart movement after a brief delay
+              setTimeout(() => {
+                startMoving();
+                ghostAIs.forEach((ai) => ai.startAI());
+              }, 500);
             }
             return newLives;
           });
@@ -365,31 +371,71 @@ function App() {
   };
 
   const handleRestart = () => {
-    // Reset all game state
+    console.log('🔄 Starting game restart...');
+    
+    // 1. Reset all game state
     setScore(0);
     setLives(3);
     setGameStatus('playing');
     setIsEating(false);
+    
+    console.log('🔄 Game state reset');
 
-    // Reset movement
+    // 2. Stop all movement first
+    stopMoving();
+    ghostAIs.forEach((ai) => ai.stopAI());
+    
+    console.log('🔄 Movement stopped');
+
+    // 3. Reset movement to initial positions
     resetMovement();
+    
+    console.log('🔄 Pacman position reset');
 
-    // Reset power system
-    powerPelletSystem.resetPowerSystem();
-
-    // Reset ghost AIs
+    // 4. Reset ghost AIs to initial positions
     ghostAIs.forEach((ai) => ai.resetAI());
+    
+    // 5. Reset ghost states to initial configuration
+    const resetGhosts: GhostState[] = GHOST_CONFIGS.map((config) => ({
+      id: config.id,
+      x: config.initialPosition.x,
+      y: config.initialPosition.y,
+      direction: config.initialDirection,
+      color: config.color,
+      isVulnerable: false,
+      isFlashing: false,
+    }));
+    setGhosts(resetGhosts);
+    
+    console.log('🔄 Ghost states reset');
 
-    // Reset collectibles
-    // Note: You may need to implement reset methods in useCollectibles hook
+    // 6. Reset power system
+    powerPelletSystem.resetPowerSystem();
+    
+    console.log('🔄 Power system reset');
 
-    // Clear eating timeout
+    // 7. Reset all collectibles to initial state
+    const freshDots = generateInitialDots(sampleMaze);
+    const freshPowerPellets = generateInitialPowerPellets();
+    resetCollectibles(freshDots, freshPowerPellets);
+    
+    console.log('🔄 Collectibles reset - Dots:', freshDots.size, 'Power Pellets:', freshPowerPellets.size);
+
+    // 8. Clear eating timeout
     if (eatingTimeoutRef.current) {
       clearTimeout(eatingTimeoutRef.current);
       eatingTimeoutRef.current = null;
     }
-
-    console.log('Game restarted');
+    
+    // 9. Start all movement again (after a small delay to ensure reset is complete)
+    setTimeout(() => {
+      console.log('🔄 Restarting all movement...');
+      startMoving(); // Start Pacman movement
+      ghostAIs.forEach((ai) => ai.startAI()); // Start ghost AIs
+      console.log('🔄 All AIs restarted!');
+    }, 100);
+    
+    console.log('🔄 Game restart complete!');
   };
 
   return (
