@@ -1,0 +1,288 @@
+/* GameControls Component Styles */
+.gameControls {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid #ffff00;
+  border-radius: 8px;
+  color: #ffff00;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  outline: none;
+  user-select: none;
+}
+
+.gameControls:focus {
+  border-color: #ffaa00;
+  box-shadow: 0 0 8px rgba(255, 170, 0, 0.5);
+}
+
+.gameControls.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Direction Controls */
+.directionControls {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+}
+
+.directionRow {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.directionButton {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #333 0%, #555 100%);
+  border: 2px solid #ffff00;
+  border-radius: 8px;
+  color: #ffff00;
+  font-size: 1.5em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-shadow: 0 0 4px rgba(255, 255, 0, 0.6);
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.3),
+    inset 0 0 8px rgba(255, 255, 0, 0.1);
+}
+
+.directionButton:hover {
+  background: linear-gradient(135deg, #444 0%, #666 100%);
+  border-color: #ffaa00;
+  transform: scale(1.05);
+  box-shadow: 
+    0 4px 8px rgba(0, 0, 0, 0.4),
+    inset 0 0 12px rgba(255, 170, 0, 0.2);
+}
+
+.directionButton:active,
+.directionButton.pressed {
+  background: linear-gradient(135deg, #ffaa00 0%, #ff8800 100%);
+  color: #000;
+  transform: scale(0.95);
+  text-shadow: none;
+  box-shadow: 
+    inset 0 2px 4px rgba(0, 0, 0, 0.3),
+    0 0 8px rgba(255, 170, 0, 0.6);
+}
+
+.directionButton:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.directionButton.up {
+  /* Special styling for up button if needed */
+}
+
+.directionButton.down {
+  /* Special styling for down button if needed */
+}
+
+.directionButton.left {
+  /* Special styling for left button if needed */
+}
+
+.directionButton.right {
+  /* Special styling for right button if needed */
+}
+
+/* Action Controls */
+.actionControls {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.actionButton {
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #0066cc 0%, #004499 100%);
+  border: 2px solid #0088ff;
+  border-radius: 6px;
+  color: #ffffff;
+  font-size: 0.9em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  outline: none;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 4px rgba(0, 136, 255, 0.6);
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.3),
+    inset 0 0 8px rgba(0, 136, 255, 0.1);
+  min-width: 80px;
+}
+
+.actionButton:hover {
+  background: linear-gradient(135deg, #0077dd 0%, #0055aa 100%);
+  border-color: #00aaff;
+  transform: translateY(-1px);
+  box-shadow: 
+    0 4px 8px rgba(0, 0, 0, 0.4),
+    inset 0 0 12px rgba(0, 170, 255, 0.2);
+}
+
+.actionButton:active,
+.actionButton.pressed {
+  transform: translateY(0);
+  box-shadow: 
+    inset 0 2px 4px rgba(0, 0, 0, 0.3),
+    0 0 8px rgba(0, 136, 255, 0.6);
+}
+
+.actionButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.actionButton.start {
+  background: linear-gradient(135deg, #00cc00 0%, #008800 100%);
+  border-color: #00ff00;
+  text-shadow: 0 0 4px rgba(0, 255, 0, 0.6);
+}
+
+.actionButton.start:hover {
+  background: linear-gradient(135deg, #00dd00 0%, #009900 100%);
+  border-color: #00ff44;
+}
+
+.actionButton.pause {
+  background: linear-gradient(135deg, #ff8800 0%, #cc6600 100%);
+  border-color: #ffaa00;
+  text-shadow: 0 0 4px rgba(255, 170, 0, 0.6);
+}
+
+.actionButton.pause:hover {
+  background: linear-gradient(135deg, #ff9900 0%, #dd7700 100%);
+  border-color: #ffcc00;
+}
+
+.actionButton.restart {
+  background: linear-gradient(135deg, #cc0000 0%, #880000 100%);
+  border-color: #ff4444;
+  text-shadow: 0 0 4px rgba(255, 68, 68, 0.6);
+}
+
+.actionButton.restart:hover {
+  background: linear-gradient(135deg, #dd0000 0%, #990000 100%);
+  border-color: #ff6666;
+}
+
+/* Control Hints */
+.controlHints {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 4px;
+  font-size: 0.8em;
+  opacity: 0.8;
+}
+
+.hintSection {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.hintLabel {
+  color: #ffff00;
+  font-weight: bold;
+}
+
+.hintKeys {
+  color: #cccccc;
+  font-style: italic;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .gameControls {
+    padding: 12px;
+    gap: 12px;
+  }
+  
+  .directionButton {
+    width: 44px;
+    height: 44px;
+    font-size: 1.3em;
+  }
+  
+  .actionButton {
+    padding: 6px 12px;
+    font-size: 0.8em;
+    min-width: 70px;
+  }
+  
+  .controlHints {
+    font-size: 0.7em;
+    padding: 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  .gameControls {
+    padding: 8px;
+    gap: 8px;
+  }
+  
+  .directionButton {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2em;
+  }
+  
+  .actionButton {
+    padding: 5px 10px;
+    font-size: 0.7em;
+    min-width: 60px;
+  }
+  
+  .controlHints {
+    font-size: 0.6em;
+    gap: 2px;
+  }
+  
+  .hintSection {
+    flex-direction: column;
+    gap: 2px;
+    text-align: center;
+  }
+}
+
+/* Animation for pressed state feedback */
+@keyframes buttonPress {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.directionButton.pressed,
+.actionButton.pressed {
+  animation: buttonPress 0.1s ease;
+}

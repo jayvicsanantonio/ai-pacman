@@ -1,0 +1,541 @@
+/* GameUI Component Styles */
+.gameUI {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 100;
+  font-family: 'Courier New', monospace;
+}
+
+.gameUI > * {
+  pointer-events: auto;
+}
+
+/* Layout Styles */
+.gameUI.top {
+  display: flex;
+  flex-direction: column;
+}
+
+.gameUI.bottom {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.gameUI.sides {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.gameUI.overlay {
+  display: flex;
+  flex-direction: column;
+}
+
+.gameUI.compact {
+  font-size: 0.9em;
+}
+
+/* Section Layouts */
+.topSection {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 110;
+}
+
+.bottomSection {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 110;
+}
+
+.leftSection {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 110;
+}
+
+.rightSection {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 110;
+}
+
+/* Component Positioning */
+.topScoreBoard,
+.sideScoreBoard {
+  margin: 0;
+}
+
+.bottomGameStatus,
+.sideGameStatus,
+.centerGameStatus {
+  margin: 0;
+}
+
+/* Center Overlay */
+.centerOverlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 200;
+}
+
+/* Power Mode Overlay */
+.powerModeOverlay {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 150;
+}
+
+.powerModeIndicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #ff8800 0%, #ffaa00 50%, #ff8800 100%);
+  border: 3px solid #ffcc00;
+  border-radius: 15px;
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(255, 204, 0, 0.9);
+  box-shadow: 
+    0 0 20px rgba(255, 136, 0, 0.7),
+    inset 0 0 15px rgba(255, 204, 0, 0.3);
+  animation: powerModeGlow 0.8s ease-in-out infinite alternate;
+}
+
+.powerModeText {
+  font-size: 1.2em;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.powerModeTimer {
+  width: 200px;
+  height: 12px;
+  background: rgba(255, 136, 0, 0.3);
+  border: 1px solid #ffcc00;
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+}
+
+.powerModeBar {
+  height: 100%;
+  background: linear-gradient(90deg, #ffcc00 0%, #ffff00 50%, #ffcc00 100%);
+  transition: width 0.1s linear;
+  border-radius: 6px;
+  animation: powerModeBarGlow 0.5s ease-in-out infinite alternate;
+}
+
+.ghostsEatenText {
+  font-size: 0.9em;
+  font-weight: bold;
+}
+
+/* Game Over Overlay */
+.gameOverOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+  animation: overlayFadeIn 0.5s ease-out;
+}
+
+.gameOverContent {
+  text-align: center;
+  padding: 40px;
+  background: linear-gradient(135deg, #1a1a1a 0%, #000 100%);
+  border: 3px solid #ff4444;
+  border-radius: 20px;
+  color: #ffffff;
+  box-shadow: 
+    0 0 30px rgba(255, 68, 68, 0.6),
+    inset 0 0 20px rgba(255, 68, 68, 0.1);
+}
+
+.gameOverTitle {
+  font-size: 3em;
+  color: #ff4444;
+  margin-bottom: 20px;
+  text-shadow: 0 0 20px #ff4444;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  animation: gameOverPulse 2s ease-in-out infinite;
+}
+
+/* Victory Overlay */
+.victoryOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+  animation: overlayFadeIn 0.5s ease-out;
+}
+
+.victoryContent {
+  text-align: center;
+  padding: 40px;
+  background: linear-gradient(135deg, #1a2a1a 0%, #001100 100%);
+  border: 3px solid #00ff00;
+  border-radius: 20px;
+  color: #ffffff;
+  box-shadow: 
+    0 0 30px rgba(0, 255, 0, 0.6),
+    inset 0 0 20px rgba(0, 255, 0, 0.1);
+}
+
+.victoryTitle {
+  font-size: 3em;
+  color: #00ff00;
+  margin-bottom: 20px;
+  text-shadow: 0 0 20px #00ff00;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  animation: victoryPulse 2s ease-in-out infinite;
+}
+
+.victoryMessage {
+  font-size: 1.2em;
+  margin-bottom: 20px;
+  color: #ccffcc;
+}
+
+/* Pause Overlay */
+.pauseOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+  animation: overlayFadeIn 0.3s ease-out;
+}
+
+.pauseContent {
+  text-align: center;
+  padding: 40px;
+  background: linear-gradient(135deg, #2a2a1a 0%, #111100 100%);
+  border: 3px solid #ffaa00;
+  border-radius: 20px;
+  color: #ffffff;
+  box-shadow: 
+    0 0 30px rgba(255, 170, 0, 0.6),
+    inset 0 0 20px rgba(255, 170, 0, 0.1);
+}
+
+.pauseTitle {
+  font-size: 2.5em;
+  color: #ffaa00;
+  margin-bottom: 20px;
+  text-shadow: 0 0 20px #ffaa00;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.pauseIcon {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.pauseBar {
+  width: 12px;
+  height: 40px;
+  background: #ffaa00;
+  border-radius: 6px;
+  animation: pauseBlink 1s ease-in-out infinite alternate;
+  box-shadow: 0 0 10px rgba(255, 170, 0, 0.6);
+}
+
+/* Final Stats */
+.finalStats {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 20px 0;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.statItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.1em;
+}
+
+.statLabel {
+  color: #cccccc;
+}
+
+.statValue {
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 1.2em;
+}
+
+.newHighScore {
+  color: #ffff00;
+  font-weight: bold;
+  font-size: 1.3em;
+  text-shadow: 0 0 10px #ffff00;
+  animation: highScoreGlow 1.5s ease-in-out infinite alternate;
+}
+
+/* Action Hints */
+.gameOverActions,
+.victoryActions,
+.pauseActions {
+  margin-top: 20px;
+}
+
+.actionHint {
+  color: #cccccc;
+  font-size: 1.1em;
+  padding: 10px 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  animation: hintPulse 2s ease-in-out infinite;
+}
+
+/* Animations */
+@keyframes overlayFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes gameOverPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+}
+
+@keyframes victoryPulse {
+  0%, 100% {
+    transform: scale(1);
+    text-shadow: 0 0 20px #00ff00;
+  }
+  50% {
+    transform: scale(1.1);
+    text-shadow: 0 0 30px #00ff00;
+  }
+}
+
+@keyframes powerModeGlow {
+  from {
+    box-shadow: 
+      0 0 20px rgba(255, 136, 0, 0.7),
+      inset 0 0 15px rgba(255, 204, 0, 0.3);
+  }
+  to {
+    box-shadow: 
+      0 0 30px rgba(255, 136, 0, 0.9),
+      inset 0 0 25px rgba(255, 204, 0, 0.5);
+  }
+}
+
+@keyframes powerModeBarGlow {
+  from {
+    box-shadow: 0 0 5px rgba(255, 255, 0, 0.6);
+  }
+  to {
+    box-shadow: 0 0 15px rgba(255, 255, 0, 0.9);
+  }
+}
+
+@keyframes pauseBlink {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.4;
+  }
+}
+
+@keyframes highScoreGlow {
+  from {
+    text-shadow: 0 0 10px #ffff00;
+  }
+  to {
+    text-shadow: 0 0 20px #ffff00, 0 0 30px #ffff00;
+  }
+}
+
+@keyframes hintPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .topSection,
+  .bottomSection {
+    left: 16px;
+    right: 16px;
+    transform: none;
+  }
+  
+  .gameOverContent,
+  .victoryContent,
+  .pauseContent {
+    padding: 30px 20px;
+    margin: 20px;
+    max-width: 90vw;
+  }
+  
+  .gameOverTitle,
+  .victoryTitle {
+    font-size: 2.5em;
+  }
+  
+  .pauseTitle {
+    font-size: 2em;
+  }
+  
+  .powerModeIndicator {
+    padding: 10px 16px;
+  }
+  
+  .powerModeText {
+    font-size: 1em;
+  }
+  
+  .powerModeTimer {
+    width: 150px;
+    height: 10px;
+  }
+  
+  .finalStats {
+    padding: 15px;
+  }
+  
+  .statItem {
+    font-size: 1em;
+  }
+  
+  .statValue {
+    font-size: 1.1em;
+  }
+  
+  .newHighScore {
+    font-size: 1.2em;
+  }
+}
+
+@media (max-width: 480px) {
+  .topSection,
+  .bottomSection,
+  .leftSection,
+  .rightSection {
+    position: relative;
+    left: auto;
+    right: auto;
+    top: auto;
+    bottom: auto;
+    transform: none;
+    margin: 8px;
+  }
+  
+  .gameOverContent,
+  .victoryContent,
+  .pauseContent {
+    padding: 20px 15px;
+    margin: 10px;
+  }
+  
+  .gameOverTitle,
+  .victoryTitle {
+    font-size: 2em;
+  }
+  
+  .pauseTitle {
+    font-size: 1.8em;
+  }
+  
+  .powerModeIndicator {
+    padding: 8px 12px;
+  }
+  
+  .powerModeText {
+    font-size: 0.9em;
+  }
+  
+  .powerModeTimer {
+    width: 120px;
+    height: 8px;
+  }
+  
+  .pauseBar {
+    width: 8px;
+    height: 30px;
+  }
+  
+  .finalStats {
+    padding: 10px;
+    gap: 8px;
+  }
+  
+  .statItem {
+    font-size: 0.9em;
+    flex-direction: column;
+    gap: 4px;
+    text-align: center;
+  }
+  
+  .actionHint {
+    font-size: 1em;
+    padding: 8px 15px;
+  }
+}

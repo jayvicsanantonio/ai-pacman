@@ -1,0 +1,239 @@
+/* ScoreBoard Component Styles */
+.scoreBoard {
+  display: flex;
+  padding: 16px;
+  background: linear-gradient(135deg, #000 0%, #111 100%);
+  border: 2px solid #ffff00;
+  border-radius: 8px;
+  color: #ffff00;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  text-shadow: 0 0 4px #ffff00;
+  box-shadow: 
+    0 0 10px rgba(255, 255, 0, 0.3),
+    inset 0 0 10px rgba(255, 255, 0, 0.1);
+  min-width: 200px;
+}
+
+.scoreBoard.horizontal {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 24px;
+  align-items: center;
+}
+
+.scoreBoard.vertical {
+  flex-direction: column;
+  gap: 16px;
+  align-items: stretch;
+}
+
+.scoreBoard.compact {
+  padding: 8px;
+  gap: 12px;
+  font-size: 0.9em;
+}
+
+/* Section Styles */
+.scoreSection,
+.livesSection,
+.roundSection,
+.timeSection,
+.powerModeSection {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.horizontal .scoreSection,
+.horizontal .livesSection,
+.horizontal .roundSection,
+.horizontal .timeSection,
+.horizontal .powerModeSection {
+  align-items: center;
+}
+
+.vertical .scoreSection,
+.vertical .livesSection,
+.vertical .roundSection,
+.vertical .timeSection,
+.vertical .powerModeSection {
+  align-items: flex-start;
+}
+
+/* Score Section */
+.scoreItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.horizontal .scoreSection {
+  flex-direction: row;
+  gap: 16px;
+}
+
+/* Lives Section */
+.livesDisplay {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  min-height: 20px;
+}
+
+.life {
+  width: 16px;
+  height: 16px;
+  background: #ffff00;
+  border-radius: 50%;
+  position: relative;
+  box-shadow: 0 0 4px rgba(255, 255, 0, 0.6);
+}
+
+.life::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: 2px;
+  bottom: 2px;
+  background: #fff700;
+  border-radius: 50%;
+}
+
+.noLives {
+  color: #ff4444;
+  font-size: 0.9em;
+  text-shadow: 0 0 4px #ff4444;
+  animation: pulse 1s ease-in-out infinite alternate;
+}
+
+/* Power Mode Section */
+.powerModeSection {
+  border: 1px solid #ff8800;
+  border-radius: 4px;
+  padding: 8px;
+  background: rgba(255, 136, 0, 0.1);
+  min-width: 120px;
+}
+
+.powerModeIndicator {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.powerModeTimer {
+  position: relative;
+  height: 20px;
+  background: rgba(255, 136, 0, 0.2);
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #ff8800;
+}
+
+.powerModeBar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: linear-gradient(90deg, #ff8800 0%, #ffaa00 50%, #ff8800 100%);
+  transition: width 0.1s ease-out;
+  border-radius: 10px;
+  animation: powerModeGlow 0.8s ease-in-out infinite alternate;
+}
+
+.powerModeTime {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.8em;
+  color: #fff;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  z-index: 1;
+}
+
+.ghostsEaten {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+  font-size: 0.9em;
+}
+
+/* Labels and Values */
+.label {
+  font-size: 0.85em;
+  opacity: 0.8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.value {
+  font-size: 1.1em;
+  font-weight: bold;
+}
+
+/* Animations */
+@keyframes pulse {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0.6;
+    transform: scale(0.95);
+  }
+}
+
+@keyframes powerModeGlow {
+  from {
+    box-shadow: 0 0 5px rgba(255, 136, 0, 0.6);
+  }
+  to {
+    box-shadow: 0 0 15px rgba(255, 136, 0, 0.9);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .scoreBoard.horizontal {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+  
+  .scoreBoard {
+    font-size: 0.9em;
+    padding: 12px;
+  }
+  
+  .horizontal .scoreSection {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .life {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .scoreBoard {
+    font-size: 0.8em;
+    padding: 8px;
+    border-width: 1px;
+  }
+  
+  .life {
+    width: 12px;
+    height: 12px;
+  }
+  
+  .powerModeTimer {
+    height: 16px;
+  }
+}
